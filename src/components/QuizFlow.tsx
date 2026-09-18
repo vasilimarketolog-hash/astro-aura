@@ -23,6 +23,19 @@ import { calculateNatalChart, calculateSynastry, calculateHumanDesign } from '@/
 import { getTranslation } from '@/lib/translations';
 import { getWizardState, saveWizardState } from '@/lib/storage';
 
+const NAME_REGEX = /^[a-zA-Zа-яА-ЯёЁ\s\-]{2,}$/;
+
+function isValidBirthDate(d?: number, m?: number, y?: number): boolean {
+  if (!d || !m || !y) return false;
+  if (y < 1900 || y > 2026) return false;
+  const dateObj = new Date(y, m - 1, d);
+  return (
+    dateObj.getFullYear() === y &&
+    dateObj.getMonth() === m - 1 &&
+    dateObj.getDate() === d
+  );
+}
+
 interface QuizFlowProps {
   locale: Locale;
   step?: number;
@@ -274,7 +287,145 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
     }
   }, [step]);
 
+  // Validation State & Helpers
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [attemptedNext, setAttemptedNext] = useState(false);
+
+  const markTouched = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  useEffect(() => {
+    setAttemptedNext(false);
+  }, [step]);
+
+  // Step 1 Validation
+  const isStep1Valid = Boolean(calcType && ['all', 'synastry', 'humandesign'].includes(calcType));
+
+  // Step 2 Validation (First Name, Last Name, Gender)
+  const firstNameTrimmed = firstName.trim();
+  const lastNameTrimmed = lastName.trim();
+
+  let firstNameError: string | null = null;
+  if (touched.firstName || attemptedNext) {
+    if (!firstNameTrimmed) {
+      firstNameError = t.valFirstNameRequired;
+    } else if (!NAME_REGEX.test(firstNameTrimmed) || firstNameTrimmed.length < 2) {
+      firstNameError = t.valFirstNameInvalid;
+    }
+  }
+
+  let lastNameError: string | null = null;
+  if ((touched.lastName || attemptedNext) && lastNameTrimmed) {
+    if (!NAME_REGEX.test(lastNameTrimmed) || lastNameTrimmed.length < 2) {
+      lastNameError = t.valLastNameInvalid;
+    }
+  }
+
+  const isStep2Valid =
+    firstNameTrimmed.length >= 2 &&
+    NAME_REGEX.test(firstNameTrimmed) &&
+    (!lastNameTrimmed || (lastNameTrimmed.length >= 2 && NAME_REGEX.test(lastNameTrimmed))) &&
+    Boolean(gender);
+
+  // Step 3 Validation (Date of Birth)
+  const isDateValid = isValidBirthDate(day, month, year);
+  let dateError: string | null = null;
+  if ((touched.day || touched.month || touched.year || attemptedNext) && !isDateValid) {
+    dateError = t.valDateInvalid;
+  }
+  const isStep3Valid = isDateValid;
+
+  // Step 4 Validation (Exact Birth Time)
+  const isTimeValid =
+    unknownTime ||
+    (hour !== undefined && hour >= 0 && hour <= 23 && minute !== undefined && minute >= 0 && minute <= 59);
+  let timeError: string | null = null;
+  if ((touched.time || attemptedNext) && !isTimeValid) {
+    timeError = t.valTimeRequired;
+  }
+  const isStep4Valid = isTimeValid;
+
+  // Step 5 Validation (City)
+  const isCityValid = Boolean(
+    selectedCity && selectedCity.name && selectedCity.latitude !== undefined && selectedCity.longitude !== undefined
+  );
+  let cityError: string | null = null;
+  if ((touched.city || attemptedNext) && !isCityValid) {
+    cityError = t.valCityRequired;
+  }
+  const isStep5Valid = isCityValid;
+
+  // Step 6 Validation (Partner Data for Synastry)
+  const p2NameTrimmed = p2Name.trim();
+  const p2LastNameTrimmed = p2LastName.trim();
+
+  let p2NameError: string | null = null;
+  if (touched.p2Name || attemptedNext) {
+    if (!p2NameTrimmed) {
+      p2NameError = t.valP2NameRequired;
+    } else if (!NAME_REGEX.test(p2NameTrimmed) || p2NameTrimmed.length < 2) {
+      p2NameError = t.valP2NameInvalid;
+    }
+  }
+
+  let p2LastNameError: string | null = null;
+  if ((touched.p2LastName || attemptedNext) && p2LastNameTrimmed) {
+    if (!NAME_REGEX.test(p2LastNameTrimmed) || p2LastNameTrimmed.length < 2) {
+      p2LastNameError = t.valLastNameInvalid;
+    }
+  }
+
+  const isP2DateValid = isValidBirthDate(p2Day, p2Month, p2Year);
+  let p2DateError: string | null = null;
+  if ((touched.p2Day || touched.p2Month || touched.p2Year || attemptedNext) && !isP2DateValid) {
+    p2DateError = t.valP2DateInvalid;
+  }
+
+  const isP2TimeValid =
+    p2UnknownTime ||
+    (p2Hour !== undefined && p2Hour >= 0 && p2Hour <= 23 && p2Minute !== undefined && p2Minute >= 0 && p2Minute <= 59);
+
+  const isP2CityValid = Boolean(
+    p2SelectedCity && p2SelectedCity.name && p2SelectedCity.latitude !== undefined
+  );
+  let p2CityError: string | null = null;
+  if ((touched.p2City || attemptedNext) && !isP2CityValid) {
+    p2CityError = t.valP2CityRequired;
+  }
+
+  const isStep6Valid =
+    p2NameTrimmed.length >= 2 &&
+    NAME_REGEX.test(p2NameTrimmed) &&
+    (!p2LastNameTrimmed || (p2LastNameTrimmed.length >= 2 && NAME_REGEX.test(p2LastNameTrimmed))) &&
+    isP2DateValid &&
+    isP2TimeValid &&
+    isP2CityValid;
+
+  const isCurrentStepValid = (): boolean => {
+    if (step === 1) return isStep1Valid;
+    if (step === 2) return isStep2Valid;
+    if (step === 3) return isStep3Valid;
+    if (step === 4) return isStep4Valid;
+    if (step === 5) return isStep5Valid;
+    if (step === 6) return isStep6Valid;
+    return true;
+  };
+  const stepValid = isCurrentStepValid();
+
   const handleNext = () => {
+    setAttemptedNext(true);
+    if (!stepValid) {
+      setTimeout(() => {
+        const invalidEl = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+        if (invalidEl) {
+          invalidEl.focus();
+        }
+      }, 50);
+      return;
+    }
+
+    setAttemptedNext(false);
     let nextStep = step + 1;
     if (step === 5 && calcType !== 'synastry') {
       nextStep = 99;
@@ -412,8 +563,14 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
           </div>
 
           <button
+            type="button"
             onClick={handleNext}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black hover:to-stone-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 cursor-pointer"
+            aria-disabled={!isStep1Valid}
+            className={`w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 ${
+              !isStep1Valid
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:from-black hover:to-stone-900 cursor-pointer'
+            }`}
           >
             <span>{t.continue}</span>
             <ArrowRight className="w-5 h-5" />
@@ -436,36 +593,66 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
           <div className="space-y-5 mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-2 uppercase tracking-wider">
-                  {t.firstNameLabel}
+                <label htmlFor="first-name-input" className="block text-xs font-bold text-stone-700 mb-2 uppercase tracking-wider">
+                  {t.firstNameLabel} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="first-name-input"
                   type="text"
+                  required
+                  aria-required="true"
+                  aria-invalid={Boolean(firstNameError)}
+                  aria-describedby={firstNameError ? 'first-name-error' : undefined}
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
+                  onBlur={() => markTouched('firstName')}
                   placeholder={t.firstNamePlaceholder}
-                  className="w-full px-4 py-3.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-amber-500 focus:bg-white transition-colors"
+                  className={`w-full px-4 py-3.5 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none transition-colors ${
+                    firstNameError
+                      ? 'border-red-400 focus:border-red-500 bg-red-50/20'
+                      : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
+                  }`}
                   autoFocus
                 />
+                {firstNameError && (
+                  <p id="first-name-error" role="alert" className="text-xs text-red-500 mt-1.5 flex items-center gap-1 font-medium">
+                    <span>⚠️</span>
+                    <span>{firstNameError}</span>
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-2 uppercase tracking-wider">
+                <label htmlFor="last-name-input" className="block text-xs font-bold text-stone-700 mb-2 uppercase tracking-wider">
                   {t.lastNameLabel}
                 </label>
                 <input
+                  id="last-name-input"
                   type="text"
+                  aria-invalid={Boolean(lastNameError)}
+                  aria-describedby={lastNameError ? 'last-name-error' : undefined}
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                  onBlur={() => markTouched('lastName')}
                   placeholder={t.lastNamePlaceholder}
-                  className="w-full px-4 py-3.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-amber-500 focus:bg-white transition-colors"
+                  className={`w-full px-4 py-3.5 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none transition-colors ${
+                    lastNameError
+                      ? 'border-red-400 focus:border-red-500 bg-red-50/20'
+                      : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
+                  }`}
                 />
+                {lastNameError && (
+                  <p id="last-name-error" role="alert" className="text-xs text-red-500 mt-1.5 flex items-center gap-1 font-medium">
+                    <span>⚠️</span>
+                    <span>{lastNameError}</span>
+                  </p>
+                )}
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-2 uppercase tracking-wider">
-                {t.genderLabel}
+                {t.genderLabel} <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {[
@@ -490,8 +677,14 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
           </div>
 
           <button
+            type="button"
             onClick={handleNext}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black hover:to-stone-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 cursor-pointer"
+            aria-disabled={!isStep2Valid}
+            className={`w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 ${
+              !isStep2Valid
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:from-black hover:to-stone-900 cursor-pointer'
+            }`}
           >
             <span>{t.next}</span>
             <ArrowRight className="w-5 h-5" />
@@ -511,13 +704,27 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 mb-8">
+          <div className="grid grid-cols-3 gap-3 mb-2">
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">{t.dayLabel}</label>
+              <label htmlFor="birth-day-select" className="block text-xs font-bold text-stone-700 mb-1.5">
+                {t.dayLabel} <span className="text-red-500">*</span>
+              </label>
               <select
+                id="birth-day-select"
+                aria-required="true"
+                aria-invalid={Boolean(dateError)}
+                aria-describedby={dateError ? 'birth-date-error' : undefined}
                 value={day}
-                onChange={(e) => setDay(Number(e.target.value))}
-                className="w-full px-3 py-3 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium"
+                onChange={(e) => {
+                  setDay(Number(e.target.value));
+                  markTouched('day');
+                }}
+                onBlur={() => markTouched('day')}
+                className={`w-full px-3 py-3 rounded-xl border text-stone-900 focus:outline-none font-medium transition-colors ${
+                  dateError
+                    ? 'border-red-400 focus:border-red-500 bg-red-50/20'
+                    : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
+                }`}
               >
                 {[...Array(31)].map((_, i) => (
                   <option key={i + 1} value={i + 1}>
@@ -528,11 +735,25 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">{t.monthLabel}</label>
+              <label htmlFor="birth-month-select" className="block text-xs font-bold text-stone-700 mb-1.5">
+                {t.monthLabel} <span className="text-red-500">*</span>
+              </label>
               <select
+                id="birth-month-select"
+                aria-required="true"
+                aria-invalid={Boolean(dateError)}
+                aria-describedby={dateError ? 'birth-date-error' : undefined}
                 value={month}
-                onChange={(e) => setMonth(Number(e.target.value))}
-                className="w-full px-3 py-3 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium"
+                onChange={(e) => {
+                  setMonth(Number(e.target.value));
+                  markTouched('month');
+                }}
+                onBlur={() => markTouched('month')}
+                className={`w-full px-3 py-3 rounded-xl border text-stone-900 focus:outline-none font-medium transition-colors ${
+                  dateError
+                    ? 'border-red-400 focus:border-red-500 bg-red-50/20'
+                    : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
+                }`}
               >
                 {months.map((m, i) => (
                   <option key={i + 1} value={i + 1}>
@@ -543,11 +764,25 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">{t.yearLabel}</label>
+              <label htmlFor="birth-year-select" className="block text-xs font-bold text-stone-700 mb-1.5">
+                {t.yearLabel} <span className="text-red-500">*</span>
+              </label>
               <select
+                id="birth-year-select"
+                aria-required="true"
+                aria-invalid={Boolean(dateError)}
+                aria-describedby={dateError ? 'birth-date-error' : undefined}
                 value={year}
-                onChange={(e) => setYear(Number(e.target.value))}
-                className="w-full px-3 py-3 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium"
+                onChange={(e) => {
+                  setYear(Number(e.target.value));
+                  markTouched('year');
+                }}
+                onBlur={() => markTouched('year')}
+                className={`w-full px-3 py-3 rounded-xl border text-stone-900 focus:outline-none font-medium transition-colors ${
+                  dateError
+                    ? 'border-red-400 focus:border-red-500 bg-red-50/20'
+                    : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
+                }`}
               >
                 {Array.from({ length: 85 }, (_, i) => 2015 - i).map((y) => (
                   <option key={y} value={y}>
@@ -558,9 +793,23 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
             </div>
           </div>
 
+          {dateError && (
+            <p id="birth-date-error" role="alert" className="text-xs text-red-500 mb-6 flex items-center gap-1 font-medium">
+              <span>⚠️</span>
+              <span>{dateError}</span>
+            </p>
+          )}
+          {!dateError && <div className="mb-6" />}
+
           <button
+            type="button"
             onClick={handleNext}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black hover:to-stone-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 cursor-pointer"
+            aria-disabled={!isStep3Valid}
+            className={`w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 ${
+              !isStep3Valid
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:from-black hover:to-stone-900 cursor-pointer'
+            }`}
           >
             <span>{t.next}</span>
             <ArrowRight className="w-5 h-5" />
@@ -581,13 +830,22 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
           </div>
 
           {!unknownTime ? (
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5">{t.hoursLabel}</label>
+                <label htmlFor="birth-hour-select" className="block text-xs font-bold text-stone-700 mb-1.5">{t.hoursLabel}</label>
                 <select
+                  id="birth-hour-select"
+                  aria-invalid={Boolean(timeError)}
+                  aria-describedby={timeError ? 'birth-time-error' : undefined}
                   value={hour}
-                  onChange={(e) => setHour(Number(e.target.value))}
-                  className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 focus:outline-none focus:border-amber-500 font-medium"
+                  onChange={(e) => {
+                    setHour(Number(e.target.value));
+                    markTouched('time');
+                  }}
+                  onBlur={() => markTouched('time')}
+                  className={`w-full px-4 py-3 rounded-xl border text-stone-900 focus:outline-none font-medium transition-colors ${
+                    timeError ? 'border-red-400 focus:border-red-500 bg-red-50/20' : 'bg-stone-50 border-stone-300 focus:border-amber-500'
+                  }`}
                 >
                   {[...Array(24)].map((_, i) => (
                     <option key={i} value={i}>
@@ -598,11 +856,20 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5">{t.minutesLabel}</label>
+                <label htmlFor="birth-minute-select" className="block text-xs font-bold text-stone-700 mb-1.5">{t.minutesLabel}</label>
                 <select
+                  id="birth-minute-select"
+                  aria-invalid={Boolean(timeError)}
+                  aria-describedby={timeError ? 'birth-time-error' : undefined}
                   value={minute}
-                  onChange={(e) => setMinute(Number(e.target.value))}
-                  className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 focus:outline-none focus:border-amber-500 font-medium"
+                  onChange={(e) => {
+                    setMinute(Number(e.target.value));
+                    markTouched('time');
+                  }}
+                  onBlur={() => markTouched('time')}
+                  className={`w-full px-4 py-3 rounded-xl border text-stone-900 focus:outline-none font-medium transition-colors ${
+                    timeError ? 'border-red-400 focus:border-red-500 bg-red-50/20' : 'bg-stone-50 border-stone-300 focus:border-amber-500'
+                  }`}
                 >
                   {[...Array(60)].map((_, i) => (
                     <option key={i} value={i}>
@@ -613,27 +880,51 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
               </div>
             </div>
           ) : (
-            <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-stone-700 text-xs mb-6 flex items-center space-x-3">
+            <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-stone-700 text-xs mb-4 flex items-center space-x-3">
               <HelpCircle className="w-5 h-5 text-amber-600 shrink-0" />
               <span>{t.unknownTimeNotice}</span>
             </div>
           )}
 
-          <div className="flex items-center space-x-3 mb-8 cursor-pointer" onClick={() => setUnknownTime(!unknownTime)}>
+          {timeError && (
+            <p id="birth-time-error" role="alert" className="text-xs text-red-500 mb-4 flex items-center gap-1 font-medium">
+              <span>⚠️</span>
+              <span>{timeError}</span>
+            </p>
+          )}
+
+          <div
+            className="flex items-center space-x-3 mb-8 cursor-pointer"
+            onClick={() => {
+              const nextVal = !unknownTime;
+              setUnknownTime(nextVal);
+              markTouched('time');
+            }}
+          >
             <input
+              id="unknown-time-checkbox"
               type="checkbox"
               checked={unknownTime}
-              onChange={(e) => setUnknownTime(e.target.checked)}
+              onChange={(e) => {
+                setUnknownTime(e.target.checked);
+                markTouched('time');
+              }}
               className="w-5 h-5 rounded border-stone-300 text-amber-600 focus:ring-amber-500 bg-stone-50 cursor-pointer"
             />
-            <label className="text-sm font-semibold text-stone-700 cursor-pointer">
+            <label htmlFor="unknown-time-checkbox" className="text-sm font-semibold text-stone-700 cursor-pointer">
               {t.unknownTimeCheck}
             </label>
           </div>
 
           <button
+            type="button"
             onClick={handleNext}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black hover:to-stone-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 cursor-pointer"
+            aria-disabled={!isStep4Valid}
+            className={`w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 ${
+              !isStep4Valid
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:from-black hover:to-stone-900 cursor-pointer'
+            }`}
           >
             <span>{t.next}</span>
             <ArrowRight className="w-5 h-5" />
@@ -657,19 +948,40 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
             <div className="relative">
               <Search className="absolute left-4 top-3.5 w-5 h-5 text-stone-400" />
               <input
+                id="birth-city-input"
                 type="text"
+                aria-required="true"
+                aria-invalid={Boolean(cityError)}
+                aria-describedby={cityError ? 'birth-city-error' : undefined}
                 value={citySearch}
-                onChange={(e) => setCitySearch(e.target.value)}
-                onBlur={() => handleCustomCityLookup(citySearch)}
+                onChange={(e) => {
+                  setCitySearch(e.target.value);
+                  markTouched('city');
+                }}
+                onBlur={() => {
+                  markTouched('city');
+                  handleCustomCityLookup(citySearch);
+                }}
                 placeholder={t.citySearchPlaceholder}
-                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-amber-500 focus:bg-white"
+                className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none transition-colors ${
+                  cityError
+                    ? 'border-red-400 focus:border-red-500 bg-red-50/20'
+                    : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
+                }`}
               />
             </div>
+
+            {cityError && (
+              <p id="birth-city-error" role="alert" className="text-xs text-red-500 flex items-center gap-1 font-medium">
+                <span>⚠️</span>
+                <span>{cityError}</span>
+              </p>
+            )}
 
             {/* City Suggestion List */}
             <div className="max-h-48 overflow-y-auto rounded-xl border border-stone-200 bg-stone-50 divide-y divide-stone-200">
               {filteredCities.map((city) => {
-                const isSelected = selectedCity.name === city.name;
+                const isSelected = selectedCity?.name === city.name;
                 const cName = locale === 'ru' ? city.name : city.nameEn;
                 const cCountry = locale === 'ru' ? city.country : city.countryEn;
 
@@ -679,6 +991,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     onClick={() => {
                       setSelectedCity(city);
                       setCitySearch(cName);
+                      markTouched('city');
                     }}
                     className={`px-4 py-2.5 flex items-center justify-between cursor-pointer transition-colors ${
                       isSelected ? 'bg-amber-100/70 text-amber-950 font-semibold' : 'hover:bg-stone-100 text-stone-700'
@@ -702,17 +1015,25 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
               </div>
             )}
 
-            <div className="text-xs text-stone-600 flex items-center space-x-1.5 pt-1">
-              <MapPin className="w-3.5 h-3.5 text-amber-600" />
-              <span>
-                {t.selectedCityText} <strong className="text-stone-900 font-bold">{cityNameDisplay}</strong> ({locale === 'ru' ? selectedCity.country : selectedCity.countryEn}, UTC+{selectedCity.timezoneOffset})
-              </span>
-            </div>
+            {selectedCity && selectedCity.name && (
+              <div className="text-xs text-stone-600 flex items-center space-x-1.5 pt-1">
+                <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                <span>
+                  {t.selectedCityText} <strong className="text-stone-900 font-bold">{cityNameDisplay}</strong> ({locale === 'ru' ? selectedCity.country : selectedCity.countryEn}, UTC+{selectedCity.timezoneOffset})
+                </span>
+              </div>
+            )}
           </div>
 
           <button
+            type="button"
             onClick={handleNext}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black hover:to-stone-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 cursor-pointer"
+            aria-disabled={!isStep5Valid}
+            className={`w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 ${
+              !isStep5Valid
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:from-black hover:to-stone-900 cursor-pointer'
+            }`}
           >
             <span>{calcType === 'synastry' ? (locale === 'ru' ? 'Ввести данные партнера' : 'Enter Partner Details') : (locale === 'ru' ? 'Рассчитать натальную карту' : 'Generate Natal Chart')}</span>
             <ArrowRight className="w-5 h-5" />
@@ -738,80 +1059,167 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
           <div className="space-y-4 mb-8">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1 uppercase tracking-wider">
-                  {t.partnerNameLabel}
+                <label htmlFor="p2-name-input" className="block text-xs font-bold text-stone-700 mb-1 uppercase tracking-wider">
+                  {t.partnerNameLabel} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="p2-name-input"
                   type="text"
+                  required
+                  aria-required="true"
+                  aria-invalid={Boolean(p2NameError)}
+                  aria-describedby={p2NameError ? 'p2-name-error' : undefined}
                   value={p2Name}
-                  onChange={(e) => setP2Name(e.target.value)}
-                  placeholder="Имя"
-                  className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-rose-500"
+                  onChange={(e) => {
+                    setP2Name(e.target.value);
+                    markTouched('p2Name');
+                  }}
+                  onBlur={() => markTouched('p2Name')}
+                  placeholder={locale === 'ru' ? 'Имя' : 'Name'}
+                  className={`w-full px-4 py-3 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none transition-colors ${
+                    p2NameError ? 'border-red-400 focus:border-rose-500 bg-red-50/20' : 'bg-stone-50 border-stone-300 focus:border-rose-500'
+                  }`}
                 />
+                {p2NameError && (
+                  <p id="p2-name-error" role="alert" className="text-xs text-red-500 mt-1 flex items-center gap-1 font-medium">
+                    <span>⚠️</span>
+                    <span>{p2NameError}</span>
+                  </p>
+                )}
               </div>
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1 uppercase tracking-wider">
-                  Фамилия
+                <label htmlFor="p2-last-name-input" className="block text-xs font-bold text-stone-700 mb-1 uppercase tracking-wider">
+                  {t.lastNameLabel}
                 </label>
                 <input
+                  id="p2-last-name-input"
                   type="text"
+                  aria-invalid={Boolean(p2LastNameError)}
+                  aria-describedby={p2LastNameError ? 'p2-last-name-error' : undefined}
                   value={p2LastName}
-                  onChange={(e) => setP2LastName(e.target.value)}
-                  placeholder="Фамилия"
-                  className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-rose-500"
+                  onChange={(e) => {
+                    setP2LastName(e.target.value);
+                    markTouched('p2LastName');
+                  }}
+                  onBlur={() => markTouched('p2LastName')}
+                  placeholder={t.lastNamePlaceholder}
+                  className={`w-full px-4 py-3 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none transition-colors ${
+                    p2LastNameError ? 'border-red-400 focus:border-rose-500 bg-red-50/20' : 'bg-stone-50 border-stone-300 focus:border-rose-500'
+                  }`}
                 />
+                {p2LastNameError && (
+                  <p id="p2-last-name-error" role="alert" className="text-xs text-red-500 mt-1 flex items-center gap-1 font-medium">
+                    <span>⚠️</span>
+                    <span>{p2LastNameError}</span>
+                  </p>
+                )}
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1 uppercase tracking-wider">
-                {t.partnerBirthLabel}
+                {t.partnerBirthLabel} <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-3 gap-2">
                 <select
+                  id="p2-day-select"
+                  aria-required="true"
+                  aria-invalid={Boolean(p2DateError)}
+                  aria-describedby={p2DateError ? 'p2-date-error' : undefined}
                   value={p2Day}
-                  onChange={(e) => setP2Day(Number(e.target.value))}
-                  className="px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-sm font-medium"
+                  onChange={(e) => {
+                    setP2Day(Number(e.target.value));
+                    markTouched('p2Day');
+                  }}
+                  onBlur={() => markTouched('p2Day')}
+                  className={`px-3 py-2.5 rounded-xl border text-stone-900 text-sm font-medium transition-colors ${
+                    p2DateError ? 'border-red-400 bg-red-50/20' : 'bg-stone-50 border-stone-300'
+                  }`}
                 >
                   {[...Array(31)].map((_, i) => (
                     <option key={i + 1} value={i + 1}>{i + 1}</option>
                   ))}
                 </select>
                 <select
+                  id="p2-month-select"
+                  aria-required="true"
+                  aria-invalid={Boolean(p2DateError)}
+                  aria-describedby={p2DateError ? 'p2-date-error' : undefined}
                   value={p2Month}
-                  onChange={(e) => setP2Month(Number(e.target.value))}
-                  className="px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-sm font-medium"
+                  onChange={(e) => {
+                    setP2Month(Number(e.target.value));
+                    markTouched('p2Month');
+                  }}
+                  onBlur={() => markTouched('p2Month')}
+                  className={`px-3 py-2.5 rounded-xl border text-stone-900 text-sm font-medium transition-colors ${
+                    p2DateError ? 'border-red-400 bg-red-50/20' : 'bg-stone-50 border-stone-300'
+                  }`}
                 >
                   {months.map((m, i) => (
                     <option key={i + 1} value={i + 1}>{m}</option>
                   ))}
                 </select>
                 <select
+                  id="p2-year-select"
+                  aria-required="true"
+                  aria-invalid={Boolean(p2DateError)}
+                  aria-describedby={p2DateError ? 'p2-date-error' : undefined}
                   value={p2Year}
-                  onChange={(e) => setP2Year(Number(e.target.value))}
-                  className="px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-sm font-medium"
+                  onChange={(e) => {
+                    setP2Year(Number(e.target.value));
+                    markTouched('p2Year');
+                  }}
+                  onBlur={() => markTouched('p2Year')}
+                  className={`px-3 py-2.5 rounded-xl border text-stone-900 text-sm font-medium transition-colors ${
+                    p2DateError ? 'border-red-400 bg-red-50/20' : 'bg-stone-50 border-stone-300'
+                  }`}
                 >
                   {Array.from({ length: 85 }, (_, i) => 2015 - i).map((y) => (
                     <option key={y} value={y}>{y}</option>
                   ))}
                 </select>
               </div>
+              {p2DateError && (
+                <p id="p2-date-error" role="alert" className="text-xs text-red-500 mt-1 flex items-center gap-1 font-medium">
+                  <span>⚠️</span>
+                  <span>{p2DateError}</span>
+                </p>
+              )}
             </div>
 
-            <div className="flex items-center space-x-3 pt-2 cursor-pointer" onClick={() => setP2UnknownTime(!p2UnknownTime)}>
+            <div
+              className="flex items-center space-x-3 pt-2 cursor-pointer"
+              onClick={() => {
+                const nextVal = !p2UnknownTime;
+                setP2UnknownTime(nextVal);
+                markTouched('p2Time');
+              }}
+            >
               <input
+                id="p2-unknown-time-checkbox"
                 type="checkbox"
                 checked={p2UnknownTime}
-                onChange={(e) => setP2UnknownTime(e.target.checked)}
-                className="w-4 h-4 rounded border-stone-300 text-rose-600"
+                onChange={(e) => {
+                  setP2UnknownTime(e.target.checked);
+                  markTouched('p2Time');
+                }}
+                className="w-4 h-4 rounded border-stone-300 text-rose-600 cursor-pointer"
               />
-              <label className="text-xs text-stone-700 font-medium">{t.partnerUnknownTime}</label>
+              <label htmlFor="p2-unknown-time-checkbox" className="text-xs text-stone-700 font-medium cursor-pointer">
+                {t.partnerUnknownTime}
+              </label>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={handleNext}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-rose-900 to-stone-900 hover:from-black text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 cursor-pointer"
+            aria-disabled={!isStep6Valid}
+            className={`w-full py-4 rounded-xl bg-gradient-to-r from-stone-900 via-rose-900 to-stone-900 text-white font-bold text-base shadow-lg shadow-stone-900/15 transition-all flex items-center justify-center space-x-2 ${
+              !isStep6Valid
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:from-black cursor-pointer'
+            }`}
           >
             <span>{locale === 'ru' ? 'Рассчитать совместимость' : 'Calculate Compatibility'}</span>
             <ArrowRight className="w-5 h-5" />

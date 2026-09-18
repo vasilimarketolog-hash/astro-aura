@@ -87,6 +87,18 @@ export const TRANSLATIONS = {
     partnerBirthLabel: 'Дата рождения партнера',
     partnerUnknownTime: 'Время партнера неизвестно (расчет по 12:00)',
 
+    // Validation messages
+    valFirstNameRequired: 'Пожалуйста, введите ваше имя',
+    valFirstNameInvalid: 'Имя должно содержать минимум 2 буквы (без цифр)',
+    valLastNameInvalid: 'Фамилия должна содержать минимум 2 буквы (без цифр)',
+    valDateInvalid: 'Некорректная дата (проверьте день и месяц)',
+    valTimeRequired: 'Укажите время рождения или отметьте чекбокс ниже',
+    valCityRequired: 'Пожалуйста, выберите город из предложенного списка',
+    valP2NameRequired: 'Пожалуйста, введите имя партнера',
+    valP2NameInvalid: 'Имя партнера должно содержать минимум 2 буквы',
+    valP2DateInvalid: 'Проверьте дату рождения партнера',
+    valP2CityRequired: 'Пожалуйста, выберите город рождения партнера',
+
     // Realistic Loading Calculation Phases
     calcHeading: 'Выполняются глубокие астрономические расчеты...',
     phase1: 'Подключение к планетарным эфемеридам NASA JPL Horizons...',
@@ -254,6 +266,18 @@ export const TRANSLATIONS = {
     partnerNameLabel: 'Partner’s Name',
     partnerBirthLabel: 'Partner’s Date of Birth',
     partnerUnknownTime: 'Partner’s birth time unknown (calculated at 12:00)',
+
+    // Validation messages
+    valFirstNameRequired: 'Please enter your first name',
+    valFirstNameInvalid: 'First name must contain at least 2 letters (no digits)',
+    valLastNameInvalid: 'Last name must contain at least 2 letters (no digits)',
+    valDateInvalid: 'Invalid date (check day and month)',
+    valTimeRequired: 'Enter birth time or check the box below',
+    valCityRequired: 'Please select a city from the suggested list',
+    valP2NameRequired: 'Please enter partner’s name',
+    valP2NameInvalid: 'Partner’s name must contain at least 2 letters',
+    valP2DateInvalid: 'Please check partner’s birth date',
+    valP2CityRequired: 'Please select partner’s birth city',
 
     // Realistic Loading Calculation Phases
     calcHeading: 'Performing in-depth astronomical calculations...',
