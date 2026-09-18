@@ -1,0 +1,295 @@
+import { Locale } from '@/types/astro';
+
+export const TRANSLATIONS = {
+  ru: {
+    // Header
+    proBadge: 'PRO',
+    calculatedToday: 'Сегодня составлено:',
+    cardsCount: '14,892 карты',
+    reviewsCount: '(28.4k отзывов)',
+    calculateFree: 'Рассчитать бесплатно',
+    myChart: 'Моя натальная карта',
+
+    // Hero
+    nasaBadge: 'Точные астрономические эфемериды • Алгоритмы NASA и Swiss Ephemeris',
+    heroTitle1: 'Узнайте свой космический код:',
+    heroTitle2: 'Натальная карта, Совместимость и Дизайн Человека',
+    heroSubtitle: 'Глубокий психологический разбор вашего предназначения, кармических узлов и финансового кода. Узнайте, почему повторяются события и как раскрыть истинный потенциал.',
+    heroCta: 'Рассчитать натальную карту бесплатно',
+    badgeSpeed: 'Глубокий анализ за 60 секунд',
+    badgePrivacy: 'Конфиденциально на 100%',
+    badgeAccuracy: '98.7% совпадения по отзывам',
+
+    cardNatalTitle: 'Натальная Карта',
+    cardNatalBadge: 'Популярно',
+    cardNatalDesc: 'Точный разбор планет в знаках и 12 домах, Асцендент, кармические узлы, деньги и теневые аспекты.',
+    cardNatalCta: 'Составить карту',
+
+    cardSynastryTitle: 'Совместимость (Синастрия)',
+    cardSynastryBadge: 'Отношения',
+    cardSynastryDesc: 'Наложение двух карт, индекс сексуальной страсти, зоны конфликтов и сценарий брачного союза.',
+    cardSynastryCta: 'Проверить пару',
+
+    cardHdTitle: 'Дизайн Человека',
+    cardHdBadge: 'Бодиграф',
+    cardHdDesc: 'Ваш генетический тип (Генератор, Проектор...), профиль, авторитет и как перестать сливать энергию.',
+    cardHdCta: 'Рассчитать бодиграф',
+
+    // Quiz
+    quizStep: 'Шаг',
+    quizOf: 'из',
+    back: 'Назад',
+    toHome: 'На главную',
+    next: 'Далее',
+    continue: 'Продолжить',
+
+    step1Title: 'Что вы хотите узнать в первую очередь?',
+    step1Subtitle: 'Выберите главный фокус вашего персонального разбора',
+    optAllTitle: 'Полная Натальная карта + Предназначение',
+    optAllDesc: 'Глубокий разбор планет, скрытых талантов, кармы и финансов',
+    optSynastryTitle: 'Совместимость с партнером (Синастрия)',
+    optSynastryDesc: 'Индекс влечения, кармические уроки пары и долгосрочный прогноз',
+    optHdTitle: 'Дизайн Человека (Бодиграф)',
+    optHdDesc: 'Генетический тип (Генератор/Проектор), стратегия и источник энергии',
+
+    step2Title: 'Ваше имя и фамилия',
+    step2Subtitle: 'Для формирования персонального именного отчета и титульного листа',
+    firstNameLabel: 'Имя',
+    firstNamePlaceholder: 'Например: Василий',
+    lastNameLabel: 'Фамилия',
+    lastNamePlaceholder: 'Например: Булгаков',
+    genderLabel: 'Ваш пол',
+    genderFemale: 'Женский',
+    genderMale: 'Мужской',
+
+    step3Title: 'Дата вашего рождения',
+    step3Subtitle: 'Позволяет вычислить точные координаты Солнца, Луны и планет',
+    dayLabel: 'День',
+    monthLabel: 'Месяц',
+    yearLabel: 'Год',
+
+    step4Title: 'Время вашего рождения',
+    step4Subtitle: 'Точное время необходимо для определения Асцендента и 12 домов гороскопа',
+    hoursLabel: 'Часы (0-23)',
+    minutesLabel: 'Минуты (0-59)',
+    unknownTimeCheck: 'Я не знаю точное время рождения',
+    unknownTimeNotice: 'Расчет будет выполнен по усредненному солнечному полдню (12:00). Планеты в знаках будут точны на 100%, а дома будут ориентировочными.',
+
+    step5Title: 'Страна и место рождения',
+    step5Subtitle: 'Географические координаты определяют сетку домов натальной карты',
+    citySearchPlaceholder: 'Введите любой город (например: Барановичи, Москва, Лондон...)',
+    selectedCityText: 'Выбран город:',
+    searchingGlobal: 'Ищем город по международной базе геоданных...',
+
+    step6Title: 'Данные второго человека (партнера)',
+    step6Subtitle: 'Для расчета пересечения планет, индекса влечения и совместимости',
+    partnerNameLabel: 'Имя партнера',
+    partnerBirthLabel: 'Дата рождения партнера',
+    partnerUnknownTime: 'Время партнера неизвестно (расчет по 12:00)',
+
+    // Realistic Loading Calculation Phases
+    calcHeading: 'Выполняются глубокие астрономические расчеты...',
+    phase1: 'Подключение к планетарным эфемеридам NASA JPL Horizons...',
+    phase2: 'Вычисление точного звездного времени и часового пояса для г. {city}...',
+    phase3: 'Построение круга 12 домов и тригонометрический расчет Асцендента...',
+    phase4: 'Сканирование 45 межпланетарных аспектов (трины, квадратуры, оппозиции)...',
+    phase5: 'Анализ кармических узлов Раху/Кету и построение бодиграфа Дизайна Человека...',
+    phase6: 'Формирование персонального именного отчета для {name}...',
+
+    // Teaser
+    specialOffer: 'Специальное приветственное предложение',
+    discountActive: 'Скидка 85% на полный разбор активирована',
+    discountTimer: 'Действует еще:',
+    passportReady: 'Ваш Космический Паспорт сформирован',
+    forUserPrefix: 'Персональный расчет для:',
+    sunCore: 'Знак Солнца (Ядро Эго)',
+    moonSoul: 'Знак Луны (Душа и эмоции)',
+    ascMask: 'Асцендент (Маска в социуме)',
+    dualismTitle: 'Ваш скрытый психологический конфликт',
+    elementsTitle: 'Баланс стихий в вашей карте',
+    dominantElementPrefix: 'Ведущая стихия:',
+    lockedSectionsTitle: '🔒 Заблокированные разделы вашего персонального разбора:',
+    unlockButton: 'Разблокировать',
+    openFullAccess: 'Открыть полный доступ',
+    trialNotice: 'Специальный пробный доступ всего за',
+
+    // Dashboard
+    forPersonHeader: 'ПЕРСОНАЛЬНАЯ НАТАЛЬНАЯ КАРТА',
+    forPersonSub: 'Для {fullName} из {city}',
+    premiumActive: 'Премиум доступ активирован • Полный разбор',
+    askAstrologerBtn: 'Спросить AI-Астролога',
+    downloadPdfBtn: 'Скачать именной PDF-отчет',
+    generatingPdf: 'Генерация PDF...',
+
+    tabPersonality: 'Ядро Личности',
+    tabLove: 'Любовь и Отношения',
+    tabCareer: 'Деньги и Карьера',
+    tabKarma: 'Карма и Тень',
+    tabSynastry: 'Совместимость',
+    tabHd: 'Дизайн Человека',
+    tabChat: 'AI-Астролог (Чат)',
+
+    // Geocult Features
+    houseSystemLabel: 'Система домов:',
+    houseSystemPlacidus: 'Плацидус',
+    houseSystemEqual: 'Равнодомная',
+    houseSystemWholeSign: 'Полнознаковая',
+    astrodynesTitle: 'Сила и Гармония планет (Астродины)',
+    astrodynesSubtitle: 'Количественный анализ эссенциального статуса (обитель, экзальтация, падение) и аспектов',
+    dominantPlanetTitle: 'Главная доминанта натальной карты',
+    aspectGridTitle: 'Аспектная сетка планет',
+    aspectGridSubtitle: 'Точные угловые взаимодействия и орбисы между небесными телами',
+    partOfFortuneTitle: 'Точка Фортуны (Колесо Удачи • Pars Fortunae)',
+    partOfFortuneSubtitle: 'Главный источник материального изобилия, финансовой удачи и душевного спокойствия',
+    talismansTitle: 'Камни-талисманы и минералы силы',
+    talismansSubtitle: 'Персональные кристаллы, активирующие сильные стороны вашей карты и гармонизирующие слабые'
+  },
+
+  en: {
+    // Header
+    proBadge: 'PRO',
+    calculatedToday: 'Generated today:',
+    cardsCount: '14,892 charts',
+    reviewsCount: '(28.4k reviews)',
+    calculateFree: 'Calculate for Free',
+    myChart: 'My Natal Chart',
+
+    // Hero
+    nasaBadge: 'Accurate Astronomical Ephemerides • NASA & Swiss Ephemeris Algorithms',
+    heroTitle1: 'Discover Your Cosmic Code:',
+    heroTitle2: 'Natal Chart, Compatibility & Human Design',
+    heroSubtitle: 'In-depth psychological analysis of your destiny, karmic nodes, and wealth code. Understand recurring life patterns and unlock your true potential.',
+    heroCta: 'Calculate Natal Chart for Free',
+    badgeSpeed: 'In-depth analysis in 60 seconds',
+    badgePrivacy: '100% Confidential',
+    badgeAccuracy: '98.7% accuracy by user reviews',
+
+    cardNatalTitle: 'Natal Chart',
+    cardNatalBadge: 'Popular',
+    cardNatalDesc: 'Exact positions of planets in signs and 12 houses, Ascendant, karmic nodes, wealth and shadow aspects.',
+    cardNatalCta: 'Generate Chart',
+
+    cardSynastryTitle: 'Compatibility (Synastry)',
+    cardSynastryBadge: 'Love',
+    cardSynastryDesc: 'Dual chart overlay, sexual attraction score, conflict zones, and marriage potential.',
+    cardSynastryCta: 'Check Couple',
+
+    cardHdTitle: 'Human Design',
+    cardHdBadge: 'Bodygraph',
+    cardHdDesc: 'Your genetic type (Generator, Projector...), profile, inner authority, and how to stop draining energy.',
+    cardHdCta: 'Generate Bodygraph',
+
+    // Quiz
+    quizStep: 'Step',
+    quizOf: 'of',
+    back: 'Back',
+    toHome: 'Home',
+    next: 'Next',
+    continue: 'Continue',
+
+    step1Title: 'What would you like to explore first?',
+    step1Subtitle: 'Choose the primary focus of your personalized reading',
+    optAllTitle: 'Full Natal Chart & Life Purpose',
+    optAllDesc: 'Complete planetary analysis, hidden talents, karmic path, and wealth',
+    optSynastryTitle: 'Partner Compatibility (Synastry)',
+    optSynastryDesc: 'Attraction index, couple karmic lessons, and long-term outlook',
+    optHdTitle: 'Human Design (Bodygraph)',
+    optHdDesc: 'Genetic type (Generator/Projector), strategy, and natural energy source',
+
+    step2Title: 'Your First & Last Name',
+    step2Subtitle: 'Used to generate your personalized certificate and official PDF report',
+    firstNameLabel: 'First Name',
+    firstNamePlaceholder: 'e.g. Vasily',
+    lastNameLabel: 'Last Name',
+    lastNamePlaceholder: 'e.g. Bulgakov',
+    genderLabel: 'Gender',
+    genderFemale: 'Female',
+    genderMale: 'Male',
+
+    step3Title: 'Date of Birth',
+    step3Subtitle: 'Calculates exact planetary degrees for Sun, Moon, and celestial bodies',
+    dayLabel: 'Day',
+    monthLabel: 'Month',
+    yearLabel: 'Year',
+
+    step4Title: 'Time of Birth',
+    step4Subtitle: 'Exact time determines your Ascendant (Rising Sign) and 12 astrological houses',
+    hoursLabel: 'Hours (0-23)',
+    minutesLabel: 'Minutes (0-59)',
+    unknownTimeCheck: 'I don’t know my exact birth time',
+    unknownTimeNotice: 'Calculations will be performed for standard solar noon (12:00). Planetary signs will be 100% accurate, with approximate house cusps.',
+
+    step5Title: 'Country and Place of Birth',
+    step5Subtitle: 'Geographic coordinates define the exact house cusps of your birth chart',
+    citySearchPlaceholder: 'Enter any city worldwide (e.g. Baranovichi, New York, London...)',
+    selectedCityText: 'Selected city:',
+    searchingGlobal: 'Searching worldwide geographic database...',
+
+    step6Title: 'Partner Information',
+    step6Subtitle: 'For cross-chart planetary analysis, passion score, and compatibility',
+    partnerNameLabel: 'Partner’s Name',
+    partnerBirthLabel: 'Partner’s Date of Birth',
+    partnerUnknownTime: 'Partner’s birth time unknown (calculated at 12:00)',
+
+    // Realistic Loading Calculation Phases
+    calcHeading: 'Performing in-depth astronomical calculations...',
+    phase1: 'Connecting to NASA JPL Horizons planetary ephemerides...',
+    phase2: 'Calculating exact local sidereal time and timezone for {city}...',
+    phase3: 'Constructing 12 astrological houses and spherical Ascendant...',
+    phase4: 'Scanning 45 planetary aspects (trines, squares, oppositions)...',
+    phase5: 'Analyzing Rahu/Ketu karmic nodes and Human Design bodygraph...',
+    phase6: 'Finalizing personalized named report for {name}...',
+
+    // Teaser
+    specialOffer: 'Special Welcome Offer',
+    discountActive: '85% discount on full report activated',
+    discountTimer: 'Expires in:',
+    passportReady: 'Your Cosmic Passport is Ready',
+    forUserPrefix: 'Personalized calculation for:',
+    sunCore: 'Sun Sign (Core Ego)',
+    moonSoul: 'Moon Sign (Inner Soul & Emotions)',
+    ascMask: 'Ascendant (Public Persona)',
+    dualismTitle: 'Your Hidden Psychological Conflict',
+    elementsTitle: 'Elemental Balance in Your Chart',
+    dominantElementPrefix: 'Dominant element:',
+    lockedSectionsTitle: '🔒 Locked Sections of Your Personal Report:',
+    unlockButton: 'Unlock',
+    openFullAccess: 'Unlock Full Access',
+    trialNotice: 'Special trial access for only',
+
+    // Dashboard
+    forPersonHeader: 'PERSONAL NATAL CHART',
+    forPersonSub: 'For {fullName} from {city}',
+    premiumActive: 'Premium Access Active • Full Reading',
+    askAstrologerBtn: 'Ask AI Astrologer',
+    downloadPdfBtn: 'Download Named PDF Report',
+    generatingPdf: 'Generating PDF...',
+
+    tabPersonality: 'Core Personality',
+    tabLove: 'Love & Relationships',
+    tabCareer: 'Money & Career',
+    tabKarma: 'Karma & Shadow',
+    tabSynastry: 'Compatibility',
+    tabHd: 'Human Design',
+    tabChat: 'AI Astrologer (Chat)',
+
+    // Geocult Features
+    houseSystemLabel: 'House System:',
+    houseSystemPlacidus: 'Placidus',
+    houseSystemEqual: 'Equal House',
+    houseSystemWholeSign: 'Whole Sign',
+    astrodynesTitle: 'Planetary Power & Harmony (Astrodynes)',
+    astrodynesSubtitle: 'Quantitative evaluation of dignity status (rulership, exaltation, fall) & aspect balance',
+    dominantPlanetTitle: 'Chart Dominant Planet',
+    aspectGridTitle: 'Cross-Planetary Aspect Grid',
+    aspectGridSubtitle: 'Precise angular interactions and orbs between celestial bodies',
+    partOfFortuneTitle: 'Part of Fortune (Pars Fortunae • Wheel of Luck)',
+    partOfFortuneSubtitle: 'Key gateway to material prosperity, career fortune, and inner contentment',
+    talismansTitle: 'Talisman Gemstones & Power Crystals',
+    talismansSubtitle: 'Personal minerals tuned to the planetary frequencies of your birth chart'
+  }
+};
+
+export function getTranslation(locale: Locale) {
+  return TRANSLATIONS[locale] || TRANSLATIONS.ru;
+}
