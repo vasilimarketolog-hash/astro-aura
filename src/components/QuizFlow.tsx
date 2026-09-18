@@ -21,10 +21,14 @@ import { BirthData, CalculationType, NatalChartData, SynastryData, HumanDesignDa
 import { searchCities, POPULAR_CITIES, CityInfo, geocodeWorldwideCity } from '@/lib/cities';
 import { calculateNatalChart, calculateSynastry, calculateHumanDesign } from '@/lib/astroEngine';
 import { getTranslation } from '@/lib/translations';
+import { getWizardState, saveWizardState } from '@/lib/storage';
 
 interface QuizFlowProps {
   locale: Locale;
+  step?: number;
+  calcType?: CalculationType;
   initialFocus?: string;
+  onStepChange?: (newStep: number) => void;
   onComplete: (data: {
     natal: NatalChartData;
     synastry?: SynastryData;
@@ -34,11 +38,21 @@ interface QuizFlowProps {
   onCancel: () => void;
 }
 
-export const QuizFlow: React.FC<QuizFlowProps> = ({ locale, initialFocus, onComplete, onCancel }) => {
+export const QuizFlow: React.FC<QuizFlowProps> = ({
+  locale,
+  step: propStep,
+  calcType: propCalcType,
+  initialFocus,
+  onStepChange,
+  onComplete,
+  onCancel
+}) => {
   const t = getTranslation(locale);
-  const [step, setStep] = useState<number>(1);
+  const [localStep, setLocalStep] = useState<number>(propStep || 1);
+  const step = propStep !== undefined && localStep !== 99 ? propStep : localStep;
+
   const [calcType, setCalcType] = useState<CalculationType>(
-    initialFocus === 'synastry' ? 'synastry' : initialFocus === 'humandesign' ? 'humandesign' : 'all'
+    propCalcType || (initialFocus === 'synastry' ? 'synastry' : initialFocus === 'humandesign' ? 'humandesign' : 'all')
   );
 
   // Person 1 Data
@@ -54,7 +68,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({ locale, initialFocus, onComp
 
   // City search Person 1
   const [citySearch, setCitySearch] = useState('');
-  const [selectedCity, setSelectedCity] = useState<CityInfo>(POPULAR_CITIES[0]); // Baranovichi default
+  const [selectedCity, setSelectedCity] = useState<CityInfo>(POPULAR_CITIES[0]);
   const [isGeocoding, setIsGeocoding] = useState(false);
 
   // Person 2 Data (if synastry)
@@ -69,6 +83,83 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({ locale, initialFocus, onComp
   const [p2UnknownTime, setP2UnknownTime] = useState(false);
   const [p2CitySearch, setP2CitySearch] = useState('');
   const [p2SelectedCity, setP2SelectedCity] = useState<CityInfo>(POPULAR_CITIES[0]);
+
+  // Restore from sessionStorage on initial client mount
+  useEffect(() => {
+    const saved = getWizardState();
+    if (saved) {
+      if (saved.firstName) setFirstName(saved.firstName);
+      if (saved.lastName) setLastName(saved.lastName);
+      if (saved.gender) setGender(saved.gender);
+      if (saved.day !== undefined) setDay(saved.day);
+      if (saved.month !== undefined) setMonth(saved.month);
+      if (saved.year !== undefined) setYear(saved.year);
+      if (saved.hour !== undefined) setHour(saved.hour);
+      if (saved.minute !== undefined) setMinute(saved.minute);
+      if (saved.unknownTime !== undefined) setUnknownTime(saved.unknownTime);
+      if (saved.selectedCity) setSelectedCity(saved.selectedCity);
+
+      if (saved.p2Name) setP2Name(saved.p2Name);
+      if (saved.p2LastName) setP2LastName(saved.p2LastName);
+      if (saved.p2Gender) setP2Gender(saved.p2Gender);
+      if (saved.p2Day !== undefined) setP2Day(saved.p2Day);
+      if (saved.p2Month !== undefined) setP2Month(saved.p2Month);
+      if (saved.p2Year !== undefined) setP2Year(saved.p2Year);
+      if (saved.p2Hour !== undefined) setP2Hour(saved.p2Hour);
+      if (saved.p2Minute !== undefined) setP2Minute(saved.p2Minute);
+      if (saved.p2UnknownTime !== undefined) setP2UnknownTime(saved.p2UnknownTime);
+      if (saved.p2SelectedCity) setP2SelectedCity(saved.p2SelectedCity);
+    }
+  }, []);
+
+  // Save changes to sessionStorage whenever inputs change
+  useEffect(() => {
+    saveWizardState({
+      calcType,
+      firstName,
+      lastName,
+      gender,
+      day,
+      month,
+      year,
+      hour,
+      minute,
+      unknownTime,
+      selectedCity,
+      p2Name,
+      p2LastName,
+      p2Gender,
+      p2Day,
+      p2Month,
+      p2Year,
+      p2Hour,
+      p2Minute,
+      p2UnknownTime,
+      p2SelectedCity,
+    });
+  }, [
+    calcType,
+    firstName,
+    lastName,
+    gender,
+    day,
+    month,
+    year,
+    hour,
+    minute,
+    unknownTime,
+    selectedCity,
+    p2Name,
+    p2LastName,
+    p2Gender,
+    p2Day,
+    p2Month,
+    p2Year,
+    p2Hour,
+    p2Minute,
+    p2UnknownTime,
+    p2SelectedCity,
+  ]);
 
   // Loading animation state (8.5 seconds)
   const [loadingPhase, setLoadingPhase] = useState(0);
@@ -184,24 +275,37 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({ locale, initialFocus, onComp
   }, [step]);
 
   const handleNext = () => {
-    if (step === 1) setStep(2);
-    else if (step === 2) setStep(3);
-    else if (step === 3) setStep(4);
-    else if (step === 4) setStep(5);
-    else if (step === 5) {
-      if (calcType === 'synastry') {
-        setStep(6);
+    let nextStep = step + 1;
+    if (step === 5 && calcType !== 'synastry') {
+      nextStep = 99;
+    } else if (step === 6 && calcType === 'synastry') {
+      nextStep = 99;
+    } else if (step === 4 && calcType === 'humandesign') {
+      nextStep = 99;
+    }
+
+    if (nextStep === 99) {
+      setLocalStep(99);
+    } else {
+      if (onStepChange) {
+        onStepChange(nextStep);
       } else {
-        setStep(99);
+        setLocalStep(nextStep);
       }
-    } else if (step === 6) {
-      setStep(99);
     }
   };
 
   const handlePrev = () => {
-    if (step === 1) onCancel();
-    else setStep((prev) => prev - 1);
+    if (step === 1) {
+      onCancel();
+    } else {
+      const prevStep = step - 1;
+      if (onStepChange) {
+        onStepChange(prevStep);
+      } else {
+        setLocalStep(prevStep);
+      }
+    }
   };
 
   const cityNameDisplay = locale === 'ru' ? selectedCity.name : selectedCity.nameEn;

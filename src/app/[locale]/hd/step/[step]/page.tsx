@@ -1,0 +1,23 @@
+'use client';
+
+import React, { use } from 'react';
+import { WizardStepPage } from '@/components/WizardStepPage';
+import { Locale } from '@/types/astro';
+
+export default function HumanDesignStepPage({
+  params,
+}: {
+  params: Promise<{ locale: string; step: string }>;
+}) {
+  const resolved = use(params);
+  const locale: Locale = resolved.locale === 'en' ? 'en' : 'ru';
+  const stepNumber = Math.max(1, Math.min(4, parseInt(resolved.step, 10) || 1));
+
+  return (
+    <WizardStepPage
+      locale={locale}
+      calcType="humandesign"
+      stepNumber={stepNumber}
+    />
+  );
+}
