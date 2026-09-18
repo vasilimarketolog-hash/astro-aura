@@ -245,7 +245,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
     return () => clearTimeout(timer);
   }, [p2CitySearch, localP2Cities.length]);
 
-  const fullName = `${firstName.trim() || (locale === 'ru' ? 'Василий' : 'Vasily')} ${lastName.trim() || (locale === 'ru' ? 'Булгаков' : 'Bulgakov')}`.trim();
+  const fullName = [firstName.trim(), lastName.trim()].filter(Boolean).join(' ') || (locale === 'ru' ? 'Гость' : 'Guest');
 
   const handleCustomCityLookup = async (inputQuery: string, isPerson2 = false) => {
     if (!inputQuery.trim()) return;
