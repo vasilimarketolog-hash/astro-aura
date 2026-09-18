@@ -75,8 +75,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const gaId = process.env.NEXT_PUBLIC_GA_ID || 'G-91JEGEHTWP';
-  const ymId = process.env.NEXT_PUBLIC_YM_ID;
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-W4BGMWF2';
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -123,50 +122,31 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* Google Analytics 4 */}
-        {gaId && (
-          <>
-            <Script
-              strategy="afterInteractive"
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-            />
-            <Script
-              id="google-analytics"
-              strategy="afterInteractive"
-            >
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${gaId}', {
-                  page_path: window.location.pathname,
-                });
-              `}
-            </Script>
-          </>
-        )}
-
-        {/* Yandex Metrika with WebVisor */}
-        {ymId && (
-          <Script id="yandex-metrika" strategy="afterInteractive">
+        {/* Google Tag Manager Container */}
+        {gtmId && (
+          <Script id="google-tag-manager" strategy="afterInteractive">
             {`
-              (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-              m[i].l=1*new Date();
-              for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-              k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-              (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
-              ym(${ymId}, "init", {
-                clickmap:true,
-                trackLinks:true,
-                accurateTrackBounce:true,
-                webvisor:true
-              });
+              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+              })(window,document,'script','dataLayer','${gtmId}');
             `}
           </Script>
         )}
       </head>
       <body className="min-h-full flex flex-col bg-[#FAF8F5] text-stone-900 selection:bg-amber-400 selection:text-black">
+        {/* Google Tag Manager (noscript fallback) */}
+        {gtmId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        )}
         {children}
         <Analytics />
       </body>
