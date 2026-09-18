@@ -7,7 +7,9 @@ import {
   ShieldCheck,
   Zap,
   Flame,
-  ArrowRight
+  ArrowRight,
+  Loader2,
+  Sparkles
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { TariffPlan, Locale } from '@/types/astro';
@@ -29,6 +31,13 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   const [email, setEmail] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [timeLeft, setTimeLeft] = useState(14 * 60 + 59);
+
+  // Waitlist fallback state when payment gateway is not active
+  const [isWaitlistMode, setIsWaitlistMode] = useState(false);
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [isWaitlistLoading, setIsWaitlistLoading] = useState(false);
+  const [isWaitlistSuccess, setIsWaitlistSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const TARIFF_PLANS_RU: TariffPlan[] = [
     {
@@ -149,12 +158,26 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   const plans = locale === 'ru' ? TARIFF_PLANS_RU : TARIFF_PLANS_EN;
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setIsWaitlistMode(false);
+      setIsWaitlistSuccess(false);
+      setErrorMessage(null);
+      setIsProcessing(false);
+      setIsWaitlistLoading(false);
+      return;
+    }
     const timer = setInterval(() => {
       setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
-    return () => clearInterval(timer);
-  }, [isOpen]);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -162,22 +185,91 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   const seconds = timeLeft % 60;
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) || plans[0];
 
-  const handleSimulatedPayment = async () => {
+  const handlePaymentClick = async () => {
     setIsProcessing(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setIsProcessing(false);
+    setErrorMessage(null);
 
     try {
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.6 }
+      const res = await fetch('/api/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId: selectedPlan.id,
+          email: email.trim()
+        })
       });
-    } catch (e) {
-      // fallback
+
+      const data = await res.json();
+
+      if (data.gatewayActive && data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+        return;
+      }
+
+      // Gateway not active -> show email waitlist form
+      setIsWaitlistMode(true);
+      if (email.trim()) {
+        setWaitlistEmail(email.trim());
+      }
+    } catch (err) {
+      setIsWaitlistMode(true);
+      if (email.trim()) {
+        setWaitlistEmail(email.trim());
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waitlistEmail.trim() || !waitlistEmail.includes('@')) {
+      setErrorMessage(
+        locale === 'ru'
+          ? 'Пожалуйста, введите корректный адрес электронной почты'
+          : 'Please enter a valid email address'
+      );
+      return;
     }
 
-    onPaymentSuccess(selectedPlan.id);
+    setIsWaitlistLoading(true);
+    setErrorMessage(null);
+
+    try {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('aa_waitlist_emails');
+        const list = stored ? JSON.parse(stored) : [];
+        list.push({
+          email: waitlistEmail.trim(),
+          planId: selectedPlan.id,
+          timestamp: Date.now(),
+          locale
+        });
+        localStorage.setItem('aa_waitlist_emails', JSON.stringify(list));
+
+        if ((window as any).dataLayer) {
+          (window as any).dataLayer.push({
+            event: 'waitlist_submitted',
+            planId: selectedPlan.id,
+            email: waitlistEmail.trim()
+          });
+        }
+      }
+
+      try {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch (err) {}
+
+      setIsWaitlistSuccess(true);
+    } catch (err) {
+      console.error('Waitlist error:', err);
+    } finally {
+      setIsWaitlistLoading(false);
+    }
   };
 
   return (
@@ -270,46 +362,132 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
           })}
         </div>
 
-        {/* Email & Payment Actions */}
-        <div className="bg-stone-50 border border-stone-200 rounded-3xl p-5 mb-4">
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="w-full sm:flex-1">
-              <label className="block text-xs font-bold text-stone-700 mb-1">
-                {locale === 'ru' ? 'Куда отправить копию отчета и данные для входа?' : 'Where should we send your official PDF and access details?'}
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@email.com"
-                className="w-full px-4 py-3 rounded-xl bg-white border border-stone-300 text-stone-900 placeholder-stone-400 text-sm focus:outline-none focus:border-amber-500"
-              />
+        {/* Email & Payment Actions or Waitlist Fallback */}
+        {isWaitlistMode ? (
+          <div className="bg-gradient-to-br from-amber-50 via-white to-orange-50 border-2 border-amber-300 rounded-3xl p-6 sm:p-7 mb-4 shadow-sm">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-base sm:text-lg font-black text-stone-900">
+                  {locale === 'ru'
+                    ? 'Мы подключаем прием платежей'
+                    : 'We are connecting payment processing'}
+                </h3>
+                <p className="text-xs text-stone-600">
+                  {locale === 'ru'
+                    ? 'Оставьте email — пришлем доступ первыми со скидкой 90%'
+                    : 'Leave your email — get first access with a 90% discount'}
+                </p>
+              </div>
             </div>
 
-            <div className="w-full sm:w-auto flex flex-col items-center">
-              <button
-                onClick={handleSimulatedPayment}
-                disabled={isProcessing}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black text-white font-bold text-sm shadow-xl shadow-stone-900/15 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
-              >
-                {isProcessing ? (
-                  <>
-                    <span className="animate-spin">🌀</span>
-                    <span>{locale === 'ru' ? 'Активация доступа...' : 'Activating Access...'}</span>
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    <span>
-                      {locale === 'ru' ? `Оплатить ${selectedPlan.price} ${selectedPlan.currency} и открыть` : `Pay ${selectedPlan.price} ${selectedPlan.currency} & Unlock`}
-                    </span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+            {isWaitlistSuccess ? (
+              <div className="space-y-4 pt-2">
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center space-x-2">
+                  <Check className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <span>
+                    {locale === 'ru'
+                      ? 'Спасибо! Вы в списке первых. Проверьте почту.'
+                      : 'Thank you! You are on the priority list. Check your email.'}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onPaymentSuccess(selectedPlan.id);
+                      onClose();
+                    }}
+                    className="text-xs text-amber-800 hover:text-amber-900 font-bold underline cursor-pointer"
+                  >
+                    {locale === 'ru' ? 'Открыть демо-доступ к полной карте →' : 'Preview demo access to full chart →'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-5 py-2 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    {locale === 'ru' ? 'Закрыть' : 'Close'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleWaitlistSubmit} className="space-y-3 pt-2">
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <input
+                    type="email"
+                    required
+                    autoFocus
+                    placeholder="name@email.com"
+                    value={waitlistEmail}
+                    onChange={(e) => setWaitlistEmail(e.target.value)}
+                    className="w-full sm:flex-1 px-4 py-3 rounded-xl bg-white border border-amber-300 text-stone-900 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-inner"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isWaitlistLoading}
+                    className="w-full sm:w-auto px-6 py-3 min-h-[44px] rounded-xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 shrink-0"
+                  >
+                    {isWaitlistLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 text-amber-300" />
+                        <span>{locale === 'ru' ? 'Получить доступ' : 'Get Access'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                {errorMessage && (
+                  <p className="text-xs text-rose-600 font-medium text-left">{errorMessage}</p>
                 )}
-              </button>
+              </form>
+            )}
+          </div>
+        ) : (
+          <div className="bg-stone-50 border border-stone-200 rounded-3xl p-5 mb-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="w-full sm:flex-1">
+                <label className="block text-xs font-bold text-stone-700 mb-1">
+                  {locale === 'ru' ? 'Куда отправить копию отчета и данные для входа?' : 'Where should we send your official PDF and access details?'}
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@email.com"
+                  className="w-full px-4 py-3 rounded-xl bg-white border border-stone-300 text-stone-900 placeholder-stone-400 text-sm focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="w-full sm:w-auto flex flex-col items-center">
+                <button
+                  type="button"
+                  onClick={handlePaymentClick}
+                  disabled={isProcessing}
+                  className="w-full sm:w-auto px-8 py-3.5 min-h-[44px] rounded-2xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black text-white font-bold text-sm shadow-xl shadow-stone-900/15 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-amber-300" />
+                      <span>{locale === 'ru' ? 'Проверка шлюза...' : 'Checking gateway...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4 fill-amber-400 text-amber-400" />
+                      <span>
+                        {locale === 'ru' ? `Оплатить ${selectedPlan.price} ${selectedPlan.currency} и открыть` : `Pay ${selectedPlan.price} ${selectedPlan.currency} & Unlock`}
+                      </span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Security & Payment Provider Icons */}
         <div className="flex flex-wrap items-center justify-between text-xs text-stone-500 pt-2 border-t border-stone-200 gap-3">
