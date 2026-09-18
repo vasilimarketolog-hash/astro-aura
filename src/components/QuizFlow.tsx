@@ -71,31 +71,31 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
   // Person 1 Data
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [gender, setGender] = useState<'female' | 'male' | 'other'>('male');
-  const [day, setDay] = useState<number>(15);
-  const [month, setMonth] = useState<number>(5);
-  const [year, setYear] = useState<number>(1995);
-  const [hour, setHour] = useState<number>(12);
-  const [minute, setMinute] = useState<number>(30);
+  const [gender, setGender] = useState<'female' | 'male' | 'other' | ''>('male');
+  const [day, setDay] = useState<number | ''>('');
+  const [month, setMonth] = useState<number | ''>('');
+  const [year, setYear] = useState<number | ''>('');
+  const [hour, setHour] = useState<number | ''>('');
+  const [minute, setMinute] = useState<number | ''>('');
   const [unknownTime, setUnknownTime] = useState(false);
 
   // City search Person 1
   const [citySearch, setCitySearch] = useState('');
-  const [selectedCity, setSelectedCity] = useState<CityInfo>(POPULAR_CITIES[0]);
+  const [selectedCity, setSelectedCity] = useState<CityInfo | null>(null);
   const [isGeocoding, setIsGeocoding] = useState(false);
 
   // Person 2 Data (if synastry)
   const [p2Name, setP2Name] = useState('');
   const [p2LastName, setP2LastName] = useState('');
-  const [p2Gender, setP2Gender] = useState<'female' | 'male' | 'other'>('female');
-  const [p2Day, setP2Day] = useState<number>(20);
-  const [p2Month, setP2Month] = useState<number>(10);
-  const [p2Year, setP2Year] = useState<number>(1993);
-  const [p2Hour, setP2Hour] = useState<number>(14);
-  const [p2Minute, setP2Minute] = useState<number>(0);
+  const [p2Gender, setP2Gender] = useState<'female' | 'male' | 'other' | ''>('female');
+  const [p2Day, setP2Day] = useState<number | ''>('');
+  const [p2Month, setP2Month] = useState<number | ''>('');
+  const [p2Year, setP2Year] = useState<number | ''>('');
+  const [p2Hour, setP2Hour] = useState<number | ''>('');
+  const [p2Minute, setP2Minute] = useState<number | ''>('');
   const [p2UnknownTime, setP2UnknownTime] = useState(false);
   const [p2CitySearch, setP2CitySearch] = useState('');
-  const [p2SelectedCity, setP2SelectedCity] = useState<CityInfo>(POPULAR_CITIES[0]);
+  const [p2SelectedCity, setP2SelectedCity] = useState<CityInfo | null>(null);
 
   // Restore from sessionStorage on initial client mount
   useEffect(() => {
@@ -104,26 +104,32 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
       if (saved.firstName) setFirstName(saved.firstName);
       if (saved.lastName) setLastName(saved.lastName);
       if (saved.gender) setGender(saved.gender);
-      if (saved.day !== undefined) setDay(saved.day);
-      if (saved.month !== undefined) setMonth(saved.month);
-      if (saved.year !== undefined) setYear(saved.year);
-      if (saved.hour !== undefined) setHour(saved.hour);
-      if (saved.minute !== undefined) setMinute(saved.minute);
+      if (saved.day !== undefined && saved.day !== null) setDay(saved.day);
+      if (saved.month !== undefined && saved.month !== null) setMonth(saved.month);
+      if (saved.year !== undefined && saved.year !== null) setYear(saved.year);
+      if (saved.hour !== undefined && saved.hour !== null) setHour(saved.hour);
+      if (saved.minute !== undefined && saved.minute !== null) setMinute(saved.minute);
       if (saved.unknownTime !== undefined) setUnknownTime(saved.unknownTime);
-      if (saved.selectedCity) setSelectedCity(saved.selectedCity);
+      if (saved.selectedCity) {
+        setSelectedCity(saved.selectedCity);
+        setCitySearch(locale === 'ru' ? saved.selectedCity.name : saved.selectedCity.nameEn);
+      }
 
       if (saved.p2Name) setP2Name(saved.p2Name);
       if (saved.p2LastName) setP2LastName(saved.p2LastName);
       if (saved.p2Gender) setP2Gender(saved.p2Gender);
-      if (saved.p2Day !== undefined) setP2Day(saved.p2Day);
-      if (saved.p2Month !== undefined) setP2Month(saved.p2Month);
-      if (saved.p2Year !== undefined) setP2Year(saved.p2Year);
-      if (saved.p2Hour !== undefined) setP2Hour(saved.p2Hour);
-      if (saved.p2Minute !== undefined) setP2Minute(saved.p2Minute);
+      if (saved.p2Day !== undefined && saved.p2Day !== null) setP2Day(saved.p2Day);
+      if (saved.p2Month !== undefined && saved.p2Month !== null) setP2Month(saved.p2Month);
+      if (saved.p2Year !== undefined && saved.p2Year !== null) setP2Year(saved.p2Year);
+      if (saved.p2Hour !== undefined && saved.p2Hour !== null) setP2Hour(saved.p2Hour);
+      if (saved.p2Minute !== undefined && saved.p2Minute !== null) setP2Minute(saved.p2Minute);
       if (saved.p2UnknownTime !== undefined) setP2UnknownTime(saved.p2UnknownTime);
-      if (saved.p2SelectedCity) setP2SelectedCity(saved.p2SelectedCity);
+      if (saved.p2SelectedCity) {
+        setP2SelectedCity(saved.p2SelectedCity);
+        setP2CitySearch(locale === 'ru' ? saved.p2SelectedCity.name : saved.p2SelectedCity.nameEn);
+      }
     }
-  }, []);
+  }, [locale]);
 
   // Save changes to sessionStorage whenever inputs change
   useEffect(() => {
@@ -131,24 +137,24 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
       calcType,
       firstName,
       lastName,
-      gender,
-      day,
-      month,
-      year,
-      hour,
-      minute,
+      gender: (gender as any) || 'male',
+      day: day !== '' ? Number(day) : undefined,
+      month: month !== '' ? Number(month) : undefined,
+      year: year !== '' ? Number(year) : undefined,
+      hour: hour !== '' ? Number(hour) : undefined,
+      minute: minute !== '' ? Number(minute) : undefined,
       unknownTime,
-      selectedCity,
+      selectedCity: selectedCity || undefined,
       p2Name,
       p2LastName,
-      p2Gender,
-      p2Day,
-      p2Month,
-      p2Year,
-      p2Hour,
-      p2Minute,
+      p2Gender: (p2Gender as any) || 'female',
+      p2Day: p2Day !== '' ? Number(p2Day) : undefined,
+      p2Month: p2Month !== '' ? Number(p2Month) : undefined,
+      p2Year: p2Year !== '' ? Number(p2Year) : undefined,
+      p2Hour: p2Hour !== '' ? Number(p2Hour) : undefined,
+      p2Minute: p2Minute !== '' ? Number(p2Minute) : undefined,
       p2UnknownTime,
-      p2SelectedCity,
+      p2SelectedCity: p2SelectedCity || undefined,
     });
   }, [
     calcType,
@@ -174,6 +180,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
     p2SelectedCity,
   ]);
 
+
   // Loading animation state (8.5 seconds)
   const [loadingPhase, setLoadingPhase] = useState(0);
   const [progressPercent, setProgressPercent] = useState(3);
@@ -187,6 +194,9 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
   const months = locale === 'ru' ? monthsRu : monthsEn;
+
+  const currentYear = new Date().getFullYear(); // 2026
+  const years = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => currentYear - i);
 
   const filteredCities = searchCities(citySearch, locale);
   const fullName = `${firstName.trim() || (locale === 'ru' ? 'Василий' : 'Vasily')} ${lastName.trim() || (locale === 'ru' ? 'Булгаков' : 'Bulgakov')}`.trim();
@@ -225,21 +235,22 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
       const finishTimeout = setTimeout(() => {
         setProgressPercent(100);
 
+        const effectiveCity = selectedCity || POPULAR_CITIES[0];
         const p1Birth: BirthData = {
           name: firstName.trim() || (locale === 'ru' ? 'Василий' : 'Vasily'),
           lastName: lastName.trim() || (locale === 'ru' ? 'Булгаков' : 'Bulgakov'),
-          country: selectedCity.country,
-          gender,
-          day,
-          month,
-          year,
-          hour: unknownTime ? 12 : hour,
-          minute: unknownTime ? 0 : minute,
+          country: effectiveCity.country,
+          gender: (gender as any) || 'male',
+          day: Number(day) || 1,
+          month: Number(month) || 1,
+          year: Number(year) || 2000,
+          hour: unknownTime ? 12 : (hour !== '' ? Number(hour) : 12),
+          minute: unknownTime ? 0 : (minute !== '' ? Number(minute) : 0),
           unknownTime,
-          cityName: locale === 'ru' ? selectedCity.name : selectedCity.nameEn,
-          latitude: selectedCity.latitude,
-          longitude: selectedCity.longitude,
-          timezoneOffset: selectedCity.timezoneOffset
+          cityName: locale === 'ru' ? effectiveCity.name : effectiveCity.nameEn,
+          latitude: effectiveCity.latitude,
+          longitude: effectiveCity.longitude,
+          timezoneOffset: effectiveCity.timezoneOffset
         };
 
         const natal1 = calculateNatalChart(p1Birth);
@@ -247,21 +258,22 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
 
         let synastryResult: SynastryData | undefined = undefined;
         if (calcType === 'synastry') {
+          const effectiveP2City = p2SelectedCity || selectedCity || POPULAR_CITIES[0];
           const p2Birth: BirthData = {
             name: p2Name.trim() || (locale === 'ru' ? 'Партнер' : 'Partner'),
             lastName: p2LastName.trim() || '',
-            country: p2SelectedCity.country,
-            gender: p2Gender,
-            day: p2Day,
-            month: p2Month,
-            year: p2Year,
-            hour: p2UnknownTime ? 12 : p2Hour,
-            minute: p2UnknownTime ? 0 : p2Minute,
+            country: effectiveP2City.country,
+            gender: (p2Gender as any) || 'female',
+            day: Number(p2Day) || 1,
+            month: Number(p2Month) || 1,
+            year: Number(p2Year) || 2000,
+            hour: p2UnknownTime ? 12 : (p2Hour !== '' ? Number(p2Hour) : 12),
+            minute: p2UnknownTime ? 0 : (p2Minute !== '' ? Number(p2Minute) : 0),
             unknownTime: p2UnknownTime,
-            cityName: locale === 'ru' ? p2SelectedCity.name : p2SelectedCity.nameEn,
-            latitude: p2SelectedCity.latitude,
-            longitude: p2SelectedCity.longitude,
-            timezoneOffset: p2SelectedCity.timezoneOffset
+            cityName: locale === 'ru' ? effectiveP2City.name : effectiveP2City.nameEn,
+            latitude: effectiveP2City.latitude,
+            longitude: effectiveP2City.longitude,
+            timezoneOffset: effectiveP2City.timezoneOffset
           };
           const natal2 = calculateNatalChart(p2Birth);
           synastryResult = calculateSynastry(natal1, natal2);
@@ -329,7 +341,12 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
     Boolean(gender);
 
   // Step 3 Validation (Date of Birth)
-  const isDateValid = isValidBirthDate(day, month, year);
+  const isDateValid = Boolean(
+    day !== '' &&
+    month !== '' &&
+    year !== '' &&
+    isValidBirthDate(Number(day), Number(month), Number(year))
+  );
   let dateError: string | null = null;
   if ((touched.day || touched.month || touched.year || attemptedNext) && !isDateValid) {
     dateError = t.valDateInvalid;
@@ -339,7 +356,8 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
   // Step 4 Validation (Exact Birth Time)
   const isTimeValid =
     unknownTime ||
-    (hour !== undefined && hour >= 0 && hour <= 23 && minute !== undefined && minute >= 0 && minute <= 59);
+    (hour !== '' && hour !== undefined && Number(hour) >= 0 && Number(hour) <= 23 &&
+     minute !== '' && minute !== undefined && Number(minute) >= 0 && Number(minute) <= 59);
   let timeError: string | null = null;
   if ((touched.time || attemptedNext) && !isTimeValid) {
     timeError = t.valTimeRequired;
@@ -376,7 +394,12 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
     }
   }
 
-  const isP2DateValid = isValidBirthDate(p2Day, p2Month, p2Year);
+  const isP2DateValid = Boolean(
+    p2Day !== '' &&
+    p2Month !== '' &&
+    p2Year !== '' &&
+    isValidBirthDate(Number(p2Day), Number(p2Month), Number(p2Year))
+  );
   let p2DateError: string | null = null;
   if ((touched.p2Day || touched.p2Month || touched.p2Year || attemptedNext) && !isP2DateValid) {
     p2DateError = t.valP2DateInvalid;
@@ -384,7 +407,8 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
 
   const isP2TimeValid =
     p2UnknownTime ||
-    (p2Hour !== undefined && p2Hour >= 0 && p2Hour <= 23 && p2Minute !== undefined && p2Minute >= 0 && p2Minute <= 59);
+    (p2Hour !== '' && p2Hour !== undefined && Number(p2Hour) >= 0 && Number(p2Hour) <= 23 &&
+     p2Minute !== '' && p2Minute !== undefined && Number(p2Minute) >= 0 && Number(p2Minute) <= 59);
 
   const isP2CityValid = Boolean(
     p2SelectedCity && p2SelectedCity.name && p2SelectedCity.latitude !== undefined
@@ -459,7 +483,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
     }
   };
 
-  const cityNameDisplay = locale === 'ru' ? selectedCity.name : selectedCity.nameEn;
+  const cityNameDisplay = selectedCity ? (locale === 'ru' ? selectedCity.name : selectedCity.nameEn) : '';
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -716,7 +740,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                 aria-describedby={dateError ? 'birth-date-error' : undefined}
                 value={day}
                 onChange={(e) => {
-                  setDay(Number(e.target.value));
+                  setDay(e.target.value ? Number(e.target.value) : '');
                   markTouched('day');
                 }}
                 onBlur={() => markTouched('day')}
@@ -726,6 +750,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
                 }`}
               >
+                <option value="">{locale === 'ru' ? 'День' : 'Day'}</option>
                 {[...Array(31)].map((_, i) => (
                   <option key={i + 1} value={i + 1}>
                     {i + 1}
@@ -745,7 +770,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                 aria-describedby={dateError ? 'birth-date-error' : undefined}
                 value={month}
                 onChange={(e) => {
-                  setMonth(Number(e.target.value));
+                  setMonth(e.target.value ? Number(e.target.value) : '');
                   markTouched('month');
                 }}
                 onBlur={() => markTouched('month')}
@@ -755,6 +780,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
                 }`}
               >
+                <option value="">{locale === 'ru' ? 'Месяц' : 'Month'}</option>
                 {months.map((m, i) => (
                   <option key={i + 1} value={i + 1}>
                     {m}
@@ -774,7 +800,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                 aria-describedby={dateError ? 'birth-date-error' : undefined}
                 value={year}
                 onChange={(e) => {
-                  setYear(Number(e.target.value));
+                  setYear(e.target.value ? Number(e.target.value) : '');
                   markTouched('year');
                 }}
                 onBlur={() => markTouched('year')}
@@ -784,7 +810,8 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
                 }`}
               >
-                {Array.from({ length: 85 }, (_, i) => 2015 - i).map((y) => (
+                <option value="">{locale === 'ru' ? 'Год' : 'Year'}</option>
+                {years.map((y) => (
                   <option key={y} value={y}>
                     {y}
                   </option>
@@ -839,7 +866,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                   aria-describedby={timeError ? 'birth-time-error' : undefined}
                   value={hour}
                   onChange={(e) => {
-                    setHour(Number(e.target.value));
+                    setHour(e.target.value !== '' ? Number(e.target.value) : '');
                     markTouched('time');
                   }}
                   onBlur={() => markTouched('time')}
@@ -847,6 +874,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     timeError ? 'border-red-400 focus:border-red-500 bg-red-50/20' : 'bg-stone-50 border-stone-300 focus:border-amber-500'
                   }`}
                 >
+                  <option value="">{locale === 'ru' ? 'ЧЧ' : 'HH'}</option>
                   {[...Array(24)].map((_, i) => (
                     <option key={i} value={i}>
                       {String(i).padStart(2, '0')}
@@ -863,7 +891,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                   aria-describedby={timeError ? 'birth-time-error' : undefined}
                   value={minute}
                   onChange={(e) => {
-                    setMinute(Number(e.target.value));
+                    setMinute(e.target.value !== '' ? Number(e.target.value) : '');
                     markTouched('time');
                   }}
                   onBlur={() => markTouched('time')}
@@ -871,6 +899,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     timeError ? 'border-red-400 focus:border-red-500 bg-red-50/20' : 'bg-stone-50 border-stone-300 focus:border-amber-500'
                   }`}
                 >
+                  <option value="">{locale === 'ru' ? 'ММ' : 'MM'}</option>
                   {[...Array(60)].map((_, i) => (
                     <option key={i} value={i}>
                       {String(i).padStart(2, '0')}
@@ -1128,7 +1157,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                   aria-describedby={p2DateError ? 'p2-date-error' : undefined}
                   value={p2Day}
                   onChange={(e) => {
-                    setP2Day(Number(e.target.value));
+                    setP2Day(e.target.value ? Number(e.target.value) : '');
                     markTouched('p2Day');
                   }}
                   onBlur={() => markTouched('p2Day')}
@@ -1136,6 +1165,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     p2DateError ? 'border-red-400 bg-red-50/20' : 'bg-stone-50 border-stone-300'
                   }`}
                 >
+                  <option value="">{locale === 'ru' ? 'День' : 'Day'}</option>
                   {[...Array(31)].map((_, i) => (
                     <option key={i + 1} value={i + 1}>{i + 1}</option>
                   ))}
@@ -1147,7 +1177,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                   aria-describedby={p2DateError ? 'p2-date-error' : undefined}
                   value={p2Month}
                   onChange={(e) => {
-                    setP2Month(Number(e.target.value));
+                    setP2Month(e.target.value ? Number(e.target.value) : '');
                     markTouched('p2Month');
                   }}
                   onBlur={() => markTouched('p2Month')}
@@ -1155,6 +1185,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     p2DateError ? 'border-red-400 bg-red-50/20' : 'bg-stone-50 border-stone-300'
                   }`}
                 >
+                  <option value="">{locale === 'ru' ? 'Месяц' : 'Month'}</option>
                   {months.map((m, i) => (
                     <option key={i + 1} value={i + 1}>{m}</option>
                   ))}
@@ -1166,7 +1197,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                   aria-describedby={p2DateError ? 'p2-date-error' : undefined}
                   value={p2Year}
                   onChange={(e) => {
-                    setP2Year(Number(e.target.value));
+                    setP2Year(e.target.value ? Number(e.target.value) : '');
                     markTouched('p2Year');
                   }}
                   onBlur={() => markTouched('p2Year')}
@@ -1174,7 +1205,8 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     p2DateError ? 'border-red-400 bg-red-50/20' : 'bg-stone-50 border-stone-300'
                   }`}
                 >
-                  {Array.from({ length: 85 }, (_, i) => 2015 - i).map((y) => (
+                  <option value="">{locale === 'ru' ? 'Год' : 'Year'}</option>
+                  {years.map((y) => (
                     <option key={y} value={y}>{y}</option>
                   ))}
                 </select>
@@ -1183,6 +1215,65 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                 <p id="p2-date-error" role="alert" className="text-xs text-red-500 mt-1 flex items-center gap-1 font-medium">
                   <span>⚠️</span>
                   <span>{p2DateError}</span>
+                </p>
+              )}
+            </div>
+
+            {/* Partner City Selection */}
+            <div>
+              <label htmlFor="p2-city-input" className="block text-xs font-bold text-stone-700 mb-1 uppercase tracking-wider">
+                {locale === 'ru' ? 'Город рождения партнера' : 'Partner’s Birth City'} <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3.5 top-3 w-4 h-4 text-stone-400" />
+                <input
+                  id="p2-city-input"
+                  type="text"
+                  aria-required="true"
+                  aria-invalid={Boolean(p2CityError)}
+                  aria-describedby={p2CityError ? 'p2-city-error' : undefined}
+                  value={p2CitySearch}
+                  onChange={(e) => {
+                    setP2CitySearch(e.target.value);
+                    markTouched('p2City');
+                  }}
+                  onBlur={() => {
+                    markTouched('p2City');
+                    handleCustomCityLookup(p2CitySearch, true);
+                  }}
+                  placeholder={t.citySearchPlaceholder}
+                  className={`w-full pl-10 pr-3 py-2.5 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none text-sm transition-colors ${
+                    p2CityError
+                      ? 'border-red-400 focus:border-rose-500 bg-red-50/20'
+                      : 'bg-stone-50 border-stone-300 focus:border-rose-500'
+                  }`}
+                />
+              </div>
+
+              {selectedCity && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setP2SelectedCity(selectedCity);
+                    setP2CitySearch(locale === 'ru' ? selectedCity.name : selectedCity.nameEn);
+                    markTouched('p2City');
+                  }}
+                  className="text-xs text-rose-600 hover:text-rose-700 mt-1.5 underline cursor-pointer"
+                >
+                  {locale === 'ru' ? `Тот же город, что у вас (${selectedCity.name})` : `Same city as yours (${selectedCity.nameEn})`}
+                </button>
+              )}
+
+              {p2CityError && (
+                <p id="p2-city-error" role="alert" className="text-xs text-red-500 mt-1 font-medium">
+                  ⚠️ {p2CityError}
+                </p>
+              )}
+
+              {p2SelectedCity && (
+                <p className="text-xs text-stone-600 mt-1 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                  <span>{locale === 'ru' ? p2SelectedCity.name : p2SelectedCity.nameEn} ({locale === 'ru' ? p2SelectedCity.country : p2SelectedCity.countryEn}, UTC+{p2SelectedCity.timezoneOffset})</span>
                 </p>
               )}
             </div>
