@@ -142,7 +142,13 @@ export const TRANSLATIONS = {
     partOfFortuneTitle: 'Точка Фортуны (Колесо Удачи • Pars Fortunae)',
     partOfFortuneSubtitle: 'Главный источник материального изобилия, финансовой удачи и душевного спокойствия',
     talismansTitle: 'Камни-талисманы и минералы силы',
-    talismansSubtitle: 'Персональные кристаллы, активирующие сильные стороны вашей карты и гармонизирующие слабые'
+    talismansSubtitle: 'Персональные кристаллы, активирующие сильные стороны вашей карты и гармонизирующие слабые',
+    shareStoriesBtn: 'Визитка в Stories 📸',
+    saveEmailTitle: 'Куда продублировать ваш Космический Паспорт?',
+    saveEmailDesc: 'Пришлем прямую ссылку на расчет и PDF, чтобы вы не потеряли результат',
+    saveEmailPlaceholder: 'Введите ваш Email (например: vasiliy@mail.ru)',
+    saveEmailBtn: 'Сохранить карту',
+    emailSaved: '✓ Ссылка на паспорт отправлена на ваш Email!'
   },
 
   en: {
@@ -286,7 +292,13 @@ export const TRANSLATIONS = {
     partOfFortuneTitle: 'Part of Fortune (Pars Fortunae • Wheel of Luck)',
     partOfFortuneSubtitle: 'Key gateway to material prosperity, career fortune, and inner contentment',
     talismansTitle: 'Talisman Gemstones & Power Crystals',
-    talismansSubtitle: 'Personal minerals tuned to the planetary frequencies of your birth chart'
+    talismansSubtitle: 'Personal minerals tuned to the planetary frequencies of your birth chart',
+    shareStoriesBtn: 'Stories Card 📸',
+    saveEmailTitle: 'Where should we email your Cosmic Passport?',
+    saveEmailDesc: 'We will send a direct link to your chart & PDF so you never lose it',
+    saveEmailPlaceholder: 'Enter your email address',
+    saveEmailBtn: 'Save My Chart',
+    emailSaved: '✓ Link to your passport sent to your email!'
   }
 };
 

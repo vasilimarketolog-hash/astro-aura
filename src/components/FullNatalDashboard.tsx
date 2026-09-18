@@ -24,6 +24,10 @@ import { NatalWheel } from './NatalWheel';
 import { AIAstrologerChat } from './AIAstrologerChat';
 import { AspectGrid } from './AspectGrid';
 import { AstrodynesCard } from './AstrodynesCard';
+import { HumanDesignBodygraph } from './HumanDesignBodygraph';
+import { RedFlagScanner } from './RedFlagScanner';
+import { LilithCard } from './LilithCard';
+import { StoriesCardModal } from './StoriesCardModal';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -49,6 +53,7 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
     natal.birthData.houseSystem || 'placidus'
   );
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isStoriesOpen, setIsStoriesOpen] = useState(false);
   const printableRef = useRef<HTMLDivElement>(null);
 
   // Dynamic recalculation when switching house system
@@ -165,6 +170,14 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
 
             {/* Actions (Excluded from print) */}
             <div className="flex flex-wrap items-center gap-3 print:hidden">
+              <button
+                onClick={() => setIsStoriesOpen(true)}
+                className="px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-300 hover:bg-amber-100 text-stone-900 text-xs sm:text-sm font-bold transition-all flex items-center space-x-2 cursor-pointer shadow-xs"
+              >
+                <span>📸</span>
+                <span>{t.shareStoriesBtn}</span>
+              </button>
+
               <button
                 onClick={() => setActiveTab('chat')}
                 className="px-4 py-2.5 rounded-xl bg-stone-100 border border-stone-300 hover:bg-stone-200 text-stone-900 text-xs sm:text-sm font-bold transition-all flex items-center space-x-2 cursor-pointer shadow-xs"
@@ -523,6 +536,13 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                   </p>
                 </div>
               </div>
+
+              {/* Deep Lilith Shadow Work Section */}
+              {lilith && (
+                <div className="mt-6">
+                  <LilithCard lilith={lilith} locale={locale} />
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -530,8 +550,8 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
         {/* TAB 5: SYNASTRY */}
         {activeTab === 'synastry' && (
           <div className="space-y-6">
-            <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-              <h2 className="text-2xl font-black text-stone-900 mb-3 flex items-center space-x-2">
+            <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+              <h2 className="text-2xl font-black text-stone-900 flex items-center space-x-2">
                 <Star className="w-6 h-6 text-amber-500 fill-amber-400" />
                 <span>{locale === 'ru' ? 'Гороскоп Совместимости (Синастрия)' : 'Compatibility Report (Synastry)'}</span>
               </h2>
@@ -556,6 +576,9 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                       </div>
                     </div>
                   </div>
+
+                  {/* Red Flag & Shadow Compatibility Scanner */}
+                  <RedFlagScanner synastry={synastry} locale={locale} />
                 </div>
               ) : (
                 <div className="text-center py-10 text-stone-500">
@@ -569,48 +592,7 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
         {/* TAB 6: HUMAN DESIGN */}
         {activeTab === 'humandesign' && (
           <div className="space-y-6">
-            <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-              <h2 className="text-2xl font-black text-stone-900 mb-3 flex items-center space-x-2">
-                <Fingerprint className="w-6 h-6 text-amber-600" />
-                <span>{locale === 'ru' ? 'Дизайн Человека: Бодиграф' : 'Human Design: Bodygraph'}</span>
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 space-y-2">
-                  <span className="text-xs font-bold text-amber-800 uppercase tracking-wider block">
-                    {locale === 'ru' ? 'Генетический Тип' : 'Genetic Type'}
-                  </span>
-                  <div className="text-xl font-bold text-stone-900">{humanDesign.type}</div>
-                  <div className="text-xs font-mono text-stone-600">
-                    {locale === 'ru' ? `Профиль: ${humanDesign.profile}` : `Profile: ${humanDesign.profile}`}
-                  </div>
-                  <p className="text-xs text-stone-600 pt-2">
-                    <strong>{locale === 'ru' ? 'Стратегия:' : 'Strategy:'}</strong> {humanDesign.strategy}
-                  </p>
-                  <p className="text-xs text-stone-600">
-                    <strong>{locale === 'ru' ? 'Авторитет:' : 'Authority:'}</strong> {humanDesign.innerAuthority}
-                  </p>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
-                  <span className="text-xs font-bold text-stone-800 uppercase tracking-wider block">
-                    {locale === 'ru' ? 'Центры Энергии' : 'Energy Centers'}
-                  </span>
-                  <div className="text-xs space-y-1">
-                    <div className="text-emerald-700 font-bold">
-                      {locale === 'ru' ? 'Определенные центры:' : 'Defined Centers:'}
-                    </div>
-                    <div className="text-stone-600">{humanDesign.definedCenters.join(', ')}</div>
-                  </div>
-                  <div className="text-xs space-y-1 pt-2">
-                    <div className="text-amber-800 font-bold">
-                      {locale === 'ru' ? 'Открытые центры:' : 'Open Centers:'}
-                    </div>
-                    <div className="text-stone-600">{humanDesign.openCenters.join(', ')}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <HumanDesignBodygraph data={humanDesign} locale={locale} />
           </div>
         )}
 
@@ -621,6 +603,14 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
           </div>
         )}
       </div>
+
+      {/* Instagram/Telegram Stories Modal */}
+      <StoriesCardModal
+        isOpen={isStoriesOpen}
+        onClose={() => setIsStoriesOpen(false)}
+        natal={currentNatal}
+        locale={locale}
+      />
     </div>
   );
 };

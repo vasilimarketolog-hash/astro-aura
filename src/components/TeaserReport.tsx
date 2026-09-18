@@ -15,11 +15,15 @@ import {
   Zap,
   Gift,
   Heart,
-  HelpCircle
+  HelpCircle,
+  Camera,
+  Activity,
+  AlertTriangle
 } from 'lucide-react';
 import { NatalChartData, SynastryData, HumanDesignData, Locale } from '@/types/astro';
 import { generateTeaserInsights, SIGN_INTERPRETATIONS } from '@/lib/interpretations';
 import { getTranslation } from '@/lib/translations';
+import { StoriesCardModal } from './StoriesCardModal';
 
 interface TeaserReportProps {
   locale: Locale;
@@ -38,6 +42,9 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
 }) => {
   const t = getTranslation(locale);
   const [timeLeft, setTimeLeft] = useState(14 * 60 + 59);
+  const [isStoriesOpen, setIsStoriesOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [isEmailSaved, setIsEmailSaved] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -79,17 +86,28 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
           </div>
         </div>
 
-        {/* Countdown */}
-        <div className="flex items-center space-x-2 bg-white/80 px-4 py-2 rounded-xl border border-amber-300 shadow-xs">
-          <span className="text-xs text-stone-600 font-medium">{t.discountTimer}</span>
-          <span className="font-mono text-base font-bold text-amber-800">
-            {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-          </span>
+        <div className="flex items-center gap-3">
+          {/* Stories Generator Action */}
+          <button
+            onClick={() => setIsStoriesOpen(true)}
+            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-white border border-amber-300 text-stone-800 hover:bg-amber-50 text-xs font-bold transition-all shadow-xs cursor-pointer"
+          >
+            <Camera className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.shareStoriesBtn || 'Stories 📸'}</span>
+          </button>
+
+          {/* Countdown */}
+          <div className="flex items-center space-x-2 bg-white/90 px-3.5 py-2 rounded-xl border border-amber-300 shadow-xs">
+            <span className="text-xs text-stone-600 font-medium">{t.discountTimer}</span>
+            <span className="font-mono text-base font-bold text-amber-800">
+              {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Main Header with personalized Name & City */}
-      <div className="text-center mb-10">
+      <div className="text-center mb-8">
         <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-stone-800 text-xs mb-3 shadow-xs">
           <Sparkles className="w-3.5 h-3.5 text-amber-600" />
           <span>
@@ -102,6 +120,50 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
         <p className="text-sm sm:text-base text-stone-600 max-w-2xl mx-auto leading-relaxed">
           {insights.headline}. Ниже представлена базовая открытая часть вашей карты и заблокированные глубинные ключи судьбы.
         </p>
+      </div>
+
+      {/* Email Lead Capture Box */}
+      <div className="bg-gradient-to-br from-amber-50/80 via-white to-orange-50/70 border border-amber-200 rounded-3xl p-5 sm:p-6 mb-8 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-center sm:text-left">
+            <h4 className="text-sm sm:text-base font-bold text-stone-900 mb-1 flex items-center justify-center sm:justify-start gap-2">
+              <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>{t.saveEmailTitle}</span>
+            </h4>
+            <p className="text-xs text-stone-600">
+              {t.saveEmailDesc}
+            </p>
+          </div>
+          {isEmailSaved ? (
+            <div className="flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold shrink-0">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>{t.emailSaved}</span>
+            </div>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (email.trim()) setIsEmailSaved(true);
+              }}
+              className="flex w-full sm:w-auto items-center gap-2 shrink-0"
+            >
+              <input
+                type="email"
+                required
+                placeholder={t.saveEmailPlaceholder}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="px-3.5 py-2 rounded-xl border border-amber-300 bg-white text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500 w-full sm:w-60 shadow-inner"
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-sm shrink-0 cursor-pointer"
+              >
+                {t.saveEmailBtn}
+              </button>
+            </form>
+          )}
+        </div>
       </div>
 
       {/* The Big 3: Sun, Moon, Ascendant Cards */}
@@ -207,10 +269,76 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
         </div>
       </div>
 
+      {/* Human Design Teaser Card (Cosmic Energy Blueprint) */}
+      <div className="bg-white border-2 border-amber-300/80 rounded-3xl p-6 sm:p-8 mb-8 shadow-md relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-5">
+          <div className="flex items-center space-x-3">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-white flex items-center justify-center shadow-md shadow-amber-500/20">
+              <Activity className="w-6 h-6" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-amber-800 uppercase tracking-wider block">
+                {locale === 'ru' ? 'Дизайн Человека • Энергетический профиль' : 'Human Design • Energy Blueprint'}
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-stone-900">
+                {humanDesign.type} ({humanDesign.profile})
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold">
+              {humanDesign.innerAuthority}
+            </span>
+          </div>
+        </div>
+
+        <p className="text-xs sm:text-sm text-stone-700 leading-relaxed mb-6">
+          {locale === 'ru'
+            ? `Ваша генетическая стратегия успеха — «${humanDesign.strategy}». В полной версии карты доступен интерактивный 9-центровый векторный бодиграф с расшифровкой определенных и открытых центров.`
+            : `Your genetic strategy is "${humanDesign.strategy}". The full version includes an interactive 9-center vector bodygraph with deep channel analysis.`}
+        </p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-stone-50 border border-stone-200 mb-4">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-stone-500 block">
+              {locale === 'ru' ? 'Стратегия' : 'Strategy'}
+            </span>
+            <strong className="text-xs text-stone-900 font-semibold line-clamp-1">{humanDesign.strategy}</strong>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-stone-500 block">
+              {locale === 'ru' ? 'Авторитет' : 'Authority'}
+            </span>
+            <strong className="text-xs text-stone-900 font-semibold line-clamp-1">{humanDesign.innerAuthority}</strong>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-stone-500 block">
+              {locale === 'ru' ? 'Тема Ложного Я' : 'Not-Self Theme'}
+            </span>
+            <strong className="text-xs text-rose-700 font-semibold line-clamp-1">{humanDesign.notSelfTheme}</strong>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-stone-500 block">
+              {locale === 'ru' ? 'Определено центров' : 'Defined Centers'}
+            </span>
+            <strong className="text-xs text-amber-800 font-semibold">{humanDesign.definedCenters.length} из 9</strong>
+          </div>
+        </div>
+
+        <button
+          onClick={onUnlockPaywall}
+          className="w-full py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer"
+        >
+          <Lock className="w-3.5 h-3.5 text-amber-700" />
+          <span>{locale === 'ru' ? 'Открыть интерактивный Бодиграф (все 9 центров)' : 'Unlock Interactive 9-Center Bodygraph'}</span>
+        </button>
+      </div>
+
       {/* If Synastry preview */}
       {synastry && (
-        <div className="bg-rose-50/50 border border-rose-200 rounded-3xl p-6 mb-8 shadow-xs">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-rose-50/60 border border-rose-200 rounded-3xl p-6 mb-8 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Heart className="w-5 h-5 text-rose-500" />
               <span className="font-bold text-stone-900 text-lg">
@@ -224,6 +352,27 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
           <p className="text-xs sm:text-sm text-stone-600">
             {synastry.compatibility.verdict}
           </p>
+
+          {/* Red Flag & Shadow Compatibility Teaser */}
+          <div className="relative p-4 rounded-2xl bg-white border border-rose-200 overflow-hidden">
+            <div className="absolute inset-0 backdrop-blur-[5px] bg-white/80 z-10 flex items-center justify-between px-5">
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600" />
+                <span className="text-xs font-bold text-stone-900">
+                  {locale === 'ru' ? '⚠️ Скрытые трения и Red Flags пары (3 триггера)' : '⚠️ Relationship Red Flags & Friction Points'}
+                </span>
+              </div>
+              <button
+                onClick={onUnlockPaywall}
+                className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition-colors cursor-pointer"
+              >
+                {t.unlockButton}
+              </button>
+            </div>
+            <div className="opacity-20 text-xs text-stone-600 select-none">
+              Потенциал скрытых обид, финансовый контроль и борьба за лидерство в быту...
+            </div>
+          </div>
         </div>
       )}
 
@@ -288,6 +437,62 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             <p>Ваш Северный узел в знаке требует полного отказа от старой привычки жертвовать собой ради одобрения других...</p>
           </div>
         </div>
+
+        {/* Locked item 3: Lilith Dark Magnetism */}
+        <div className="relative p-5 rounded-3xl bg-white border border-stone-200 overflow-hidden shadow-sm">
+          <div className="absolute inset-0 backdrop-blur-[5px] bg-white/75 z-10 flex items-center justify-between px-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-2xl bg-rose-100 border border-rose-300 flex items-center justify-center text-rose-800">
+                <Lock className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-sm font-bold text-stone-900 block">
+                  Лилит (Черная Луна): Теневой магнетизм и сексуальный код
+                </span>
+                <span className="text-xs text-stone-600">
+                  Ваша темная сторона привлекательности, скрытые табу и кармические искушения
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={onUnlockPaywall}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-stone-900 to-amber-900 hover:from-black text-white text-xs font-bold transition-colors cursor-pointer shadow-sm"
+            >
+              {t.unlockButton}
+            </button>
+          </div>
+          <div className="opacity-20 select-none text-xs text-stone-600 space-y-2">
+            <p>Ваша Лилит пробуждает гипнотическое влияние на противоположный пол через архетип независимости и бескомпромиссной чувственности...</p>
+          </div>
+        </div>
+
+        {/* Locked item 4: Interactive Bodygraph */}
+        <div className="relative p-5 rounded-3xl bg-white border border-stone-200 overflow-hidden shadow-sm">
+          <div className="absolute inset-0 backdrop-blur-[5px] bg-white/75 z-10 flex items-center justify-between px-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700">
+                <Lock className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-sm font-bold text-stone-900 block">
+                  Интерактивный векторный Бодиграф (Дизайн Человека)
+                </span>
+                <span className="text-xs text-stone-600">
+                  9 центров, 36 энергетических каналов и персональные ворота предназначения
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={onUnlockPaywall}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-stone-900 to-amber-900 hover:from-black text-white text-xs font-bold transition-colors cursor-pointer shadow-sm"
+            >
+              {t.unlockButton}
+            </button>
+          </div>
+          <div className="opacity-20 select-none text-xs text-stone-600 space-y-2">
+            <p>Активированные каналы между Сакралом и Горлом открывают доступ к неиссякаемой созидательной силе...</p>
+          </div>
+        </div>
       </div>
 
       {/* Floating Sticky Bottom Conversion Bar */}
@@ -317,6 +522,14 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Instagram/Telegram Stories Modal */}
+      <StoriesCardModal
+        isOpen={isStoriesOpen}
+        onClose={() => setIsStoriesOpen(false)}
+        natal={natal}
+        locale={locale}
+      />
     </div>
   );
 };
