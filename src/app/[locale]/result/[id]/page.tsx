@@ -116,8 +116,9 @@ export default function ResultPage({
                 : 'The temporary calculation link has expired or is invalid. You can generate a new chart for free.'}
             </p>
             <button
+              type="button"
               onClick={() => router.push(`${routePrefix}/chart/step/1`)}
-              className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-sm"
+              className="px-6 py-2.5 min-h-[44px] inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
             >
               {locale === 'ru' ? 'Рассчитать бесплатно' : 'Calculate Free'}
             </button>

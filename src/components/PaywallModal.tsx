@@ -277,8 +277,10 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
       <div className="relative w-full max-w-4xl bg-white border-2 border-amber-300 rounded-3xl p-6 sm:p-8 shadow-2xl my-8 overflow-hidden">
         {/* Close Button */}
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full bg-stone-100 text-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
+          aria-label="Close modal"
+          className="absolute top-5 right-5 min-w-[44px] min-h-[44px] rounded-full bg-stone-100 text-stone-500 hover:text-stone-900 transition-colors cursor-pointer flex items-center justify-center"
         >
           <X className="w-5 h-5" />
         </button>

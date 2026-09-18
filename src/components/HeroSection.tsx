@@ -45,6 +45,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onStart }) => 
         {/* Primary CTA Button */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
           <button
+            type="button"
             onClick={() => onStart()}
             className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black hover:to-stone-900 text-white font-bold text-lg shadow-xl shadow-stone-900/15 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-3 cursor-pointer"
           >

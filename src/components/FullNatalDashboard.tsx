@@ -171,6 +171,7 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
             {/* Actions (Excluded from print) */}
             <div className="flex flex-wrap items-center gap-3 print:hidden">
               <button
+                type="button"
                 onClick={() => setIsStoriesOpen(true)}
                 className="px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-300 hover:bg-amber-100 text-stone-900 text-xs sm:text-sm font-bold transition-all flex items-center space-x-2 cursor-pointer shadow-xs"
               >
@@ -179,6 +180,7 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
               </button>
 
               <button
+                type="button"
                 onClick={() => setActiveTab('chat')}
                 className="px-4 py-2.5 rounded-xl bg-stone-100 border border-stone-300 hover:bg-stone-200 text-stone-900 text-xs sm:text-sm font-bold transition-all flex items-center space-x-2 cursor-pointer shadow-xs"
               >
@@ -187,6 +189,7 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
               </button>
 
               <button
+                type="button"
                 onClick={handleDownloadPdf}
                 disabled={isGeneratingPdf}
                 className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-stone-950 font-black text-xs sm:text-sm transition-all flex items-center space-x-2 cursor-pointer shadow-md shadow-amber-500/20 disabled:opacity-50"
@@ -221,6 +224,7 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
             ].map((hs) => (
               <button
                 key={hs.id}
+                type="button"
                 onClick={() => setHouseSystem(hs.id as any)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   houseSystem === hs.id
@@ -250,6 +254,7 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center space-x-2 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive

@@ -142,9 +142,10 @@ export const AIAstrologerChat: React.FC<AIAstrologerChatProps> = ({ chart }) => 
         {quickPrompts.map((prompt, i) => (
           <button
             key={i}
+            type="button"
             onClick={() => handleSend(prompt)}
             disabled={loading}
-            className="text-[11px] whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-stone-300 hover:border-amber-400 text-stone-700 hover:text-stone-950 transition-all cursor-pointer disabled:opacity-50 shadow-xs"
+            className="text-[11px] whitespace-nowrap px-3.5 py-1.5 min-h-[36px] flex items-center rounded-full bg-white border border-stone-300 hover:border-amber-400 text-stone-700 hover:text-stone-950 transition-all cursor-pointer disabled:opacity-50 shadow-xs"
           >
             {prompt}
           </button>

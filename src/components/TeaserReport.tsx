@@ -33,6 +33,16 @@ interface TeaserReportProps {
   onUnlockPaywall: () => void;
 }
 
+function formatSnippet(text?: string, limit = 115): string {
+  if (!text) return '';
+  if (text.length <= limit) return text;
+  const sub = text.slice(0, limit);
+  const lastSpace = sub.lastIndexOf(' ');
+  const trimmed = lastSpace > 20 ? sub.slice(0, lastSpace) : sub;
+  const clean = trimmed.replace(/[.,;:\s\-–—!]+$/, '');
+  return `${clean}...`;
+}
+
 export const TeaserReport: React.FC<TeaserReportProps> = ({
   locale,
   natal,
@@ -99,6 +109,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
         <div className="flex items-center gap-3">
           {/* Stories Generator Action */}
           <button
+            type="button"
             onClick={() => setIsStoriesOpen(true)}
             className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-white border border-amber-300 text-stone-800 hover:bg-amber-50 text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
@@ -206,7 +217,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             <span className="text-xs font-mono text-stone-500 font-normal">({moon.degreeInSign}°)</span>
           </div>
           <p className="text-xs text-stone-600 leading-relaxed">
-            {moonData?.moonMeaning.slice(0, 110)}...
+            {formatSnippet(moonData?.moonMeaning, 115)}
           </p>
         </div>
 
@@ -222,7 +233,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             <span className="text-xs font-mono text-stone-500 font-normal">({asc.degreeInSign}°)</span>
           </div>
           <p className="text-xs text-stone-600 leading-relaxed">
-            {ascData?.ascMeaning.slice(0, 110)}...
+            {formatSnippet(ascData?.ascMeaning, 115)}
           </p>
         </div>
       </div>
@@ -332,11 +343,14 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             <span className="text-[10px] uppercase font-bold text-stone-500 block">
               {locale === 'ru' ? 'Определено центров' : 'Defined Centers'}
             </span>
-            <strong className="text-xs text-amber-800 font-semibold">{humanDesign.definedCenters.length} из 9</strong>
+            <strong className="text-xs text-amber-800 font-semibold">
+              {humanDesign.definedCenters.length} {locale === 'ru' ? 'из 9' : 'of 9'}
+            </strong>
           </div>
         </div>
 
         <button
+          type="button"
           onClick={onUnlockPaywall}
           className="w-full py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer"
         >

@@ -269,27 +269,27 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
   useEffect(() => {
     if (step === 99) {
       const startTime = Date.now();
-      const totalDuration = 8500;
+      const totalDuration = 3500;
 
       const progressInterval = setInterval(() => {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(99, Math.floor((elapsed / totalDuration) * 100));
         setProgressPercent(progress);
-      }, 100);
+      }, 50);
 
-      const t1 = setTimeout(() => setLoadingPhase(1), 1600);
-      const t2 = setTimeout(() => setLoadingPhase(2), 3200);
-      const t3 = setTimeout(() => setLoadingPhase(3), 4800);
-      const t4 = setTimeout(() => setLoadingPhase(4), 6400);
-      const t5 = setTimeout(() => setLoadingPhase(5), 7800);
+      const t1 = setTimeout(() => setLoadingPhase(1), 600);
+      const t2 = setTimeout(() => setLoadingPhase(2), 1300);
+      const t3 = setTimeout(() => setLoadingPhase(3), 2000);
+      const t4 = setTimeout(() => setLoadingPhase(4), 2700);
+      const t5 = setTimeout(() => setLoadingPhase(5), 3200);
 
       const finishTimeout = setTimeout(() => {
         setProgressPercent(100);
 
         const effectiveCity = selectedCity || POPULAR_CITIES[0];
         const p1Birth: BirthData = {
-          name: firstName.trim() || (locale === 'ru' ? 'Василий' : 'Vasily'),
-          lastName: lastName.trim() || (locale === 'ru' ? 'Булгаков' : 'Bulgakov'),
+          name: firstName.trim() || (locale === 'ru' ? 'Алексей' : 'Alex'),
+          lastName: lastName.trim() || '',
           country: effectiveCity.country,
           gender: (gender as any) || 'male',
           day: Number(day) || 1,
@@ -543,8 +543,9 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
         <div className="mb-8">
           <div className="flex items-center justify-between text-xs text-stone-500 mb-2 font-medium">
             <button
+              type="button"
               onClick={handlePrev}
-              className="flex items-center space-x-1 hover:text-stone-900 transition-colors cursor-pointer"
+              className="min-h-[44px] min-w-[44px] -ml-2 px-2.5 py-2 rounded-lg flex items-center space-x-1.5 hover:text-stone-900 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>{step === 1 ? t.toHome : t.back}</span>

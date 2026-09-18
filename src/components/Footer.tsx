@@ -182,7 +182,7 @@ export const Footer: React.FC<FooterProps> = ({ locale = 'ru' }) => {
               <button
                 type="button"
                 onClick={closeModal}
-                className="px-5 py-2 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-bold transition-colors cursor-pointer"
+                className="min-h-[44px] min-w-[44px] px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-bold transition-colors cursor-pointer flex items-center justify-center"
               >
                 {isEn ? 'Close' : 'Понятно'}
               </button>
