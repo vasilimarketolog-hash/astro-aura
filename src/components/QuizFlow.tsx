@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Sparkles,
   ArrowRight,
@@ -8,9 +8,8 @@ import {
   Calendar,
   Clock,
   MapPin,
-  User,
   Heart,
-  Briefcase,
+  User,
   Search,
   CheckCircle2,
   Loader2,
@@ -18,7 +17,7 @@ import {
   Globe
 } from 'lucide-react';
 import { BirthData, CalculationType, NatalChartData, SynastryData, HumanDesignData, Locale } from '@/types/astro';
-import { searchCities, POPULAR_CITIES, CityInfo, geocodeWorldwideCity } from '@/lib/cities';
+import { searchCities, POPULAR_CITIES, CityInfo, geocodeWorldwideCity, geocodeWorldwideCities } from '@/lib/cities';
 import { calculateNatalChart, calculateSynastry, calculateHumanDesign } from '@/lib/astroEngine';
 import { getTranslation } from '@/lib/translations';
 import { getWizardState, saveWizardState } from '@/lib/storage';
@@ -198,14 +197,66 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
   const currentYear = new Date().getFullYear(); // 2026
   const years = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => currentYear - i);
 
-  const filteredCities = searchCities(citySearch, locale);
+  const [remoteCities, setRemoteCities] = useState<CityInfo[]>([]);
+  const [isP2Geocoding, setIsP2Geocoding] = useState(false);
+  const [remoteP2Cities, setRemoteP2Cities] = useState<CityInfo[]>([]);
+
+  const localCities = useMemo(() => searchCities(citySearch, locale), [citySearch, locale]);
+  const displayedCities = localCities.length > 0 ? localCities : remoteCities;
+
+  const localP2Cities = useMemo(() => searchCities(p2CitySearch, locale), [p2CitySearch, locale]);
+  const displayedP2Cities = localP2Cities.length > 0 ? localP2Cities : remoteP2Cities;
+
+  // Debounced worldwide geocoding for Person 1 (250ms)
+  useEffect(() => {
+    const q = citySearch.trim();
+    if (q.length < 2 || localCities.length > 0) {
+      setRemoteCities([]);
+      setIsGeocoding(false);
+      return;
+    }
+
+    setIsGeocoding(true);
+    const timer = setTimeout(async () => {
+      const results = await geocodeWorldwideCities(q);
+      setRemoteCities(results);
+      setIsGeocoding(false);
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [citySearch, localCities.length]);
+
+  // Debounced worldwide geocoding for Person 2 (250ms)
+  useEffect(() => {
+    const q = p2CitySearch.trim();
+    if (q.length < 2 || localP2Cities.length > 0) {
+      setRemoteP2Cities([]);
+      setIsP2Geocoding(false);
+      return;
+    }
+
+    setIsP2Geocoding(true);
+    const timer = setTimeout(async () => {
+      const results = await geocodeWorldwideCities(q);
+      setRemoteP2Cities(results);
+      setIsP2Geocoding(false);
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [p2CitySearch, localP2Cities.length]);
+
   const fullName = `${firstName.trim() || (locale === 'ru' ? 'Василий' : 'Vasily')} ${lastName.trim() || (locale === 'ru' ? 'Булгаков' : 'Bulgakov')}`.trim();
 
   const handleCustomCityLookup = async (inputQuery: string, isPerson2 = false) => {
     if (!inputQuery.trim()) return;
-    setIsGeocoding(true);
+    if (isPerson2) setIsP2Geocoding(true);
+    else setIsGeocoding(true);
+
     const result = await geocodeWorldwideCity(inputQuery);
-    setIsGeocoding(false);
+
+    if (isPerson2) setIsP2Geocoding(false);
+    else setIsGeocoding(false);
+
     if (result) {
       if (isPerson2) {
         setP2SelectedCity(result);
@@ -992,12 +1043,17 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                   handleCustomCityLookup(citySearch);
                 }}
                 placeholder={t.citySearchPlaceholder}
-                className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none transition-colors ${
+                className={`w-full pl-12 pr-10 py-3.5 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none transition-colors ${
                   cityError
                     ? 'border-red-400 focus:border-red-500 bg-red-50/20'
                     : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
                 }`}
               />
+              {isGeocoding && (
+                <div className="absolute right-3.5 top-3.5">
+                  <Loader2 className="w-5 h-5 text-amber-600 animate-spin" />
+                </div>
+              )}
             </div>
 
             {cityError && (
@@ -1009,14 +1065,15 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
 
             {/* City Suggestion List */}
             <div className="max-h-48 overflow-y-auto rounded-xl border border-stone-200 bg-stone-50 divide-y divide-stone-200">
-              {filteredCities.map((city) => {
-                const isSelected = selectedCity?.name === city.name;
+              {displayedCities.map((city) => {
+                const isSelected = selectedCity?.name === city.name && selectedCity?.country === city.country;
                 const cName = locale === 'ru' ? city.name : city.nameEn;
                 const cCountry = locale === 'ru' ? city.country : city.countryEn;
+                const cRegion = locale === 'ru' ? city.region : city.regionEn;
 
                 return (
                   <div
-                    key={`${city.name}-${city.country}`}
+                    key={`${city.name}-${city.region || ''}-${city.country}`}
                     onClick={() => {
                       setSelectedCity(city);
                       setCitySearch(cName);
@@ -1027,14 +1084,21 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     }`}
                   >
                     <div className="flex items-center space-x-2">
-                      <MapPin className="w-4 h-4 text-amber-600" />
-                      <span className="text-sm">{cName}</span>
-                      <span className="text-xs text-stone-500">({cCountry})</span>
+                      <MapPin className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span className="text-sm font-medium">{cName}</span>
+                      <span className="text-xs text-stone-400">
+                        {cRegion ? `${cRegion}, ` : ''}{cCountry}
+                      </span>
                     </div>
-                    {isSelected && <CheckCircle2 className="w-4 h-4 text-amber-600" />}
+                    {isSelected && <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0" />}
                   </div>
                 );
               })}
+              {citySearch.trim().length >= 2 && !isGeocoding && displayedCities.length === 0 && (
+                <div className="p-4 text-center text-xs text-stone-500 font-medium">
+                  {t.cityNotFound}
+                </div>
+              )}
             </div>
 
             {isGeocoding && (
@@ -1046,9 +1110,10 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
 
             {selectedCity && selectedCity.name && (
               <div className="text-xs text-stone-600 flex items-center space-x-1.5 pt-1">
-                <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 <span>
-                  {t.selectedCityText} <strong className="text-stone-900 font-bold">{cityNameDisplay}</strong> ({locale === 'ru' ? selectedCity.country : selectedCity.countryEn}, UTC+{selectedCity.timezoneOffset})
+                  {t.selectedCityText} <strong className="text-stone-900 font-bold">{cityNameDisplay}</strong>
+                  {selectedCity.region ? `, ${locale === 'ru' ? selectedCity.region : selectedCity.regionEn}` : ''} ({locale === 'ru' ? selectedCity.country : selectedCity.countryEn}, UTC+{selectedCity.timezoneOffset})
                 </span>
               </div>
             )}
@@ -1242,13 +1307,54 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     handleCustomCityLookup(p2CitySearch, true);
                   }}
                   placeholder={t.citySearchPlaceholder}
-                  className={`w-full pl-10 pr-3 py-2.5 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none text-sm transition-colors ${
+                  className={`w-full pl-10 pr-9 py-2.5 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none text-sm transition-colors ${
                     p2CityError
                       ? 'border-red-400 focus:border-rose-500 bg-red-50/20'
                       : 'bg-stone-50 border-stone-300 focus:border-rose-500'
                   }`}
                 />
+                {isP2Geocoding && (
+                  <div className="absolute right-3 top-2.5">
+                    <Loader2 className="w-4 h-4 text-rose-600 animate-spin" />
+                  </div>
+                )}
               </div>
+
+              {/* Partner city suggestion dropdown when typing */}
+              {p2CitySearch.trim().length > 0 && !p2SelectedCity && (
+                <div className="max-h-36 overflow-y-auto rounded-xl border border-stone-200 bg-stone-50 divide-y divide-stone-200 mt-1">
+                  {displayedP2Cities.map((city) => {
+                    const cName = locale === 'ru' ? city.name : city.nameEn;
+                    const cCountry = locale === 'ru' ? city.country : city.countryEn;
+                    const cRegion = locale === 'ru' ? city.region : city.regionEn;
+
+                    return (
+                      <div
+                        key={`p2-${city.name}-${city.region || ''}-${city.country}`}
+                        onClick={() => {
+                          setP2SelectedCity(city);
+                          setP2CitySearch(cName);
+                          markTouched('p2City');
+                        }}
+                        className="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-stone-100 text-stone-700 text-xs"
+                      >
+                        <div className="flex items-center space-x-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                          <span className="font-medium">{cName}</span>
+                          <span className="text-stone-400">
+                            {cRegion ? `${cRegion}, ` : ''}{cCountry}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {p2CitySearch.trim().length >= 2 && !isP2Geocoding && displayedP2Cities.length === 0 && (
+                    <div className="p-3 text-center text-xs text-stone-500 font-medium">
+                      {t.cityNotFound}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {selectedCity && (
                 <button
@@ -1258,7 +1364,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     setP2CitySearch(locale === 'ru' ? selectedCity.name : selectedCity.nameEn);
                     markTouched('p2City');
                   }}
-                  className="text-xs text-rose-600 hover:text-rose-700 mt-1.5 underline cursor-pointer"
+                  className="text-xs text-rose-600 hover:text-rose-700 mt-1.5 underline cursor-pointer inline-block"
                 >
                   {locale === 'ru' ? `Тот же город, что у вас (${selectedCity.name})` : `Same city as yours (${selectedCity.nameEn})`}
                 </button>
@@ -1272,8 +1378,11 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
 
               {p2SelectedCity && (
                 <p className="text-xs text-stone-600 mt-1 flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                  <span>{locale === 'ru' ? p2SelectedCity.name : p2SelectedCity.nameEn} ({locale === 'ru' ? p2SelectedCity.country : p2SelectedCity.countryEn}, UTC+{p2SelectedCity.timezoneOffset})</span>
+                  <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                  <span>
+                    {locale === 'ru' ? p2SelectedCity.name : p2SelectedCity.nameEn}
+                    {p2SelectedCity.region ? `, ${locale === 'ru' ? p2SelectedCity.region : p2SelectedCity.regionEn}` : ''} ({locale === 'ru' ? p2SelectedCity.country : p2SelectedCity.countryEn}, UTC+{p2SelectedCity.timezoneOffset})
+                  </span>
                 </p>
               )}
             </div>

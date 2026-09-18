@@ -98,6 +98,7 @@ export const TRANSLATIONS = {
     valP2NameInvalid: 'Имя партнера должно содержать минимум 2 буквы',
     valP2DateInvalid: 'Проверьте дату рождения партнера',
     valP2CityRequired: 'Пожалуйста, выберите город рождения партнера',
+    cityNotFound: 'Город не найден. Проверьте написание или введите ближайший крупный город',
 
     // Realistic Loading Calculation Phases
     calcHeading: 'Выполняются глубокие астрономические расчеты...',
@@ -278,6 +279,7 @@ export const TRANSLATIONS = {
     valP2NameInvalid: 'Partner’s name must contain at least 2 letters',
     valP2DateInvalid: 'Please check partner’s birth date',
     valP2CityRequired: 'Please select partner’s birth city',
+    cityNotFound: 'City not found. Check spelling or enter the nearest large city',
 
     // Realistic Loading Calculation Phases
     calcHeading: 'Performing in-depth astronomical calculations...',
