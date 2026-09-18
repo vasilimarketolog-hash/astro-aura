@@ -21,7 +21,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { NatalChartData, SynastryData, HumanDesignData, Locale } from '@/types/astro';
-import { generateTeaserInsights, SIGN_INTERPRETATIONS } from '@/lib/interpretations';
+import { generateTeaserInsights, SIGN_INTERPRETATIONS, SIGN_INTERPRETATIONS_EN } from '@/lib/interpretations';
 import { getTranslation } from '@/lib/translations';
 import { StoriesCardModal } from './StoriesCardModal';
 
@@ -60,13 +60,23 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
   const moon = natal.planets.find((p) => p.id === 'moon')!;
   const asc = natal.ascendant;
 
-  const insights = generateTeaserInsights(sun.sign.id, moon.sign.id, asc.sign.id);
-  const sunData = SIGN_INTERPRETATIONS[sun.sign.id];
-  const moonData = SIGN_INTERPRETATIONS[moon.sign.id];
-  const ascData = SIGN_INTERPRETATIONS[asc.sign.id];
+  const insights = generateTeaserInsights(sun.sign.id, moon.sign.id, asc.sign.id, locale);
+  const dict = locale === 'en' ? SIGN_INTERPRETATIONS_EN : SIGN_INTERPRETATIONS;
+  const sunData = dict[sun.sign.id];
+  const moonData = dict[moon.sign.id];
+  const ascData = dict[asc.sign.id];
 
   const fullName = `${natal.birthData.name} ${natal.birthData.lastName || ''}`.trim();
-  const locationText = `${natal.birthData.cityName}${natal.birthData.country ? `, ${natal.birthData.country}` : ''}`;
+  const cityName = locale === 'en' ? (natal.birthData.cityEn || natal.birthData.cityName) : natal.birthData.cityName;
+  let countryName = locale === 'en' ? (natal.birthData.countryEn || natal.birthData.country) : natal.birthData.country;
+  if (locale === 'en' && countryName) {
+    if (countryName === 'Беларусь') countryName = 'Belarus';
+    else if (countryName === 'Россия') countryName = 'Russia';
+    else if (countryName === 'Казахстан') countryName = 'Kazakhstan';
+    else if (countryName === 'Украина') countryName = 'Ukraine';
+    else if (countryName === 'Узбекистан') countryName = 'Uzbekistan';
+  }
+  const locationText = `${cityName}${countryName ? `, ${countryName}` : ''}`;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
@@ -118,7 +128,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
           {t.passportReady}
         </h1>
         <p className="text-sm sm:text-base text-stone-600 max-w-2xl mx-auto leading-relaxed">
-          {insights.headline}. Ниже представлена базовая открытая часть вашей карты и заблокированные глубинные ключи судьбы.
+          {insights.headline}. {t.lockedReportSubtext}
         </p>
       </div>
 
@@ -242,7 +252,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
         <h3 className="text-base font-bold text-stone-900 mb-3 flex items-center justify-between">
           <span>{t.elementsTitle}</span>
           <span className="text-xs font-bold text-amber-700">
-            {t.dominantElementPrefix} {natal.dominantElement.primary}
+            {t.dominantElementPrefix} {locale === 'en' ? (natal.dominantElement.primaryEn || natal.dominantElement.primary) : (natal.dominantElement.primaryRu || natal.dominantElement.primary)}
           </span>
         </h3>
         <div className="grid grid-cols-4 gap-2 text-center text-xs">
@@ -363,6 +373,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
                 </span>
               </div>
               <button
+                type="button"
                 onClick={onUnlockPaywall}
                 className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition-colors cursor-pointer"
               >
@@ -370,7 +381,9 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
               </button>
             </div>
             <div className="opacity-20 text-xs text-stone-600 select-none">
-              Потенциал скрытых обид, финансовый контроль и борьба за лидерство в быту...
+              {locale === 'ru'
+                ? 'Потенциал скрытых обид, финансовый контроль и борьба за лидерство в быту...'
+                : 'Hidden resentment potential, financial dominance disputes, and household power dynamics...'}
             </div>
           </div>
         </div>
@@ -391,14 +404,15 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
               </div>
               <div>
                 <span className="text-sm font-bold text-stone-900 block">
-                  Финансовый код: 2-й и 8-й дома богатства
+                  {t.lockedItem1Title}
                 </span>
                 <span className="text-xs text-stone-600">
-                  Через какую деятельность к вам приходят наибольшие деньги
+                  {t.lockedItem1Desc}
                 </span>
               </div>
             </div>
             <button
+              type="button"
               onClick={onUnlockPaywall}
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-stone-900 to-amber-900 hover:from-black text-white text-xs font-bold transition-colors cursor-pointer shadow-sm"
             >
@@ -406,7 +420,11 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             </button>
           </div>
           <div className="opacity-20 select-none text-xs text-stone-600 space-y-2">
-            <p>Ваш второй дом управляется сильной планетой, указывающей на приток капитала через личный бренд, консалтинг и высокие технологии...</p>
+            <p>
+              {locale === 'ru'
+                ? 'Ваш второй дом управляется сильной планетой, указывающей на приток капитала через личный бренд, консалтинг и высокие технологии...'
+                : 'Your second house is governed by a prominent planetary ruler, indicating wealth inflow via personal branding, advisory, and tech innovations...'}
+            </p>
           </div>
         </div>
 
@@ -419,14 +437,15 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
               </div>
               <div>
                 <span className="text-sm font-bold text-stone-900 block">
-                  Кармический узел судьбы (Раху и Кету)
+                  {t.lockedItem2Title}
                 </span>
                 <span className="text-xs text-stone-600">
-                  Опыт прошлых воплощений и точка неизбежного эволюционного скачка
+                  {t.lockedItem2Desc}
                 </span>
               </div>
             </div>
             <button
+              type="button"
               onClick={onUnlockPaywall}
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-stone-900 to-amber-900 hover:from-black text-white text-xs font-bold transition-colors cursor-pointer shadow-sm"
             >
@@ -434,7 +453,11 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             </button>
           </div>
           <div className="opacity-20 select-none text-xs text-stone-600 space-y-2">
-            <p>Ваш Северный узел в знаке требует полного отказа от старой привычки жертвовать собой ради одобрения других...</p>
+            <p>
+              {locale === 'ru'
+                ? 'Ваш Северный узел в знаке требует полного отказа от старой привычки жертвовать собой ради одобрения других...'
+                : 'Your North Node calls for completely shedding the outdated instinct to sacrifice your purpose for external validation...'}
+            </p>
           </div>
         </div>
 
@@ -447,14 +470,15 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
               </div>
               <div>
                 <span className="text-sm font-bold text-stone-900 block">
-                  Лилит (Черная Луна): Теневой магнетизм и сексуальный код
+                  {t.lockedItem3Title}
                 </span>
                 <span className="text-xs text-stone-600">
-                  Ваша темная сторона привлекательности, скрытые табу и кармические искушения
+                  {t.lockedItem3Desc}
                 </span>
               </div>
             </div>
             <button
+              type="button"
               onClick={onUnlockPaywall}
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-stone-900 to-amber-900 hover:from-black text-white text-xs font-bold transition-colors cursor-pointer shadow-sm"
             >
@@ -462,7 +486,11 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             </button>
           </div>
           <div className="opacity-20 select-none text-xs text-stone-600 space-y-2">
-            <p>Ваша Лилит пробуждает гипнотическое влияние на противоположный пол через архетип независимости и бескомпромиссной чувственности...</p>
+            <p>
+              {locale === 'ru'
+                ? 'Ваша Лилит пробуждает гипнотическое влияние на противоположный пол через архетип независимости и бескомпромиссной чувственности...'
+                : 'Your Lilith awakens magnetic influence over partners through uncompromising sensual autonomy and taboo emotional depth...'}
+            </p>
           </div>
         </div>
 
@@ -475,14 +503,15 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
               </div>
               <div>
                 <span className="text-sm font-bold text-stone-900 block">
-                  Интерактивный векторный Бодиграф (Дизайн Человека)
+                  {t.lockedItem4Title}
                 </span>
                 <span className="text-xs text-stone-600">
-                  9 центров, 36 энергетических каналов и персональные ворота предназначения
+                  {t.lockedItem4Desc}
                 </span>
               </div>
             </div>
             <button
+              type="button"
               onClick={onUnlockPaywall}
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-stone-900 to-amber-900 hover:from-black text-white text-xs font-bold transition-colors cursor-pointer shadow-sm"
             >
@@ -490,7 +519,11 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             </button>
           </div>
           <div className="opacity-20 select-none text-xs text-stone-600 space-y-2">
-            <p>Активированные каналы между Сакралом и Горлом открывают доступ к неиссякаемой созидательной силе...</p>
+            <p>
+              {locale === 'ru'
+                ? 'Активированные каналы между Сакралом и Горлом открывают доступ к неиссякаемой созидательной силе...'
+                : 'Activated channels between Sacral and Throat unlock access to inexhaustible creative manifestor potential...'}
+            </p>
           </div>
         </div>
       </div>
@@ -504,15 +537,16 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             </div>
             <div className="text-left">
               <div className="text-sm font-bold text-stone-900">
-                Разблокируйте полную карту и именной PDF
+                {t.stickyUnlockTitle}
               </div>
               <div className="text-xs text-amber-800 font-semibold">
-                {t.trialNotice} <span className="font-black text-stone-900 underline">1 ₽ / $1</span>
+                {t.trialNotice} <span className="font-black text-stone-900 underline">{t.trialPrice}</span>
               </div>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={onUnlockPaywall}
             className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black text-white font-bold text-sm shadow-xl shadow-stone-900/15 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 cursor-pointer"
           >

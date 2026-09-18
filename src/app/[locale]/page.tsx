@@ -55,11 +55,11 @@ export default function LocalizedLandingPage({
       {/* Main Content Area */}
       <main className="flex-1 relative z-10">
         <HeroSection locale={locale} onStart={handleStartQuiz} />
-        <ReviewsSection />
+        <ReviewsSection locale={locale} />
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer locale={locale} />
     </div>
   );
 }

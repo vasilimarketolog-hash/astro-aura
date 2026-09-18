@@ -2,11 +2,17 @@
 
 import React, { useState } from 'react';
 import { Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { Locale } from '@/types/astro';
 
-export const ReviewsSection: React.FC = () => {
+interface ReviewsSectionProps {
+  locale?: Locale;
+}
+
+export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const isEn = locale === 'en';
 
-  const reviews = [
+  const reviewsRu = [
     {
       name: 'Екатерина М., 29 лет',
       city: 'Москва',
@@ -30,7 +36,31 @@ export const ReviewsSection: React.FC = () => {
     }
   ];
 
-  const faqs = [
+  const reviewsEn = [
+    {
+      name: 'Sarah M., 29',
+      city: 'Austin, TX',
+      rating: 5,
+      date: 'Yesterday',
+      text: 'I was skeptical at first, but reading about my Sun in Taurus and Moon in Scorpio gave me absolute chills! 100% accurate. The wealth recommendations for my 2nd house were invaluable.'
+    },
+    {
+      name: 'David L., 34',
+      city: 'London, UK',
+      rating: 5,
+      date: '2 days ago',
+      text: 'We ran a compatibility calculation before our wedding. Everything aligned: from household friction points to raw sexual chemistry. The VIP consultation with Astra is well worth it.'
+    },
+    {
+      name: 'Elena R., 41',
+      city: 'Toronto, Canada',
+      rating: 5,
+      date: '4 days ago',
+      text: 'Finally an astrology tool without superstition—grounded in modern psychology and stunning visual design. I printed the PDF report and it feels like a personalized keepsake book.'
+    }
+  ];
+
+  const faqsRu = [
     {
       q: 'Насколько точны астрономические расчеты?',
       a: 'Мы используем вычислительные алгоритмы эфемерид NASA и Swiss Ephemeris, учитывающие точные долготы, широты и исторический часовой пояс города на момент вашего рождения с точностью до угловой секунды.'
@@ -49,13 +79,35 @@ export const ReviewsSection: React.FC = () => {
     }
   ];
 
+  const faqsEn = [
+    {
+      q: 'How accurate are the astronomical calculations?',
+      a: 'We use NASA JPL Horizons and Swiss Ephemeris algorithms to calculate planetary longitudes, houses, and aspects with arc-second precision.'
+    },
+    {
+      q: 'What if I do not know my exact birth time?',
+      a: 'Select "I don’t know my exact birth time". Calculations will be performed for standard solar noon (12:00)—planetary signs remain 100% accurate.'
+    },
+    {
+      q: 'How does the trial work and can I cancel?',
+      a: 'The trial ($1 for 3 days) unlocks full access to all report sections, PDF download, and the AI Astrologer. You can cancel anytime with 1 click.'
+    },
+    {
+      q: 'Is payment secure?',
+      a: 'All transactions are processed through 256-bit SSL encrypted bank gateways. We never store your payment card details.'
+    }
+  ];
+
+  const reviews = isEn ? reviewsEn : reviewsRu;
+  const faqs = isEn ? faqsEn : faqsRu;
+
   return (
     <section className="py-16 border-t border-stone-200/80 bg-white/60">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         {/* Reviews */}
         <div className="text-center mb-12">
           <h2 className="text-2xl sm:text-3xl font-black text-stone-900 mb-2">
-            Что говорят те, кто уже рассчитал свою карту
+            {isEn ? 'What Our Users Say' : 'Что говорят те, кто уже рассчитал свою карту'}
           </h2>
           <div className="flex items-center justify-center space-x-2 text-amber-500">
             <div className="flex">
@@ -64,7 +116,7 @@ export const ReviewsSection: React.FC = () => {
               ))}
             </div>
             <span className="text-xs text-stone-600 font-bold">
-              4.94 из 5 на основе 28,400+ расчетов
+              {isEn ? '4.94 out of 5 based on 28,400+ calculations' : '4.94 из 5 на основе 28,400+ расчетов'}
             </span>
           </div>
         </div>
@@ -99,7 +151,7 @@ export const ReviewsSection: React.FC = () => {
         {/* FAQ */}
         <div className="max-w-3xl mx-auto">
           <h3 className="text-xl sm:text-2xl font-black text-stone-900 text-center mb-6">
-            Часто задаваемые вопросы
+            {isEn ? 'Frequently Asked Questions' : 'Часто задаваемые вопросы'}
           </h3>
 
           <div className="space-y-3">
@@ -111,6 +163,7 @@ export const ReviewsSection: React.FC = () => {
                   className="rounded-2xl bg-white border border-stone-200 overflow-hidden shadow-xs transition-colors"
                 >
                   <button
+                    type="button"
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
                     className="w-full px-5 py-4 text-left text-xs sm:text-sm font-bold text-stone-900 flex items-center justify-between hover:text-amber-700 transition-colors cursor-pointer"
                   >

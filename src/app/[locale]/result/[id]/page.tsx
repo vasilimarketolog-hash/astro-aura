@@ -123,7 +123,7 @@ export default function ResultPage({
             </button>
           </div>
         </main>
-        <Footer />
+        <Footer locale={locale} />
       </div>
     );
   }
@@ -161,7 +161,7 @@ export default function ResultPage({
         )}
       </main>
 
-      <Footer />
+      <Footer locale={locale} />
 
       <PaywallModal
         locale={locale}

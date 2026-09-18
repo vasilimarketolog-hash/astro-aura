@@ -70,8 +70,10 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Language Switcher */}
           <div className="flex items-center bg-stone-100 border border-stone-200 rounded-xl p-1 text-xs shadow-inner">
             <button
+              type="button"
+              aria-label="Switch language to Russian"
               onClick={() => onToggleLocale('ru')}
-              className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+              className={`px-2.5 py-1.5 min-w-[34px] min-h-[34px] flex items-center justify-center rounded-lg font-bold transition-all cursor-pointer ${
                 locale === 'ru'
                   ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
                   : 'text-stone-500 hover:text-stone-900'
@@ -80,8 +82,10 @@ export const Header: React.FC<HeaderProps> = ({
               RU
             </button>
             <button
+              type="button"
+              aria-label="Switch language to English"
               onClick={() => onToggleLocale('en')}
-              className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+              className={`px-2.5 py-1.5 min-w-[34px] min-h-[34px] flex items-center justify-center rounded-lg font-bold transition-all cursor-pointer ${
                 locale === 'en'
                   ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
                   : 'text-stone-500 hover:text-stone-900'

@@ -124,7 +124,7 @@ export const WizardStepPage: React.FC<WizardStepPageProps> = ({
         )}
       </main>
 
-      <Footer />
+      <Footer locale={locale} />
     </div>
   );
 };

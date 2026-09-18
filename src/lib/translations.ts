@@ -148,7 +148,25 @@ export const TRANSLATIONS = {
     saveEmailDesc: 'Пришлем прямую ссылку на расчет и PDF, чтобы вы не потеряли результат',
     saveEmailPlaceholder: 'Введите ваш Email (например: vasiliy@mail.ru)',
     saveEmailBtn: 'Сохранить карту',
-    emailSaved: '✓ Ссылка на паспорт отправлена на ваш Email!'
+    emailSaved: '✓ Ссылка на паспорт отправлена на ваш Email!',
+    lockedReportSubtext: 'Ниже представлена базовая открытая часть вашей карты и заблокированные глубинные ключи судьбы.',
+    lockedItem1Title: 'Финансовый код: 2-й и 8-й дома богатства',
+    lockedItem1Desc: 'Через какую деятельность к вам приходят наибольшие деньги',
+    lockedItem2Title: 'Кармический узел судьбы (Раху и Кету)',
+    lockedItem2Desc: 'Опыт прошлых воплощений и точка неизбежного эволюционного скачка',
+    lockedItem3Title: 'Лилит (Черная Луна): Теневой магнетизм и сексуальный код',
+    lockedItem3Desc: 'Ваша темная сторона привлекательности, скрытые табу и кармические искушения',
+    lockedItem4Title: 'Интерактивный векторный Бодиграф (Дизайн Человека)',
+    lockedItem4Desc: '9 центров, 36 энергетических каналов и персональные ворота предназначения',
+    stickyUnlockTitle: 'Разблокируйте полную карту и именной PDF',
+    trialPrice: '1 ₽',
+    footerTerms: 'Пользовательское соглашение',
+    footerPrivacy: 'Политика конфиденциальности',
+    footerSubscription: 'Управление подпиской / Отмена',
+    footerSupport: 'Служба заботы',
+    footerDisclaimer: 'Сервис носит исключительно развлекательно-информационный характер и не заменяет профессиональные медицинские, юридические или финансовые консультации.',
+    footerCopyright: 'Все права защищены. Разработано с использованием эфемерид NASA.',
+    footerSecurity: 'Безопасный эквайринг и конфиденциальность данных'
   },
 
   en: {
@@ -205,9 +223,9 @@ export const TRANSLATIONS = {
     step2Title: 'Your First & Last Name',
     step2Subtitle: 'Used to generate your personalized certificate and official PDF report',
     firstNameLabel: 'First Name',
-    firstNamePlaceholder: 'e.g. Vasily',
+    firstNamePlaceholder: 'e.g. Alex',
     lastNameLabel: 'Last Name',
-    lastNamePlaceholder: 'e.g. Bulgakov',
+    lastNamePlaceholder: 'e.g. Morgan',
     genderLabel: 'Gender',
     genderFemale: 'Female',
     genderMale: 'Male',
@@ -227,7 +245,7 @@ export const TRANSLATIONS = {
 
     step5Title: 'Country and Place of Birth',
     step5Subtitle: 'Geographic coordinates define the exact house cusps of your birth chart',
-    citySearchPlaceholder: 'Enter any city worldwide (e.g. Baranovichi, New York, London...)',
+    citySearchPlaceholder: 'Enter any city worldwide (e.g. New York, London, Tokyo...)',
     selectedCityText: 'Selected city:',
     searchingGlobal: 'Searching worldwide geographic database...',
 
@@ -298,7 +316,25 @@ export const TRANSLATIONS = {
     saveEmailDesc: 'We will send a direct link to your chart & PDF so you never lose it',
     saveEmailPlaceholder: 'Enter your email address',
     saveEmailBtn: 'Save My Chart',
-    emailSaved: '✓ Link to your passport sent to your email!'
+    emailSaved: '✓ Link to your passport sent to your email!',
+    lockedReportSubtext: 'Below is the preview of your core chart and the locked deep keys to your destiny.',
+    lockedItem1Title: 'Wealth Code: 2nd & 8th Houses of Abundance',
+    lockedItem1Desc: 'Specific industries and ventures where your greatest financial flow unlocks',
+    lockedItem2Title: 'Karmic Destiny Nodes (Rahu & Ketu)',
+    lockedItem2Desc: 'Past-life baggage and your soul’s inevitable evolutionary leap',
+    lockedItem3Title: 'Black Moon Lilith: Shadow Magnetism & Sensual Code',
+    lockedItem3Desc: 'Your hypnotic allure, hidden taboos, and karmic temptations',
+    lockedItem4Title: 'Interactive Vector Bodygraph (Human Design)',
+    lockedItem4Desc: '9 centers, 36 energetic channels, and personal gates of purpose',
+    stickyUnlockTitle: 'Unlock Full Natal Chart & Personal PDF',
+    trialPrice: '$1',
+    footerTerms: 'Terms of Service',
+    footerPrivacy: 'Privacy Policy',
+    footerSubscription: 'Manage Subscription / Cancel',
+    footerSupport: 'Customer Care',
+    footerDisclaimer: 'The service is provided for entertainment and informational purposes only and does not replace professional medical, legal, or financial advice.',
+    footerCopyright: 'All rights reserved. Powered by NASA ephemerides.',
+    footerSecurity: 'Secure 256-bit SSL checkout & data privacy'
   }
 };
 

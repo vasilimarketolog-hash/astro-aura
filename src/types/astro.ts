@@ -8,6 +8,7 @@ export interface BirthData {
   name: string;
   lastName?: string;
   country?: string;
+  countryEn?: string;
   gender: Gender;
   day: number;
   month: number;
@@ -16,6 +17,7 @@ export interface BirthData {
   minute: number;
   unknownTime?: boolean;
   cityName: string;
+  cityEn?: string;
   latitude: number;
   longitude: number;
   timezoneOffset: number; // in hours relative to UTC
@@ -105,6 +107,8 @@ export interface NatalChartData {
     air: number;
     water: number;
     primary: string;
+    primaryRu?: string;
+    primaryEn?: string;
   };
 }
 

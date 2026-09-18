@@ -533,6 +533,16 @@ export function calculateNatalChart(birth: BirthData): NatalChartData {
     earth: Math.round((earth / totalWeight) * 100),
     air: Math.round((air / totalWeight) * 100),
     water: Math.round((water / totalWeight) * 100),
+    primaryRu:
+      fire >= earth && fire >= air && fire >= water ? 'Огонь (Энергия и Страсть)' :
+      earth >= fire && earth >= air && earth >= water ? 'Земля (Практичность и Стабильность)' :
+      air >= fire && air >= earth && air >= water ? 'Воздух (Интеллект и Общение)' :
+      'Вода (Интуиция и Эмоции)',
+    primaryEn:
+      fire >= earth && fire >= air && fire >= water ? 'Fire (Energy & Passion)' :
+      earth >= fire && earth >= air && earth >= water ? 'Earth (Practicality & Stability)' :
+      air >= fire && air >= earth && air >= water ? 'Air (Intellect & Communication)' :
+      'Water (Intuition & Emotion)',
     primary:
       fire >= earth && fire >= air && fire >= water ? 'Огонь (Энергия и Страсть)' :
       earth >= fire && earth >= air && earth >= water ? 'Земля (Практичность и Стабильность)' :
