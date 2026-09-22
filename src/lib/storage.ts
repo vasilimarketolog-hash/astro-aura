@@ -176,8 +176,16 @@ export function decodePayload<T = any>(str: string): T | null {
 export function getFirstUnfilledStep(calcType: CalculationType, state: WizardState | null): number {
   if (!state) return 1;
 
-  if (calcType === 'all' || calcType === 'natal') {
-    if (!state.focus && state.focus !== undefined) return 1;
+  if (calcType === 'synastry') {
+    if (!state.firstName || !state.firstName.trim()) return 2;
+    if (!state.day || !state.month || !state.year) return 3;
+    if (!state.unknownTime && (state.hour === undefined || state.minute === undefined)) return 4;
+    if (!state.selectedCity) return 5;
+    if (!state.p2Name || !state.p2Name.trim() || !state.p2Day || !state.p2Month || !state.p2Year || !state.p2SelectedCity) return 6;
+    return 6;
+  }
+
+  if (calcType === 'humandesign') {
     if (!state.firstName || !state.firstName.trim()) return 2;
     if (!state.day || !state.month || !state.year) return 3;
     if (!state.unknownTime && (state.hour === undefined || state.minute === undefined)) return 4;
@@ -185,23 +193,9 @@ export function getFirstUnfilledStep(calcType: CalculationType, state: WizardSta
     return 5;
   }
 
-  if (calcType === 'synastry') {
-    if (!state.firstName || !state.firstName.trim()) return 1;
-    if (!state.day || !state.month || !state.year || (!state.unknownTime && state.hour === undefined)) return 2;
-    if (!state.selectedCity) return 3;
-    if (!state.p2Name || !state.p2Name.trim()) return 4;
-    if (!state.p2Day || !state.p2Month || !state.p2Year || (!state.p2UnknownTime && state.p2Hour === undefined)) return 5;
-    if (!state.p2SelectedCity) return 6;
-    return 6;
-  }
-
-  if (calcType === 'humandesign') {
-    if (!state.firstName || !state.firstName.trim()) return 1;
-    if (!state.day || !state.month || !state.year) return 2;
-    if (!state.unknownTime && (state.hour === undefined || state.minute === undefined)) return 3;
-    if (!state.selectedCity) return 4;
-    return 4;
-  }
-
-  return 1;
+  if (!state.firstName || !state.firstName.trim()) return 2;
+  if (!state.day || !state.month || !state.year) return 3;
+  if (!state.unknownTime && (state.hour === undefined || state.minute === undefined)) return 4;
+  if (!state.selectedCity) return 5;
+  return 5;
 }

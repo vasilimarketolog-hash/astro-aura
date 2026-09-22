@@ -7,7 +7,7 @@ import { Footer } from '@/components/Footer';
 import { TeaserReport } from '@/components/TeaserReport';
 import { FullNatalDashboard } from '@/components/FullNatalDashboard';
 import { PaywallModal } from '@/components/PaywallModal';
-import { Locale, NatalChartData, SynastryData, HumanDesignData } from '@/types/astro';
+import { Locale, NatalChartData, SynastryData, HumanDesignData, CalculationType } from '@/types/astro';
 import { getResult, decodePayload, saveResult } from '@/lib/storage';
 import { calculateNatalChart, calculateSynastry, calculateHumanDesign } from '@/lib/astroEngine';
 import { Loader2, Sparkles } from 'lucide-react';
@@ -25,6 +25,7 @@ export default function ResultPage({
   const dParam = searchParams.get('d');
 
   const [isLoading, setIsLoading] = useState(true);
+  const [calcType, setCalcType] = useState<CalculationType>('all');
   const [natalData, setNatalData] = useState<NatalChartData | null>(null);
   const [synastryData, setSynastryData] = useState<SynastryData | undefined>(undefined);
   const [humanDesignData, setHumanDesignData] = useState<HumanDesignData | null>(null);
@@ -38,6 +39,7 @@ export default function ResultPage({
       setNatalData(cached.natal);
       setSynastryData(cached.synastry);
       setHumanDesignData(cached.humanDesign);
+      if (cached.calculationType) setCalcType(cached.calculationType);
       setIsLoading(false);
       return;
     }
@@ -56,17 +58,19 @@ export default function ResultPage({
             syn = calculateSynastry(natal1, natal2);
           }
 
+          const cType = payload.calcType || 'all';
           saveResult(id, {
             natal: natal1,
             synastry: syn,
             humanDesign: hd,
-            calculationType: payload.calcType || 'all',
+            calculationType: cType,
             timestamp: Date.now(),
           });
 
           setNatalData(natal1);
           setSynastryData(syn);
           setHumanDesignData(hd);
+          setCalcType(cType);
           setIsLoading(false);
           return;
         } catch (err) {
@@ -147,6 +151,7 @@ export default function ResultPage({
         {!isPaid ? (
           <TeaserReport
             locale={locale}
+            calcType={calcType}
             natal={natalData}
             synastry={synastryData}
             humanDesign={humanDesignData}

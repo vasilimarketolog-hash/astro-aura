@@ -11,7 +11,7 @@ export default function HumanDesignStepPage({
 }) {
   const resolved = use(params);
   const locale: Locale = resolved.locale === 'en' ? 'en' : 'ru';
-  const stepNumber = Math.max(1, Math.min(4, parseInt(resolved.step, 10) || 1));
+  const stepNumber = Math.max(1, Math.min(5, parseInt(resolved.step, 10) || 1));
 
   return (
     <WizardStepPage

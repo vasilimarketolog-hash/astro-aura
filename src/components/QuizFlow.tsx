@@ -506,8 +506,6 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
       nextStep = 99;
     } else if (step === 6 && calcType === 'synastry') {
       nextStep = 99;
-    } else if (step === 4 && calcType === 'humandesign') {
-      nextStep = 99;
     }
 
     if (nextStep === 99) {
@@ -904,7 +902,15 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
               {t.step4Title}
             </h2>
             <p className="text-sm text-stone-600">
-              {t.step4Subtitle}
+              {calcType === 'humandesign'
+                ? (locale === 'ru'
+                  ? 'Точное время необходимо для вычисления активаций Дизайна и Личности, каналов и ворот'
+                  : 'Exact birth time is essential to compute Design & Personality activations and bodygraph gates')
+                : calcType === 'synastry'
+                ? (locale === 'ru'
+                  ? 'Точное время необходимо для расчета домов партнерства и точных аспектов пары'
+                  : 'Exact birth time is needed to align relationship houses and precise couple aspects')
+                : t.step4Subtitle}
             </p>
           </div>
 
@@ -963,7 +969,13 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
           ) : (
             <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-stone-700 text-xs mb-4 flex items-center space-x-3">
               <HelpCircle className="w-5 h-5 text-amber-600 shrink-0" />
-              <span>{t.unknownTimeNotice}</span>
+              <span>
+                {calcType === 'humandesign'
+                  ? (locale === 'ru'
+                    ? 'Расчет будет выполнен по усредненному полдню (12:00). Большинство ворот и энергетический тип будут определены точно, но линии профиля могут зависеть от часа.'
+                    : 'Calculated using solar noon (12:00). Your core energy type and key gates will be determined, though precise profile lines may vary.')
+                  : t.unknownTimeNotice}
+              </span>
             </div>
           )}
 
@@ -1021,7 +1033,15 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
               {t.step5Title}
             </h2>
             <p className="text-sm text-stone-600">
-              {t.step5Subtitle}
+              {calcType === 'humandesign'
+                ? (locale === 'ru'
+                  ? 'Координаты определяют точный часовой пояс для пересчета времени в UTC для расчета Бодиграфа'
+                  : 'Coordinates determine the exact timezone to convert local time to UTC for the Bodygraph')
+                : calcType === 'synastry'
+                ? (locale === 'ru'
+                  ? 'Географические координаты необходимы для вычисления точной сетки домов первого партнера'
+                  : 'Geographical coordinates are needed to calculate the primary partner house system')
+                : t.step5Subtitle}
             </p>
           </div>
 
@@ -1130,7 +1150,13 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                 : 'hover:from-black hover:to-stone-900 cursor-pointer'
             }`}
           >
-            <span>{calcType === 'synastry' ? (locale === 'ru' ? 'Ввести данные партнера' : 'Enter Partner Details') : (locale === 'ru' ? 'Рассчитать натальную карту' : 'Generate Natal Chart')}</span>
+            <span>
+              {calcType === 'synastry'
+                ? (locale === 'ru' ? 'Ввести данные партнера' : 'Enter Partner Details')
+                : calcType === 'humandesign'
+                ? (locale === 'ru' ? 'Построить Бодиграф Дизайна Человека' : 'Calculate Human Design Bodygraph')
+                : (locale === 'ru' ? 'Рассчитать натальную карту' : 'Generate Natal Chart')}
+            </span>
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
@@ -1440,16 +1466,38 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
           </div>
 
           <h2 className="text-xl sm:text-2xl font-black text-stone-900 mb-2">
-            {t.calcHeading}
+            {calcType === 'humandesign'
+              ? (locale === 'ru' ? 'Построение Бодиграфа Дизайна Человека...' : 'Generating Human Design Bodygraph...')
+              : calcType === 'synastry'
+              ? (locale === 'ru' ? 'Вычисление синастрии и совместимости пары...' : 'Calculating Compatibility & Synastry...')
+              : t.calcHeading}
           </h2>
 
           <p className="text-xs sm:text-sm text-stone-600 mb-6 h-8 flex items-center justify-center font-medium">
-            {loadingPhase === 0 && t.phase1}
-            {loadingPhase === 1 && t.phase2.replace('{city}', cityNameDisplay)}
-            {loadingPhase === 2 && t.phase3}
-            {loadingPhase === 3 && t.phase4}
-            {loadingPhase === 4 && t.phase5}
-            {loadingPhase === 5 && t.phase6.replace('{name}', fullName)}
+            {calcType === 'humandesign' ? (
+              loadingPhase === 0 ? (locale === 'ru' ? 'Активация 64 ворот рейв-мандалы...' : 'Activating 64 Rave Mandala gates...') :
+              loadingPhase === 1 ? (locale === 'ru' ? `Синхронизация координат и часового пояса для г. ${cityNameDisplay}...` : `Aligning coordinates and timezone for ${cityNameDisplay}...`) :
+              loadingPhase === 2 ? (locale === 'ru' ? 'Расчет личности (черные ворота) и дизайна (красные ворота)...' : 'Computing Personality and Design planetary activations...') :
+              loadingPhase === 3 ? (locale === 'ru' ? 'Определение 9 энергетических центров и каналов...' : 'Synthesizing 9 energy centers and definition channels...') :
+              loadingPhase === 4 ? (locale === 'ru' ? 'Идентификация Генетического Типа, Профиля и Внутреннего Авторитета...' : 'Identifying Genetic Type, Profile, and Inner Authority...') :
+              (locale === 'ru' ? `Формирование персонального Бодиграфа для ${fullName}...` : `Finalizing Human Design blueprint for ${fullName}...`)
+            ) : calcType === 'synastry' ? (
+              loadingPhase === 0 ? (locale === 'ru' ? 'Сопоставление натальных карт обоих партнеров...' : 'Cross-analyzing natal positions of both partners...') :
+              loadingPhase === 1 ? (locale === 'ru' ? `Синхронизация часовых поясов для г. ${cityNameDisplay}...` : `Aligning local timezones for ${cityNameDisplay}...`) :
+              loadingPhase === 2 ? (locale === 'ru' ? 'Расчет синастрических аспектов Солнце-Луна и Венера-Марс...' : 'Calculating Sun-Moon and Venus-Mars synastry aspects...') :
+              loadingPhase === 3 ? (locale === 'ru' ? 'Вычисление индекса сексуального и эмоционального притяжения...' : 'Computing emotional and attraction compatibility scores...') :
+              loadingPhase === 4 ? (locale === 'ru' ? 'Анализ кармических уроков и скрытых зон конфликта...' : 'Analyzing karmic lessons and relationship friction triggers...') :
+              (locale === 'ru' ? `Формирование персонального прогноза пары для ${fullName}...` : `Finalizing compatibility forecast for ${fullName}...`)
+            ) : (
+              <>
+                {loadingPhase === 0 && t.phase1}
+                {loadingPhase === 1 && t.phase2.replace('{city}', cityNameDisplay)}
+                {loadingPhase === 2 && t.phase3}
+                {loadingPhase === 3 && t.phase4}
+                {loadingPhase === 4 && t.phase5}
+                {loadingPhase === 5 && t.phase6.replace('{name}', fullName)}
+              </>
+            )}
           </p>
 
           <div className="w-full max-w-md mx-auto bg-stone-100 h-3.5 rounded-full overflow-hidden border border-stone-200 mb-3 p-[2px]">
