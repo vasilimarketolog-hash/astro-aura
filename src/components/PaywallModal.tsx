@@ -58,15 +58,15 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   };
 
   const LAVA_LINKS: Record<string, string> = {
-    ru_trial_sub: process.env.NEXT_PUBLIC_LAVA_RU_TRIAL || '',
-    ru_onetime_report: process.env.NEXT_PUBLIC_LAVA_RU_LIFETIME || '',
-    ru_vip_combo: process.env.NEXT_PUBLIC_LAVA_RU_VIP || '',
-    ru_default: process.env.NEXT_PUBLIC_LAVA_RU_URL || process.env.NEXT_PUBLIC_LAVA_URL || '',
+    ru_trial_sub: process.env.NEXT_PUBLIC_LAVA_RU_TRIAL || 'https://app.lava.top/products/fa0657d8-746d-4094-a8a6-51d6627fdd79',
+    ru_onetime_report: process.env.NEXT_PUBLIC_LAVA_RU_LIFETIME || 'https://app.lava.top/products/0714aedd-1499-4881-8f1c-94d2a68910c4',
+    ru_vip_combo: process.env.NEXT_PUBLIC_LAVA_RU_VIP || 'https://app.lava.top/products/339c1712-84bc-481c-a791-e55e2c4db241',
+    ru_default: process.env.NEXT_PUBLIC_LAVA_RU_URL || 'https://app.lava.top/products/fa0657d8-746d-4094-a8a6-51d6627fdd79',
 
-    en_trial_sub: process.env.NEXT_PUBLIC_LAVA_EN_TRIAL || '',
-    en_onetime_report: process.env.NEXT_PUBLIC_LAVA_EN_LIFETIME || '',
-    en_vip_combo: process.env.NEXT_PUBLIC_LAVA_EN_VIP || '',
-    en_default: process.env.NEXT_PUBLIC_LAVA_EN_URL || process.env.NEXT_PUBLIC_LAVA_URL || ''
+    en_trial_sub: process.env.NEXT_PUBLIC_LAVA_EN_TRIAL || 'https://app.lava.top/products/7354e768-5369-45a4-bef4-d0d8cbb73553',
+    en_onetime_report: process.env.NEXT_PUBLIC_LAVA_EN_LIFETIME || 'https://app.lava.top/products/69315043-7aa3-4204-ad94-f451f3615351',
+    en_vip_combo: process.env.NEXT_PUBLIC_LAVA_EN_VIP || 'https://app.lava.top/products/e8d306bc-47bb-4fc6-887a-54819d0db331',
+    en_default: process.env.NEXT_PUBLIC_LAVA_EN_URL || 'https://app.lava.top/products/7354e768-5369-45a4-bef4-d0d8cbb73553'
   };
 
   const TARIFF_PLANS_RU: TariffPlan[] = [
@@ -233,7 +233,10 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
         const redirectUrl = email.trim()
           ? `${targetLavaUrl}${separator}email=${encodeURIComponent(email.trim())}`
           : targetLavaUrl;
-        window.open(redirectUrl, '_blank');
+        const newTab = window.open(redirectUrl, '_blank');
+        if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
+          window.location.href = redirectUrl;
+        }
         setIsProcessing(false);
         return;
       }
