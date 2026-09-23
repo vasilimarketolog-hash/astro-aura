@@ -58,10 +58,15 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   };
 
   const LAVA_LINKS: Record<string, string> = {
-    trial_sub: process.env.NEXT_PUBLIC_LAVA_URL_TRIAL || '',
-    onetime_report: process.env.NEXT_PUBLIC_LAVA_URL_LIFETIME || '',
-    vip_combo: process.env.NEXT_PUBLIC_LAVA_URL_VIP || '',
-    default: process.env.NEXT_PUBLIC_LAVA_URL || ''
+    ru_trial_sub: process.env.NEXT_PUBLIC_LAVA_RU_TRIAL || '',
+    ru_onetime_report: process.env.NEXT_PUBLIC_LAVA_RU_LIFETIME || '',
+    ru_vip_combo: process.env.NEXT_PUBLIC_LAVA_RU_VIP || '',
+    ru_default: process.env.NEXT_PUBLIC_LAVA_RU_URL || process.env.NEXT_PUBLIC_LAVA_URL || '',
+
+    en_trial_sub: process.env.NEXT_PUBLIC_LAVA_EN_TRIAL || '',
+    en_onetime_report: process.env.NEXT_PUBLIC_LAVA_EN_LIFETIME || '',
+    en_vip_combo: process.env.NEXT_PUBLIC_LAVA_EN_VIP || '',
+    en_default: process.env.NEXT_PUBLIC_LAVA_EN_URL || process.env.NEXT_PUBLIC_LAVA_URL || ''
   };
 
   const TARIFF_PLANS_RU: TariffPlan[] = [
@@ -127,10 +132,10 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
       id: 'trial_sub',
       title: 'Trial Access (3 Days)',
       badge: 'Most Popular',
-      price: 2,
-      oldPrice: 12,
+      price: 5,
+      oldPrice: 15,
       currency: '$',
-      periodText: 'for 3 days, then $7/week',
+      periodText: 'for 3 days, then $9.99/week',
       description: 'Perfect for quick start: full access to all features, PDF download & AI Astrologer.',
       features: [
         'Personalized Named PDF Report (30+ pages)',
@@ -146,7 +151,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
       id: 'onetime_report',
       title: 'One-Time Lifetime Access',
       badge: 'No Subscription',
-      price: 7,
+      price: 9,
       oldPrice: 29,
       currency: '$',
       periodText: 'one-time payment',
@@ -215,7 +220,14 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
     setErrorMessage(null);
 
     try {
-      const targetLavaUrl = LAVA_LINKS[selectedPlan.id] || LAVA_LINKS.default;
+      const planKey = `${locale}_${selectedPlan.id}`;
+      const defaultKey = `${locale}_default`;
+      const targetLavaUrl =
+        LAVA_LINKS[planKey] ||
+        LAVA_LINKS[defaultKey] ||
+        LAVA_LINKS.ru_default ||
+        LAVA_LINKS.en_default;
+
       if (targetLavaUrl && targetLavaUrl.startsWith('http') && targetLavaUrl !== 'https://lava.top/') {
         const separator = targetLavaUrl.includes('?') ? '&' : '?';
         const redirectUrl = email.trim()
@@ -232,7 +244,8 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
         body: JSON.stringify({
           planId: selectedPlan.id,
           email: email.trim(),
-          provider: 'lava'
+          provider: 'lava',
+          locale
         })
       });
 
@@ -259,10 +272,10 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   };
 
   const getCryptoAmount = (planId: string) => {
-    if (planId === 'trial_sub') return '2.00';
-    if (planId === 'onetime_report') return '7.00';
+    if (planId === 'trial_sub') return locale === 'ru' ? '2.00' : '5.00';
+    if (planId === 'onetime_report') return locale === 'ru' ? '7.00' : '9.00';
     if (planId === 'vip_combo') return '19.00';
-    return '7.00';
+    return '9.00';
   };
 
   const handleCopyWallet = (address: string) => {
