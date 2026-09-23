@@ -62,10 +62,10 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
       id: 'trial_sub',
       title: 'Пробный период (Trial)',
       badge: 'Самый популярный',
-      price: 99,
+      price: 190,
       oldPrice: 890,
       currency: '₽',
-      periodText: 'за 3 дня, далее 890 ₽/нед',
+      periodText: 'за 3 дня, далее 690 ₽/нед',
       description: 'Идеально для быстрого старта: полный доступ ко всем функциям и AI-астрологу.',
       features: [
         'Именной PDF-отчет для скачивания (30+ стр.)',
@@ -81,7 +81,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
       id: 'onetime_report',
       title: 'Разовый разбор навсегда',
       badge: 'Без подписок',
-      price: 590,
+      price: 690,
       oldPrice: 1990,
       currency: '₽',
       periodText: 'разовый платеж',
@@ -99,7 +99,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
       id: 'vip_combo',
       title: 'VIP: Все включено',
       badge: 'Максимальная выгода',
-      price: 1290,
+      price: 1890,
       oldPrice: 3990,
       currency: '₽',
       periodText: 'разовый платеж',
@@ -120,10 +120,10 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
       id: 'trial_sub',
       title: 'Trial Access (3 Days)',
       badge: 'Most Popular',
-      price: 1,
+      price: 2,
       oldPrice: 12,
       currency: '$',
-      periodText: 'for 3 days, then $9.99/week',
+      periodText: 'for 3 days, then $7/week',
       description: 'Perfect for quick start: full access to all features, PDF download & AI Astrologer.',
       features: [
         'Personalized Named PDF Report (30+ pages)',
@@ -139,7 +139,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
       id: 'onetime_report',
       title: 'One-Time Lifetime Access',
       badge: 'No Subscription',
-      price: 9,
+      price: 7,
       oldPrice: 29,
       currency: '$',
       periodText: 'one-time payment',
@@ -247,10 +247,10 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   };
 
   const getCryptoAmount = (planId: string) => {
-    if (planId === 'trial_sub') return '1.00';
-    if (planId === 'onetime_report') return locale === 'ru' ? '6.50' : '9.99';
-    if (planId === 'vip_combo') return locale === 'ru' ? '14.00' : '19.99';
-    return '9.99';
+    if (planId === 'trial_sub') return '2.00';
+    if (planId === 'onetime_report') return '7.00';
+    if (planId === 'vip_combo') return '19.00';
+    return '7.00';
   };
 
   const handleCopyWallet = (address: string) => {
