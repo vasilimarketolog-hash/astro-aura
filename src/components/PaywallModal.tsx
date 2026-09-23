@@ -221,6 +221,20 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
     }
   };
 
+  const handleSimulatePayment = () => {
+    try {
+      confetti({
+        particleCount: 90,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    } catch {
+      // confetti error ignored
+    }
+    onPaymentSuccess(selectedPlan.id);
+    onClose();
+  };
+
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!waitlistEmail.trim() || !waitlistEmail.includes('@')) {
@@ -503,8 +517,27 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
             <span>СБП</span>
             <span>VISA</span>
             <span>MasterCard</span>
-            <span>Stripe</span>
+            <span>Apple Pay</span>
           </div>
+        </div>
+
+        {/* Sandbox Test Mode Bar */}
+        <div className="mt-3 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center space-x-2 text-amber-900 font-medium">
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>
+              {locale === 'ru'
+                ? 'Режим тестирования шлюза'
+                : 'Gateway Sandbox Mode'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleSimulatePayment}
+            className="px-3 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] transition-all shadow-sm cursor-pointer"
+          >
+            ⚡ {locale === 'ru' ? 'Тестовая оплата (Разблокировать всё)' : 'Simulate Payment (Unlock All)'}
+          </button>
         </div>
       </div>
     </div>

@@ -53,15 +53,18 @@ export function getZodiacSign(longitude: number): {
 
 export function calculateNatalChart(birth: BirthData): NatalChartData {
   // Convert local birth time to UTC
-  const effectiveHour = birth.unknownTime ? 12 : birth.hour;
-  const effectiveMinute = birth.unknownTime ? 0 : birth.minute;
+  const effectiveHour = birth.unknownTime ? 12 : (birth.hour ?? 12);
+  const effectiveMinute = birth.unknownTime ? 0 : (birth.minute ?? 0);
+  const tzOffset = typeof birth.timezoneOffset === 'number' && !isNaN(birth.timezoneOffset)
+    ? birth.timezoneOffset
+    : (typeof birth.longitude === 'number' ? Math.round(birth.longitude / 15) : 0);
   
   // Date in UTC
   const utcDate = new Date(Date.UTC(
     birth.year,
     birth.month - 1,
     birth.day,
-    effectiveHour - birth.timezoneOffset,
+    effectiveHour - tzOffset,
     effectiveMinute,
     0
   ));
