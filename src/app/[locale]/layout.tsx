@@ -125,7 +125,7 @@ export async function generateMetadata({
     },
     verification: {
       google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'jwKKw0yTinQ1XeMQZ2ibYVBb7wdUiydYCWkfU1KWgRo',
-      yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || 'f8a48bc2961d7fa1',
+      yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || '994f342b75a5349d',
     },
   };
 }
@@ -262,6 +262,12 @@ export default async function LocaleLayout({
         <meta
           name="google-site-verification"
           content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'jwKKw0yTinQ1XeMQZ2ibYVBb7wdUiydYCWkfU1KWgRo'}
+        />
+
+        {/* Yandex Webmaster Verification */}
+        <meta
+          name="yandex-verification"
+          content={process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || '994f342b75a5349d'}
         />
 
         {/* Structured Data (Schema.org) */}
