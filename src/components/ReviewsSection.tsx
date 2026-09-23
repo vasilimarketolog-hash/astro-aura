@@ -62,6 +62,14 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' })
 
   const faqsRu = [
     {
+      q: 'Что такое натальная карта и чем она отличается от обычного гороскопа?',
+      a: 'Натальная карта — это персональный астрономический снимок звездного неба на момент вашего рождения с расчетом 12 домов, Асцендента и точных градусов планет по координатам вашего города. В отличие от общих прогнозов по знаку Зодиака, натальная карта описывает вашу уникальную структуру личности, финансовые точки роста и кармические задачи.'
+    },
+    {
+      q: 'Что показывает Бодиграф Дизайна Человека?',
+      a: 'Бодиграф раскрывает вашу генетическую энергетическую механику: один из 4 типов (Генератор, Манифестор, Проектор, Рефлектор), ваш внутренний авторитет для принятия верных решений без сопротивления, профиль и определенные энергетические центры.'
+    },
+    {
       q: 'Насколько точны астрономические расчеты?',
       a: 'Мы используем вычислительные алгоритмы эфемерид NASA и Swiss Ephemeris, учитывающие точные долготы, широты и исторический часовой пояс города на момент вашего рождения с точностью до угловой секунды.'
     },
@@ -80,6 +88,14 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' })
   ];
 
   const faqsEn = [
+    {
+      q: 'What is a natal chart and how does it differ from a sun-sign horoscope?',
+      a: 'A natal chart is an exact astronomical blueprint of the sky at the exact minute and location of your birth. Unlike generic sun-sign horoscopes, it maps all 10 planets across 12 houses and your Ascendant, revealing your psychological architecture, subconscious blocks, and career opportunities.'
+    },
+    {
+      q: 'What does a Human Design Bodygraph reveal?',
+      a: 'Human Design synthesizes astrology, the I Ching, and quantum mechanics to show how your energy operates. It determines your energy type (Generator, Manifestor, Projector, Reflector), decision-making Authority, and profile lines.'
+    },
     {
       q: 'How accurate are the astronomical calculations?',
       a: 'We use NASA JPL Horizons and Swiss Ephemeris algorithms to calculate planetary longitudes, houses, and aspects with arc-second precision.'
