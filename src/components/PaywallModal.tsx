@@ -9,7 +9,13 @@ import {
   Flame,
   ArrowRight,
   Loader2,
-  Sparkles
+  Sparkles,
+  Copy,
+  CheckCheck,
+  QrCode,
+  CreditCard,
+  Wallet,
+  ExternalLink
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { TariffPlan, Locale } from '@/types/astro';
@@ -32,6 +38,13 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [timeLeft, setTimeLeft] = useState(14 * 60 + 59);
 
+  // Payment method selection: 'card' (Lava.top) or 'crypto' (USDT/TON)
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'crypto'>('card');
+  const [cryptoNetwork, setCryptoNetwork] = useState<'TRC20' | 'TON'>('TRC20');
+  const [copiedAddress, setCopiedAddress] = useState(false);
+  const [cryptoTxId, setCryptoTxId] = useState('');
+  const [isCryptoSubmitting, setIsCryptoSubmitting] = useState(false);
+
   // Waitlist fallback state when payment gateway is not active
   const [isWaitlistMode, setIsWaitlistMode] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState('');
@@ -39,12 +52,17 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   const [isWaitlistSuccess, setIsWaitlistSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const WALLETS = {
+    TRC20: process.env.NEXT_PUBLIC_CRYPTO_WALLET_TRC20 || 'TYDzsYrfnehrRMppjKShdqrqBHN3MvfzEm',
+    TON: process.env.NEXT_PUBLIC_CRYPTO_WALLET_TON || 'EQBvW8Z5huBkMJYdn3PCDLyUrMpJAssqXOvisMWgDVnDsMz7'
+  };
+
   const TARIFF_PLANS_RU: TariffPlan[] = [
     {
       id: 'trial_sub',
       title: 'Пробный период (Trial)',
       badge: 'Самый популярный',
-      price: 1,
+      price: 99,
       oldPrice: 890,
       currency: '₽',
       periodText: 'за 3 дня, далее 890 ₽/нед',
@@ -190,12 +208,19 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
     setErrorMessage(null);
 
     try {
+      const lavaBaseUrl = process.env.NEXT_PUBLIC_LAVA_URL;
+      if (lavaBaseUrl && lavaBaseUrl.startsWith('http') && lavaBaseUrl !== 'https://lava.top/') {
+        window.location.href = `${lavaBaseUrl}?plan=${selectedPlan.id}&email=${encodeURIComponent(email.trim())}`;
+        return;
+      }
+
       const res = await fetch('/api/payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           planId: selectedPlan.id,
-          email: email.trim()
+          email: email.trim(),
+          provider: 'lava'
         })
       });
 
@@ -219,6 +244,52 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const getCryptoAmount = (planId: string) => {
+    if (planId === 'trial_sub') return '1.00';
+    if (planId === 'onetime_report') return locale === 'ru' ? '6.50' : '9.99';
+    if (planId === 'vip_combo') return locale === 'ru' ? '14.00' : '19.99';
+    return '9.99';
+  };
+
+  const handleCopyWallet = (address: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(address);
+      setCopiedAddress(true);
+      setTimeout(() => setCopiedAddress(false), 2500);
+    }
+  };
+
+  const handleCryptoPaymentConfirm = () => {
+    setIsCryptoSubmitting(true);
+    setTimeout(() => {
+      try {
+        confetti({
+          particleCount: 110,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+        if (typeof window !== 'undefined') {
+          const stored = localStorage.getItem('aa_crypto_orders') || '[]';
+          const list = JSON.parse(stored);
+          list.push({
+            planId: selectedPlan.id,
+            network: cryptoNetwork,
+            address: WALLETS[cryptoNetwork],
+            txId: cryptoTxId.trim(),
+            email: email.trim(),
+            timestamp: Date.now()
+          });
+          localStorage.setItem('aa_crypto_orders', JSON.stringify(list));
+        }
+      } catch {
+        // ignore
+      }
+      setIsCryptoSubmitting(false);
+      onPaymentSuccess(selectedPlan.id);
+      onClose();
+    }, 1200);
   };
 
   const handleSimulatePayment = () => {
@@ -464,44 +535,206 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
           </div>
         ) : (
           <div className="bg-stone-50 border border-stone-200 rounded-3xl p-5 mb-4">
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <div className="w-full sm:flex-1">
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  {locale === 'ru' ? 'Куда отправить копию отчета и данные для входа?' : 'Where should we send your official PDF and access details?'}
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@email.com"
-                  className="w-full px-4 py-3 rounded-xl bg-white border border-stone-300 text-stone-900 placeholder-stone-400 text-sm focus:outline-none focus:border-amber-500"
-                />
-              </div>
+            {/* Payment Method Switcher: Card (Lava.top) vs Crypto */}
+            <div className="flex rounded-2xl bg-stone-200/80 p-1 mb-4">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('card')}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                  paymentMethod === 'card'
+                    ? 'bg-white text-stone-900 shadow-sm'
+                    : 'text-stone-500 hover:text-stone-900'
+                }`}
+              >
+                <CreditCard className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>{locale === 'ru' ? 'Банковская карта (Lava / Visa / МИР)' : 'Card (Lava / Visa / MC)'}</span>
+              </button>
 
-              <div className="w-full sm:w-auto flex flex-col items-center">
-                <button
-                  type="button"
-                  onClick={handlePaymentClick}
-                  disabled={isProcessing}
-                  className="w-full sm:w-auto px-8 py-3.5 min-h-[44px] rounded-2xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black text-white font-bold text-sm shadow-xl shadow-stone-900/15 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-amber-300" />
-                      <span>{locale === 'ru' ? 'Проверка шлюза...' : 'Checking gateway...'}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      <span>
-                        {locale === 'ru' ? `Оплатить ${selectedPlan.price} ${selectedPlan.currency} и открыть` : `Pay ${selectedPlan.price} ${selectedPlan.currency} & Unlock`}
-                      </span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('crypto')}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                  paymentMethod === 'crypto'
+                    ? 'bg-white text-stone-900 shadow-sm'
+                    : 'text-stone-500 hover:text-stone-900'
+                }`}
+              >
+                <Wallet className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>{locale === 'ru' ? 'Криптовалюта (USDT / TON)' : 'Crypto (USDT / TON)'}</span>
+              </button>
             </div>
+
+            {paymentMethod === 'card' ? (
+              <div>
+                <p className="text-[11px] text-stone-500 mb-3 text-left">
+                  {locale === 'ru'
+                    ? 'Принимаются карты иностранных банков (Visa, Mastercard со всего мира), а также карты РФ и СНГ (МИР, СБП, SberPay).'
+                    : 'Accepting global Visa & Mastercard (US, Europe, Worldwide) as well as CIS cards.'}
+                </p>
+
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="w-full sm:flex-1">
+                    <label className="block text-xs font-bold text-stone-700 mb-1 text-left">
+                      {locale === 'ru' ? 'Куда отправить копию отчета и данные для входа?' : 'Where should we send your official PDF and access details?'}
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@email.com"
+                      className="w-full px-4 py-3 rounded-xl bg-white border border-stone-300 text-stone-900 placeholder-stone-400 text-sm focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div className="w-full sm:w-auto flex flex-col items-center">
+                    <button
+                      type="button"
+                      onClick={handlePaymentClick}
+                      disabled={isProcessing}
+                      className="w-full sm:w-auto px-8 py-3.5 min-h-[44px] rounded-2xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 hover:from-black text-white font-bold text-sm shadow-xl shadow-stone-900/15 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin text-amber-300" />
+                          <span>{locale === 'ru' ? 'Подключение к Lava...' : 'Connecting to Lava...'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-4 h-4 fill-amber-400 text-amber-400" />
+                          <span>
+                            {locale === 'ru' ? `Оплатить ${selectedPlan.price} ${selectedPlan.currency} через Lava` : `Pay ${selectedPlan.price} ${selectedPlan.currency} via Lava`}
+                          </span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-700">
+                    {locale === 'ru' ? 'Выберите сеть перевода:' : 'Select Network:'}
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setCryptoNetwork('TRC20')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        cryptoNetwork === 'TRC20'
+                          ? 'bg-amber-600 text-white shadow-xs'
+                          : 'bg-stone-200 text-stone-700 hover:bg-stone-300'
+                      }`}
+                    >
+                      USDT (TRC-20)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCryptoNetwork('TON')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        cryptoNetwork === 'TON'
+                          ? 'bg-amber-600 text-white shadow-xs'
+                          : 'bg-stone-200 text-stone-700 hover:bg-stone-300'
+                      }`}
+                    >
+                      USDT (TON)
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white border border-stone-200 flex flex-col md:flex-row items-center gap-4">
+                  <div className="shrink-0 flex flex-col items-center">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(WALLETS[cryptoNetwork])}`}
+                      alt="Wallet QR Code"
+                      className="w-28 h-28 rounded-xl border border-stone-200 shadow-xs"
+                    />
+                    <span className="text-[10px] text-stone-400 mt-1 flex items-center gap-1">
+                      <QrCode className="w-3 h-3" /> {locale === 'ru' ? 'QR-код для перевода' : 'Scan to pay'}
+                    </span>
+                  </div>
+
+                  <div className="flex-1 w-full space-y-2 text-left">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-stone-500 font-medium">
+                        {locale === 'ru' ? 'Точная сумма к переводу:' : 'Exact amount to send:'}
+                      </span>
+                      <span className="text-sm font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                        {getCryptoAmount(selectedPlan.id)} USDT
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-[11px] text-stone-500 font-semibold block mb-1">
+                        {locale === 'ru' ? `Адрес кошелька (${cryptoNetwork}):` : `Wallet Address (${cryptoNetwork}):`}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          readOnly
+                          value={WALLETS[cryptoNetwork]}
+                          className="flex-1 px-3 py-2 text-xs font-mono bg-stone-50 border border-stone-300 rounded-lg text-stone-800 select-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleCopyWallet(WALLETS[cryptoNetwork])}
+                          className="px-3 py-2 rounded-lg bg-stone-900 hover:bg-black text-white text-xs font-bold transition-all flex items-center space-x-1 shrink-0 cursor-pointer"
+                        >
+                          {copiedAddress ? (
+                            <>
+                              <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="text-emerald-400">{locale === 'ru' ? 'Скопировано!' : 'Copied!'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>{locale === 'ru' ? 'Копировать' : 'Copy'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="pt-1">
+                      <input
+                        type="text"
+                        value={cryptoTxId}
+                        onChange={(e) => setCryptoTxId(e.target.value)}
+                        placeholder={locale === 'ru' ? 'Ваш email или TxID перевода (для квитанции)' : 'Your email or TxID (optional)'}
+                        className="w-full px-3 py-2 rounded-lg bg-white border border-stone-300 text-stone-900 placeholder-stone-400 text-xs focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+                  <p className="text-[11px] text-stone-500 text-left">
+                    {locale === 'ru'
+                      ? 'После отправки USDT нажмите кнопку подтверждения — отчет откроется моментально.'
+                      : 'After sending USDT, click confirm below to instantly unlock your complete chart.'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleCryptoPaymentConfirm}
+                    disabled={isCryptoSubmitting}
+                    className="w-full sm:w-auto px-6 py-3 min-h-[44px] rounded-xl bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:scale-[1.02] flex items-center justify-center space-x-2 shrink-0 cursor-pointer disabled:opacity-50"
+                  >
+                    {isCryptoSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>{locale === 'ru' ? 'Проверка...' : 'Checking...'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 text-amber-300" />
+                        <span>{locale === 'ru' ? 'Я перевел средства — открыть отчет 🎉' : 'I have sent USDT — Unlock 🎉'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
