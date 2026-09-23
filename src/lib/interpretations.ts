@@ -258,6 +258,134 @@ export const SIGN_INTERPRETATIONS_EN: Record<string, SignInterpretation> = {
   }
 };
 
+export const SIGN_INTERPRETATIONS_ES: Record<string, SignInterpretation> = {
+  aries: {
+    essence: 'Pionero indomable, llama de iniciativa y voluntad inquebrantable de victoria.',
+    sunMeaning: 'Tu esencia se nutre del desafío y el avance constante. Eres un líder nato que no tolera la indecisión y aprende de sus propias decisiones audaces.',
+    moonMeaning: 'Un volcán de emociones bulle en tu interior: reaccionas de forma instantánea, honesta y directa. Necesitas acción física para calmar la tensión interna.',
+    ascMeaning: 'El mundo te percibe como una persona valiente, dinámica y magnética. Primera impresión: determinación, carisma y capacidad de liderazgo.',
+    venusMeaning: 'En el amor eres cazador: valoras la pasión viva, la franqueza y el ritmo audaz. La frialdad o la rutina te desconectan de inmediato.',
+    marsMeaning: 'Inmensa fuerza impulsora. Ante la adversidad no te rindes, atacas el problema de frente.',
+    shadowSide: 'Impulsividad, impaciencia y tendencia a abandonar proyectos si se apaga el entusiasmo inicial.',
+    superpower: 'Capacidad de encender a cualquier equipo y dar el primer paso donde otros temen.'
+  },
+  taurus: {
+    essence: 'Guardián de la abundancia, creador de estabilidad material y armonía sensorial.',
+    sunMeaning: 'Valoras la solidez, la comodidad y los resultados tangibles. Tu fortaleza radica en la paciencia, la lealtad y el don de acumular recursos.',
+    moonMeaning: 'Tu alma encuentra paz en la serenidad, la buena mesa, la seguridad financiera y lo predecible. Los cambios bruscos generan resistencia.',
+    ascMeaning: 'Transmites una presencia confiable, atractiva y equilibrada, irradiando elegancia natural y buen gusto estético.',
+    venusMeaning: 'El amor para ti es contacto físico, lealtad y disfrute compartido. No tienes prisa, pero cuando amas, es para siempre.',
+    marsMeaning: 'Determinación implacable. Avanzas a paso firme y nada puede detenerte cuando fijas un objetivo.',
+    shadowSide: 'Terquedad, apego a la zona de confort y ansiedad ante la incertidumbre económica.',
+    superpower: 'Convertir cualquier idea caótica en un sistema rentable, sólido y duradero.'
+  },
+  gemini: {
+    essence: 'Canalizador de ideas, maestro de la comunicación y virtuoso de la versatilidad mental.',
+    sunMeaning: 'Tu mente es insaciable: investigas múltiples temas a la vez, captas la esencia en segundos y conectas personas muy diversas.',
+    moonMeaning: 'Procesas las emociones a través del intelecto. Para calmarte necesitas expresar tus ideas, leer o explorar un concepto nuevo.',
+    ascMeaning: 'Frescura visual, espíritu juvenil, mirada curiosa y facilidad innata para iniciar conversaciones interesantes.',
+    venusMeaning: 'Te estimula la inteligencia viva, el ingenio y las charlas que duran hasta el amanecer. Si no hay conexión mental, el interés decae.',
+    marsMeaning: 'Agilidad mental y multitarea. Actúas a través de las palabras, las redes y la resolución creativa de problemas.',
+    shadowSide: 'Dispersión, superficialidad y agotamiento mental por sobrecarga de información.',
+    superpower: 'Conectar con cualquier persona al instante y monetizar la información antes que nadie.'
+  },
+  cancer: {
+    essence: 'Protector intuitivo, alma empática y refugio de profunda contención emocional.',
+    sunMeaning: 'Tu poder reside en la sensibilidad, la lealtad hacia tus seres queridos y la creación de espacios seguros. Tras una coraza suave hay una fuerza invencible.',
+    moonMeaning: 'Luna en domicilio: intuición colosal, capacidad casi telepática para percibir los estados de ánimo y dolores no expresados.',
+    ascMeaning: 'Mirada cálida y acogedora que genera confianza inmediata. Los demás buscan instintivamente tu consuelo y afecto.',
+    venusMeaning: 'Buscas fusión emocional, romance sincero y un hogar sólido. Muy vulnerable a la indiferencia o frialdad.',
+    marsMeaning: 'Energía protectora: por ti mismo puedes dudar, pero para defender a tu familia o proyecto arrasas con cualquier barrera.',
+    shadowSide: 'Susceptibilidad, tendencia a encerrarte en tu caparazón y dramatizar el pasado.',
+    superpower: 'Lectura intuitiva de las intenciones ajenas un segundo antes de que hablen.'
+  },
+  leo: {
+    essence: 'Creador solar, fuente de calidez, generosidad y magnetismo natural.',
+    sunMeaning: 'Naciste para brillar e inspirar. Tu dignidad, nobleza de espíritu y visión de grandeza atraen la atención dondequiera que vayas.',
+    moonMeaning: 'Necesitas vitalmente admiración genuina y reconocimiento a tu valor. Cuando te aprecian, tu corazón se abre sin límites.',
+    ascMeaning: 'Porte regio, presencia radiante y una energía que ilumina la habitación. Imposible pasar desapercibido en una multitud.',
+    venusMeaning: 'Amor a lo grande: detalles espléndidos, devoción apasionada y orgullo por tu pareja. No aceptas relaciones tibias.',
+    marsMeaning: 'Acción con seguridad y convicción de triunfo. Talento innato para liderar y organizar.',
+    shadowSide: 'Orgullo herido, dependencia de la aprobación externa y tendencia al dramatismo.',
+    superpower: 'Influencia magnética sobre los demás y capacidad de motivar a alcanzar grandes metas.'
+  },
+  virgo: {
+    essence: 'Arquitecto de la excelencia, maestro analítico y artesano de la precisión práctica.',
+    sunMeaning: 'Tu don es ordenar el caos con maestría. Detectas los detalles invisibles y aspiras a una calidad impecable.',
+    moonMeaning: 'La serenidad llega cuando todo está en su lugar, tu bienestar bajo control y tus proyectos siguen un plan riguroso.',
+    ascMeaning: 'Elegancia sobria, mirada observadora e inteligente que evalúa con precisión experta.',
+    venusMeaning: 'Amor demostrado en actos concretos: preparar algo nutritivo, resolver un problema cotidiano, brindar lealtad incondicional.',
+    marsMeaning: 'Trabajo meticuloso y estratégico sin desgaste innecesario. Vences con preparación y método.',
+    shadowSide: 'Autocrítica severa, perfeccionismo excesivo y preocupación anticipatoria.',
+    superpower: 'Localizar fallos críticos en cualquier sistema y transformarlo en una máquina perfecta.'
+  },
+  libra: {
+    essence: 'Diplomático de la armonía, esteta refinado y creador de acuerdos impecables.',
+    sunMeaning: 'Buscas belleza, equilibrio y justicia. Tu sabiduría está en sopesar todos los puntos de vista y hallar el consenso ideal.',
+    moonMeaning: 'Necesitas un entorno armonioso y una relación cómplice. Los conflictos y la agresividad drenan tu bienestar físico.',
+    ascMeaning: 'Encanto magnético, simetría facial, amabilidad natural y un sentido del estilo que desarma cualquier hostilidad.',
+    venusMeaning: 'Venus en su templo: romance distinguido, conversaciones profundas y respeto mutuo de máxima calidad.',
+    marsMeaning: 'Poder suave: alcanzas tus metas no con fuerza bruta, sino mediante negociación, diplomacia y seducción.',
+    shadowSide: 'Indecisión crónica y postergar tus propios deseos por evitar confrontaciones.',
+    superpower: 'Resolver disputas imposibles y elevar cualquier espacio a la belleza pura.'
+  },
+  scorpio: {
+    essence: 'Fénix místico, maestro de la alquimia psicológica y la transformación total.',
+    sunMeaning: 'Posees una fuerza interior titánica que resurge de cualquier crisis. Desprecias la falsedad y siempre llegas a la verdad oculta.',
+    moonMeaning: 'Emociones profundas y apasionadas. Tienes un instinto agudo para detectar la traición y guardas lealtad sagrada a quien entra en tu círculo íntimo.',
+    ascMeaning: 'Mirada hipnótica y penetrante, aura de misterio y una atracción magnética que intriga y fascina.',
+    venusMeaning: 'Amor total o nada: devoción incondicional, pasión visceral y un pacto espiritual inquebrantable.',
+    marsMeaning: 'Voluntad inquebrantable: nunca te rindes y cada golpe del destino te vuelve diez veces más fuerte.',
+    shadowSide: 'Posesividad, desconfianza, resentimiento y tendencia al autocastigo emocional.',
+    superpower: 'Renacer de las cenizas y dominio intuitivo sobre el subconsciente humano.'
+  },
+  sagittarius: {
+    essence: 'Filósofo explorador, buscador de la verdad universal y heraldo del optimismo expansivo.',
+    sunMeaning: 'Tu alma anhela horizontes: viajes, conocimiento superior, proyectos monumentales y libertad espiritual.',
+    moonMeaning: 'Espíritu libre y resiliente. La rutina te asfixia; floreces con espacios amplios, descubrimientos y alegría vital.',
+    ascMeaning: 'Sonrisa expansiva, porte atlético y un aura acogedora que te convierte en amigo entrañable de inmediato.',
+    venusMeaning: 'El amor como aventura compartida: respeto a la libertad mutua, filosofías en común y viajes inolvidables.',
+    marsMeaning: 'Acción entusiasta y audaz: apuntas a metas lejanas con fe inquebrantable en tu destino.',
+    shadowSide: 'Inquietud, dogmatismo involuntario y resistencia a lidiar con tareas administrativas mundanas.',
+    superpower: 'Atraer sincronicidades afortunadas y elevar el ánimo de todos con pura esperanza.'
+  },
+  capricorn: {
+    essence: 'Conquistador de cumbres, maestro de la disciplina temporal y forjador de legados duraderos.',
+    sunMeaning: 'Posees paciencia legendaria y tenacidad inquebrantable. Fijas metas elevadas y conquistas metas que otros abandonan.',
+    moonMeaning: 'Compostura firme. Solo revelas tu vulnerabilidad emocional en entornos de respeto y confianza comprobada.',
+    ascMeaning: 'Presencia distinguida, madura y autoritaria. Transmites respeto y solvencia sin necesidad de alzar la voz.',
+    venusMeaning: 'Lealtad comprobada con los años: construir patrimonio compartido, estatus y seguridad para el futuro.',
+    marsMeaning: 'Resistencia incansable: ejecución precisa sin movimientos en falso que garantiza la victoria a largo plazo.',
+    shadowSide: 'Distancia emocional, autoexigencia implacable y dificultad para relajarse y disfrutar el presente.',
+    superpower: 'Construir imperios sostenibles y perseverar con éxito donde todos los demás se rinden.'
+  },
+  aquarius: {
+    essence: 'Arquitecto del mañana, pionero de la libertad y motor de la evolución colectiva.',
+    sunMeaning: 'Piensas décadas por delante de tu tiempo. Tu motor es la originalidad auténtica, la libertad de criterio y el progreso humano.',
+    moonMeaning: 'Claridad mental ante los sentimientos: observas las emociones con objetividad panorámica, combinando lógica y empatía.',
+    ascMeaning: 'Estilo vanguardista, mirada visionaria y una singularidad magnética que no sigue ninguna moda.',
+    venusMeaning: 'Amor basado en una complicidad intelectual profunda: respetar la independencia mutua mientras crean ideas futuristas.',
+    marsMeaning: 'Disrupción innovadora: transformas paradigmas obsoletos mediante creatividad y tecnología.',
+    shadowSide: 'Desapego frío, rebeldía sin causa y dificultad para conectar con la ternura cotidiana.',
+    superpower: 'Anticipar tendencias culturales y abrir caminos donde antes no había senderos.'
+  },
+  pisces: {
+    essence: 'Místico oceánico, canal de compasión cósmica e inspiración trascendente.',
+    sunMeaning: 'Tu sintonía con los sueños, el arte y los arquetipos es profunda. Vives a través de la intuición y la empatía universal.',
+    moonMeaning: 'Sensibilidad sublime: absorbes la energía del ambiente sin esfuerzo. Necesitas soledad y contacto con el agua para recargar tu alma.',
+    ascMeaning: 'Mirada enigmática y luminosa, movimientos gráciles y una atmósfera de poesía viva.',
+    venusMeaning: 'Amor incondicional: sanar, inspirar y entregarte a tu pareja desde una devoción espiritual pura.',
+    marsMeaning: 'Acción guiada por la sincronicidad: confías en los tiempos invisibles y hallas milagros donde la lógica se detiene.',
+    shadowSide: 'Evasión de la realidad, límites personales difusos y tendencia al sacrificio.',
+    superpower: 'Intuición prodigiosa y genialidad artística que canaliza directo de la conciencia universal.'
+  }
+};
+
+export function getSignInterpretation(signId: string, locale: Locale = 'ru'): SignInterpretation {
+  const dict = locale === 'es' ? SIGN_INTERPRETATIONS_ES : locale === 'en' ? SIGN_INTERPRETATIONS_EN : SIGN_INTERPRETATIONS;
+  return dict[signId] || dict.aries;
+}
+
 export interface TeaserInsight {
   headline: string;
   hook: string;
@@ -272,19 +400,30 @@ export function generateTeaserInsights(
   ascSignId: string,
   locale: Locale = 'ru'
 ): TeaserInsight {
+  const isEs = locale === 'es';
   const isEn = locale === 'en';
 
   const sunSign = ZODIAC_SIGNS.find(s => s.id === sunSignId) || ZODIAC_SIGNS[0];
   const moonSign = ZODIAC_SIGNS.find(s => s.id === moonSignId) || ZODIAC_SIGNS[3];
   const ascSign = ZODIAC_SIGNS.find(s => s.id === ascSignId) || ZODIAC_SIGNS[4];
 
-  const dict = isEn ? SIGN_INTERPRETATIONS_EN : SIGN_INTERPRETATIONS;
+  const dict = isEs ? SIGN_INTERPRETATIONS_ES : isEn ? SIGN_INTERPRETATIONS_EN : SIGN_INTERPRETATIONS;
   const sun = dict[sunSignId] || dict.aries;
   const moon = dict[moonSignId] || dict.cancer;
   const asc = dict[ascSignId] || dict.leo;
 
-  const sunName = isEn ? sunSign.nameEn : sunSign.nameRu;
-  const moonName = isEn ? moonSign.nameEn : moonSign.nameRu;
+  const sunName = isEs ? (sunSign.nameEs || sunSign.nameEn) : isEn ? sunSign.nameEn : sunSign.nameRu;
+  const moonName = isEs ? (moonSign.nameEs || moonSign.nameEn) : isEn ? moonSign.nameEn : moonSign.nameRu;
+
+  if (isEs) {
+    return {
+      headline: `Combinación Rara: Sol en ${sunName} con Luna en ${moonName}`,
+      hook: `Tu personalidad exterior (${asc.essence}) oculta una profunda dualidad psicológica: tu mente consciente persigue un camino, mientras que tu alma subconsciente anhela una experiencia totalmente diferente.`,
+      revealedDetail: `${sun.sunMeaning} Al mismo tiempo, la posición de tu Luna revela: ${moon.moonMeaning}`,
+      hiddenSecret: `En tu carta natal se ha detectado una configuración celeste especial en las casas del amor y las finanzas, activando una transformación decisiva en los próximos meses.`,
+      urgencyPrompt: `Solo el 4% de las personas poseen esta alineación exacta. Desbloquea tus nodos kármicos del destino y el código de tu verdadera abundancia.`
+    };
+  }
 
   if (isEn) {
     return {

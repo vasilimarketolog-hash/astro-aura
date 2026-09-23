@@ -15,11 +15,13 @@ export default function LocalizedLandingPage({
 }) {
   const router = useRouter();
   const resolvedParams = use(params);
-  const locale: Locale = resolvedParams.locale === 'en' ? 'en' : 'ru';
+  const locale: Locale = resolvedParams.locale === 'es' ? 'es' : resolvedParams.locale === 'en' ? 'en' : 'ru';
 
   const handleToggleLocale = (newLocale: Locale) => {
     if (newLocale === locale) return;
-    if (newLocale === 'en') {
+    if (newLocale === 'es') {
+      router.push('/es');
+    } else if (newLocale === 'en') {
       router.push('/en');
     } else {
       router.push('/');
@@ -27,7 +29,7 @@ export default function LocalizedLandingPage({
   };
 
   const handleStartQuiz = (focus?: string) => {
-    const prefix = locale === 'en' ? '/en' : '';
+    const prefix = locale === 'es' ? '/es' : locale === 'en' ? '/en' : '';
     if (focus === 'synastry') {
       router.push(`${prefix}/synastry/step/1`);
     } else if (focus === 'humandesign') {

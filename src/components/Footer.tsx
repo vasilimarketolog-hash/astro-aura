@@ -14,6 +14,7 @@ type ModalType = 'terms' | 'privacy' | 'subscription' | 'support' | null;
 export const Footer: React.FC<FooterProps> = ({ locale = 'ru' }) => {
   const t = getTranslation(locale);
   const isEn = locale === 'en';
+  const isEs = locale === 'es';
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
   const closeModal = () => setActiveModal(null);
@@ -92,10 +93,10 @@ export const Footer: React.FC<FooterProps> = ({ locale = 'ru' }) => {
           >
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <h3 className="text-base font-bold text-stone-900">
-                {activeModal === 'terms' && (isEn ? 'Terms of Service & Public Offer' : 'Пользовательское соглашение и оферта')}
-                {activeModal === 'privacy' && (isEn ? 'Privacy Policy' : 'Политика конфиденциальности')}
-                {activeModal === 'subscription' && (isEn ? 'Manage Subscription / Cancellation' : 'Управление подпиской и отмена')}
-                {activeModal === 'support' && (isEn ? 'Customer Care & Support' : 'Служба заботы и поддержки')}
+                {activeModal === 'terms' && (isEs ? 'Términos de Servicio y Oferta Pública' : isEn ? 'Terms of Service & Public Offer' : 'Пользовательское соглашение и оферта')}
+                {activeModal === 'privacy' && (isEs ? 'Política de Privacidad' : isEn ? 'Privacy Policy' : 'Политика конфиденциальности')}
+                {activeModal === 'subscription' && (isEs ? 'Gestión de Suscripción / Cancelación' : isEn ? 'Manage Subscription / Cancellation' : 'Управление подпиской и отмена')}
+                {activeModal === 'support' && (isEs ? 'Atención al Cliente y Soporte' : isEn ? 'Customer Care & Support' : 'Служба заботы и поддержки')}
               </h3>
               <button
                 type="button"
@@ -111,12 +112,16 @@ export const Footer: React.FC<FooterProps> = ({ locale = 'ru' }) => {
               {activeModal === 'terms' && (
                 <>
                   <p>
-                    {isEn
+                    {isEs
+                      ? 'Al utilizar el servicio AstroAura, aceptas estos Términos de Servicio. AstroAura proporciona cálculos astronómicos algorítmicos, cartas de Diseño Humano y consultas astrológicas con Inteligencia Artificial.'
+                      : isEn
                       ? 'By using the AstroAura service, you agree to these Terms of Service. AstroAura provides algorithmic astrological calculations, Human Design blueprints, and AI astrological consultations.'
                       : 'Используя сервис AstroAura, вы соглашаетесь с условиями настоящего Пользовательского соглашения. Сервис предоставляет алгоритмические астрономические расчеты, карты Дизайна Человека и консультации AI-астролога.'}
                   </p>
                   <p>
-                    {isEn
+                    {isEs
+                      ? 'El servicio tiene fines exclusivos de entretenimiento, autoconocimiento y reflexión personal. Los informes astrológicos no sustituyen el asesoramiento médico, financiero o legal profesional.'
+                      : isEn
                       ? 'The service is intended exclusively for entertainment and self-reflection purposes. Astrological reports are not financial, medical, or legal advice.'
                       : 'Сервис носит исключительно развлекательно-информационный характер и не заменяет квалифицированную врачебную, финансовую или юридическую помощь.'}
                   </p>
@@ -126,12 +131,16 @@ export const Footer: React.FC<FooterProps> = ({ locale = 'ru' }) => {
               {activeModal === 'privacy' && (
                 <>
                   <p>
-                    {isEn
+                    {isEs
+                      ? 'Respetamos tu privacidad. Todos los datos de nacimiento introducidos (nombre, fecha, hora, ciudad) se utilizan únicamente para calcular efemérides astronómicas y se transmiten de forma segura con cifrado SSL de 256 bits.'
+                      : isEn
                       ? 'We respect your privacy. All birth details entered (name, date, time, location) are used solely to compute astronomical coordinates and are transmitted securely via 256-bit SSL encryption.'
                       : 'Мы ценим вашу конфиденциальность. Персональные данные рождения (имя, дата, время, город) используются исключительно для расчета астрономических эфемерид и передаются по защищенному протоколу 256-bit SSL.'}
                   </p>
                   <p>
-                    {isEn
+                    {isEs
+                      ? 'Nunca vendemos ni compartimos tus datos personales con terceros. Puedes solicitar la eliminación definitiva de tus datos en cualquier momento escribiendo a support@astroaura.pro.'
+                      : isEn
                       ? 'We never sell or disclose your personal data to third parties. You may request data erasure at any time by contacting support@astroaura.pro.'
                       : 'Мы никогда не передаем и не продаем ваши личные данные третьим лицам. Вы можете запросить удаление данных в любой момент, написав на support@astroaura.pro.'}
                   </p>
@@ -141,12 +150,16 @@ export const Footer: React.FC<FooterProps> = ({ locale = 'ru' }) => {
               {activeModal === 'subscription' && (
                 <>
                   <p className="font-semibold text-stone-800">
-                    {isEn
+                    {isEs
+                      ? 'Puedes cancelar tu suscripción en cualquier momento sin preguntas ni complicaciones.'
+                      : isEn
                       ? 'You can cancel your subscription at any time without questions asked.'
                       : 'Вы можете отменить подписку в любой момент в 1 клик без скрытых комиссий.'}
                   </p>
                   <p>
-                    {isEn
+                    {isEs
+                      ? 'Para gestionar o cancelar tu plan, simplemente envía tu correo registrado a support@astroaura.pro o responde al correo de confirmación de tu compra. Las cancelaciones se procesan de inmediato.'
+                      : isEn
                       ? 'To cancel or manage your plan, simply send your registration email to support@astroaura.pro or reply to your confirmation receipt email. Cancellations are processed immediately.'
                       : 'Для управления тарифом или мгновенной отмены подписки отправьте ваш Email на support@astroaura.pro или воспользуйтесь ссылкой отмены из приветственного письма. Запрос обрабатывается моментально.'}
                   </p>
@@ -156,13 +169,15 @@ export const Footer: React.FC<FooterProps> = ({ locale = 'ru' }) => {
               {activeModal === 'support' && (
                 <>
                   <p>
-                    {isEn
+                    {isEs
+                      ? 'Nuestro equipo de atención al cliente está disponible 24/7 para ayudarte con cálculos, descarga del informe en PDF o dudas sobre pagos.'
+                      : isEn
                       ? 'Our customer support team is available 24/7 to assist with calculations, PDF reports, or billing questions.'
                       : 'Наша служба заботы на связи 24/7 и готова помочь с вопросами по расчетам, скачиванию PDF или тарифам.'}
                   </p>
                   <p className="pt-2">
                     <strong className="text-stone-900 block mb-1">
-                      {isEn ? 'Direct Contact:' : 'Прямой контакт:'}
+                      {isEs ? 'Contacto Directo:' : isEn ? 'Direct Contact:' : 'Прямой контакт:'}
                     </strong>
                     <a
                       href="mailto:support@astroaura.pro"
@@ -172,7 +187,7 @@ export const Footer: React.FC<FooterProps> = ({ locale = 'ru' }) => {
                     </a>
                   </p>
                   <p className="text-[11px] text-stone-500">
-                    {isEn ? 'Average response time: under 15 minutes.' : 'Среднее время ответа: до 15 минут.'}
+                    {isEs ? 'Tiempo promedio de respuesta: menos de 15 minutos.' : isEn ? 'Average response time: under 15 minutes.' : 'Среднее время ответа: до 15 минут.'}
                   </p>
                 </>
               )}
@@ -184,7 +199,7 @@ export const Footer: React.FC<FooterProps> = ({ locale = 'ru' }) => {
                 onClick={closeModal}
                 className="min-h-[44px] min-w-[44px] px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-bold transition-colors cursor-pointer flex items-center justify-center"
               >
-                {isEn ? 'Close' : 'Понятно'}
+                {isEs ? 'Entendido' : isEn ? 'Close' : 'Понятно'}
               </button>
             </div>
           </div>

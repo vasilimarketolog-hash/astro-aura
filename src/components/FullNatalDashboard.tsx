@@ -17,7 +17,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { NatalChartData, SynastryData, HumanDesignData, PlanetPosition, Locale } from '@/types/astro';
-import { SIGN_INTERPRETATIONS } from '@/lib/interpretations';
+import { getSignInterpretation } from '@/lib/interpretations';
 import { getTranslation } from '@/lib/translations';
 import { calculateNatalChart } from '@/lib/astroEngine';
 import { NatalWheel } from './NatalWheel';
@@ -58,8 +58,8 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
 
   // Dynamic recalculation when switching house system
   const currentNatal = React.useMemo(() => {
-    return calculateNatalChart({ ...natal.birthData, houseSystem });
-  }, [natal.birthData, houseSystem]);
+    return calculateNatalChart({ ...natal.birthData, houseSystem }, locale);
+  }, [natal.birthData, houseSystem, locale]);
 
   const fullName = `${currentNatal.birthData.name} ${currentNatal.birthData.lastName || ''}`.trim();
   const locationText = `${currentNatal.birthData.cityName}${currentNatal.birthData.country ? `, ${currentNatal.birthData.country}` : ''}`;
@@ -75,11 +75,23 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
   const asc = currentNatal.ascendant;
   const mc = currentNatal.midheaven;
 
-  const sunData = SIGN_INTERPRETATIONS[sun.sign.id];
-  const moonData = SIGN_INTERPRETATIONS[moon.sign.id];
-  const ascData = SIGN_INTERPRETATIONS[asc.sign.id];
-  const venusData = SIGN_INTERPRETATIONS[venus.sign.id];
-  const marsData = SIGN_INTERPRETATIONS[mars.sign.id];
+  const sunData = getSignInterpretation(sun.sign.id, locale);
+  const moonData = getSignInterpretation(moon.sign.id, locale);
+  const ascData = getSignInterpretation(asc.sign.id, locale);
+  const venusData = getSignInterpretation(venus.sign.id, locale);
+  const marsData = getSignInterpretation(mars.sign.id, locale);
+
+  const getPlanetName = (p: PlanetPosition) => {
+    if (locale === 'es') return p.nameEs || p.nameEn;
+    if (locale === 'en') return p.nameEn;
+    return p.nameRu;
+  };
+
+  const getSignName = (s: { nameRu: string; nameEn: string; nameEs?: string }) => {
+    if (locale === 'es') return s.nameEs || s.nameEn;
+    if (locale === 'en') return s.nameEn;
+    return s.nameRu;
+  };
 
   const handleDownloadPdf = async () => {
     if (!printableRef.current) return;
@@ -143,7 +155,11 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                 {t.forPersonHeader}
               </div>
               <h1 className="text-2xl sm:text-4xl font-black text-stone-900 mb-2 tracking-tight">
-                {locale === 'ru' ? `Для ${fullName} из г. ${natal.birthData.cityName}` : `For ${fullName} from ${natal.birthData.cityName}`}
+                {locale === 'ru'
+                  ? `Для ${fullName} из г. ${natal.birthData.cityName}`
+                  : locale === 'es'
+                  ? `Para ${fullName} de ${natal.birthData.cityName}`
+                  : `For ${fullName} from ${natal.birthData.cityName}`}
               </h1>
 
               <div className="flex flex-wrap items-center gap-4 text-xs text-stone-600 pt-1">
@@ -277,10 +293,20 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
               <div className="lg:col-span-6 bg-white border border-stone-200 rounded-3xl p-6 shadow-md flex flex-col items-center">
                 <h3 className="text-base font-bold text-stone-900 mb-2 flex items-center space-x-2">
                   <Sparkles className="w-4 h-4 text-amber-600" />
-                  <span>{locale === 'ru' ? 'Натальное колесо планет' : 'Interactive Natal Wheel'}</span>
+                  <span>
+                    {locale === 'ru'
+                      ? 'Натальное колесо планет'
+                      : locale === 'es'
+                      ? 'Rueda Natal Interactiva'
+                      : 'Interactive Natal Wheel'}
+                  </span>
                 </h3>
                 <p className="text-xs text-stone-500 mb-4 text-center">
-                  {locale === 'ru' ? `Координаты неба на момент рождения ${fullName}` : `Sky map at the moment of ${fullName}'s birth`}
+                  {locale === 'ru'
+                    ? `Координаты неба на момент рождения ${fullName}`
+                    : locale === 'es'
+                    ? `Mapa celeste en el momento del nacimiento de ${fullName}`
+                    : `Sky map at the moment of ${fullName}'s birth`}
                 </p>
                 <NatalWheel chart={currentNatal} onSelectPlanet={(p) => setSelectedPlanet(p)} />
               </div>
@@ -288,13 +314,17 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
               {/* Quick Planetary Table */}
               <div className="lg:col-span-6 space-y-3">
                 <h3 className="text-lg font-bold text-stone-900 mb-3">
-                  {locale === 'ru' ? 'Координаты планет и домов' : 'Planetary Coordinates & Houses'}
+                  {locale === 'ru'
+                    ? 'Координаты планет и домов'
+                    : locale === 'es'
+                    ? 'Coordenadas Planetarias y Casas'
+                    : 'Planetary Coordinates & Houses'}
                 </h3>
                 <div className="grid grid-cols-2 gap-2.5 max-h-[460px] overflow-y-auto pr-1">
                   {currentNatal.planets.map((p) => {
                     const isSelected = selectedPlanet?.id === p.id;
-                    const planetName = locale === 'ru' ? p.nameRu : p.nameEn;
-                    const signName = locale === 'ru' ? p.sign.nameRu : p.sign.nameEn;
+                    const planetName = getPlanetName(p);
+                    const signName = getSignName(p.sign);
 
                     return (
                       <div
@@ -326,7 +356,7 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                         </div>
                         <div className="text-right">
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 font-mono font-semibold">
-                            {p.house} {locale === 'ru' ? 'дом' : 'house'}
+                            {locale === 'es' ? `Casa ${p.house}` : `${p.house} ${locale === 'ru' ? 'дом' : 'house'}`}
                           </span>
                         </div>
                       </div>
@@ -342,8 +372,8 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                 <span className="text-amber-600">✦</span>
                 <span>
                   {selectedPlanet
-                    ? `${locale === 'ru' ? selectedPlanet.nameRu : selectedPlanet.nameEn} in ${locale === 'ru' ? selectedPlanet.sign.nameRu : selectedPlanet.sign.nameEn}`
-                    : `${locale === 'ru' ? 'Солнце в знаке' : 'Sun in'} ${locale === 'ru' ? sun.sign.nameRu : sun.sign.nameEn} (${t.sunCore})`}
+                    ? `${getPlanetName(selectedPlanet)} ${locale === 'ru' ? 'в знаке' : locale === 'es' ? 'en' : 'in'} ${getSignName(selectedPlanet.sign)}`
+                    : `${locale === 'ru' ? 'Солнце в знаке' : locale === 'es' ? 'Sol en' : 'Sun in'} ${getSignName(sun.sign)} (${t.sunCore})`}
                 </span>
               </h3>
 
@@ -352,10 +382,24 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                   <>
                     <p>{sunData?.sunMeaning}</p>
                     <p>
-                      <strong>{locale === 'ru' ? 'Суперсила личности:' : 'Core Superpower:'}</strong> {sunData?.superpower}
+                      <strong>
+                        {locale === 'ru'
+                          ? 'Суперсила личности:'
+                          : locale === 'es'
+                          ? 'Superpoder esencial:'
+                          : 'Core Superpower:'}
+                      </strong>{' '}
+                      {sunData?.superpower}
                     </p>
                     <p>
-                      <strong>{locale === 'ru' ? 'Теневая сторона и точки роста:' : 'Shadow side & Growth points:'}</strong> {sunData?.shadowSide}
+                      <strong>
+                        {locale === 'ru'
+                          ? 'Теневая сторона и точки роста:'
+                          : locale === 'es'
+                          ? 'Lado sombrío y puntos de evolución:'
+                          : 'Shadow side & Growth points:'}
+                      </strong>{' '}
+                      {sunData?.shadowSide}
                     </p>
                     <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 mt-4 text-xs text-amber-950">
                       <strong>Ascendant ({asc.degreeInSign}°):</strong> {ascData?.ascMeaning}
@@ -364,7 +408,16 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                 ) : selectedPlanet.id === 'moon' ? (
                   <>
                     <p>{moonData?.moonMeaning}</p>
-                    <p><strong>{locale === 'ru' ? 'Подсознательные потребности:' : 'Subconscious needs:'}</strong> {moonData?.essence}</p>
+                    <p>
+                      <strong>
+                        {locale === 'ru'
+                          ? 'Подсознательные потребности:'
+                          : locale === 'es'
+                          ? 'Necesidades subconscientes:'
+                          : 'Subconscious needs:'}
+                      </strong>{' '}
+                      {moonData?.essence}
+                    </p>
                   </>
                 ) : selectedPlanet.id === 'venus' ? (
                   <>
@@ -378,6 +431,8 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                   <p>
                     {locale === 'ru'
                       ? `Положение планеты ${selectedPlanet.nameRu} в ${selectedPlanet.sign.nameRu} в ${selectedPlanet.house} доме активирует важный вектор развития.`
+                      : locale === 'es'
+                      ? `La posición del planeta ${getPlanetName(selectedPlanet)} en ${getSignName(selectedPlanet.sign)} en la casa ${selectedPlanet.house} activa un vector evolutivo único.`
                       : `The placement of ${selectedPlanet.nameEn} in ${selectedPlanet.sign.nameEn} in house ${selectedPlanet.house} activates a unique evolutionary pattern.`}
                   </p>
                 )}
@@ -410,13 +465,23 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
             <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-sm">
               <h2 className="text-2xl font-black text-stone-900 mb-3 flex items-center space-x-2">
                 <Heart className="w-6 h-6 text-rose-500" />
-                <span>{locale === 'ru' ? 'Любовный сценарий и 7-й дом партнерства' : 'Love Blueprint & 7th House of Partnership'}</span>
+                <span>
+                  {locale === 'ru'
+                    ? 'Любовный сценарий и 7-й дом партнерства'
+                    : locale === 'es'
+                    ? 'Patrón del Amor y Casa 7 de Pareja'
+                    : 'Love Blueprint & 7th House of Partnership'}
+                </span>
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="p-5 rounded-2xl bg-rose-50 border border-rose-200">
                   <span className="text-xs font-bold text-rose-700 uppercase tracking-wider block mb-1">
-                    Венера в {locale === 'ru' ? venus.sign.nameRu : venus.sign.nameEn} ({venus.house} дом)
+                    {locale === 'ru'
+                      ? `Венера в ${venus.sign.nameRu} (${venus.house} дом)`
+                      : locale === 'es'
+                      ? `Venus en ${getSignName(venus.sign)} (Casa ${venus.house})`
+                      : `Venus in ${venus.sign.nameEn} (House ${venus.house})`}
                   </span>
                   <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
                     {venusData?.venusMeaning}
@@ -425,7 +490,11 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
 
                 <div className="p-5 rounded-2xl bg-red-50 border border-red-200">
                   <span className="text-xs font-bold text-red-700 uppercase tracking-wider block mb-1">
-                    Марс в {locale === 'ru' ? mars.sign.nameRu : mars.sign.nameEn} ({mars.house} дом)
+                    {locale === 'ru'
+                      ? `Марс в ${mars.sign.nameRu} (${mars.house} дом)`
+                      : locale === 'es'
+                      ? `Marte en ${getSignName(mars.sign)} (Casa ${mars.house})`
+                      : `Mars in ${mars.sign.nameEn} (House ${mars.house})`}
                   </span>
                   <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
                     {marsData?.marsMeaning}
@@ -442,34 +511,60 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
             <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-sm">
               <h2 className="text-2xl font-black text-stone-900 mb-3 flex items-center space-x-2">
                 <Briefcase className="w-6 h-6 text-amber-600" />
-                <span>{locale === 'ru' ? 'Финансовый код и Карьерная реализация' : 'Financial Code & Career Fulfillment'}</span>
+                <span>
+                  {locale === 'ru'
+                    ? 'Финансовый код и Карьерная реализация'
+                    : locale === 'es'
+                    ? 'Código Financiero y Realización Profesional'
+                    : 'Financial Code & Career Fulfillment'}
+                </span>
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200">
                   <span className="text-xs font-bold text-amber-800 uppercase tracking-wider block mb-1">
-                    MC: {locale === 'ru' ? mc.sign.nameRu : mc.sign.nameEn}
+                    MC: {getSignName(mc.sign)}
                   </span>
                   <p className="text-xs text-stone-600">
-                    {locale === 'ru' ? 'Высшая точка вашей профессиональной реализации и признания.' : 'Highest point of career achievement and leadership.'}
+                    {locale === 'ru'
+                      ? 'Высшая точка вашей профессиональной реализации и признания.'
+                      : locale === 'es'
+                      ? 'Punto más alto de tu realización profesional y vocación.'
+                      : 'Highest point of career achievement and leadership.'}
                   </p>
                 </div>
 
                 <div className="p-5 rounded-2xl bg-yellow-50 border border-yellow-200">
                   <span className="text-xs font-bold text-yellow-800 uppercase tracking-wider block mb-1">
-                    Юпитер в {locale === 'ru' ? jupiter.sign.nameRu : jupiter.sign.nameEn}
+                    {locale === 'ru'
+                      ? `Юпитер в ${jupiter.sign.nameRu}`
+                      : locale === 'es'
+                      ? `Júpiter en ${getSignName(jupiter.sign)}`
+                      : `Jupiter in ${jupiter.sign.nameEn}`}
                   </span>
                   <p className="text-xs text-stone-600">
-                    {locale === 'ru' ? 'Точка масштабной денежной удачи и расширения влияния.' : 'Gateway of wealth expansion and lucrative opportunities.'}
+                    {locale === 'ru'
+                      ? 'Точка масштабной денежной удачи и расширения влияния.'
+                      : locale === 'es'
+                      ? 'Puerta de abundancia económica y expansión de influencia.'
+                      : 'Gateway of wealth expansion and lucrative opportunities.'}
                   </p>
                 </div>
 
                 <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200">
                   <span className="text-xs font-bold text-stone-800 uppercase tracking-wider block mb-1">
-                    Сатурн в {locale === 'ru' ? saturn.sign.nameRu : saturn.sign.nameEn}
+                    {locale === 'ru'
+                      ? `Сатурн в ${saturn.sign.nameRu}`
+                      : locale === 'es'
+                      ? `Saturno en ${getSignName(saturn.sign)}`
+                      : `Saturn in ${saturn.sign.nameEn}`}
                   </span>
                   <p className="text-xs text-stone-600">
-                    {locale === 'ru' ? 'Долгосрочные системные активы и дисциплина капитала.' : 'Long-term assets, structural discipline and endurance.'}
+                    {locale === 'ru'
+                      ? 'Долгосрочные системные активы и дисциплина капитала.'
+                      : locale === 'es'
+                      ? 'Activos estratégicos a largo plazo y disciplina financiera.'
+                      : 'Long-term assets, structural discipline and endurance.'}
                   </p>
                 </div>
               </div>
@@ -489,18 +584,22 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                         <h3 className="text-xl font-black text-stone-900">
                           {locale === 'ru'
                             ? `Точка Фортуны в знаке ${currentNatal.partOfFortune.sign.nameRu} (${currentNatal.partOfFortune.degreeInSign}°), ${currentNatal.partOfFortune.house} дом`
+                            : locale === 'es'
+                            ? `Punto de la Fortuna en ${getSignName(currentNatal.partOfFortune.sign)} (${currentNatal.partOfFortune.degreeInSign}°), Casa ${currentNatal.partOfFortune.house}`
                             : `Part of Fortune in ${currentNatal.partOfFortune.sign.nameEn} (${currentNatal.partOfFortune.degreeInSign}°), House ${currentNatal.partOfFortune.house}`}
                         </h3>
                       </div>
                     </div>
                     <span className="px-3.5 py-1.5 rounded-full bg-white border border-amber-300 text-amber-900 font-bold text-xs shadow-2xs">
-                      {locale === 'ru' ? 'Секрет изобилия' : 'Key to Prosperity'}
+                      {locale === 'ru' ? 'Секрет изобилия' : locale === 'es' ? 'Clave de Abundancia' : 'Key to Prosperity'}
                     </span>
                   </div>
 
                   <p className="text-sm text-stone-700 leading-relaxed">
                     {locale === 'ru'
                       ? `В натальной карте Колесо Удачи (Точка Фортуны) указывает на ту сферу жизни, где человек естественным образом получает признание, финансовые плоды и глубокое моральное удовлетворение. Находясь в знаке ${currentNatal.partOfFortune.sign.nameRu} и ${currentNatal.partOfFortune.house}-м доме, ваша удача раскрывается через развитие качеств ${currentNatal.partOfFortune.sign.nameRu}: ${currentNatal.partOfFortune.sign.element === 'Огонь' ? 'лидерскую инициативу, решительность и смелые авторские проекты' : currentNatal.partOfFortune.sign.element === 'Земля' ? 'создание осязаемых практических продуктов, системный подход и надежные инвестиции' : currentNatal.partOfFortune.sign.element === 'Воздух' ? 'интеллектуальную работу, экспертные связи, торговлю и работу с информацией' : 'интуицию, психологию, заботу о людях и эмоциональное доверие'}.`
+                      : locale === 'es'
+                      ? `En tu carta astral, el Punto de la Fortuna señala el área donde atraes prosperidad, éxito y plenitud de forma natural. Ubicado en ${getSignName(currentNatal.partOfFortune.sign)} en la Casa ${currentNatal.partOfFortune.house}, tu mayor éxito fluye al desplegar tus dones con autenticidad, constancia y disciplina.`
                       : `In your astrological chart, the Part of Fortune marks the sphere where you naturally attract serendipity, prosperity, and fulfillment. Located in ${currentNatal.partOfFortune.sign.nameEn} within House ${currentNatal.partOfFortune.house}, your greatest fortune flows through embracing ${currentNatal.partOfFortune.sign.nameEn} virtues: sustained dedication, authentic self-expression, and deliberate alignment with your gifts.`}
                   </p>
                 </div>
@@ -515,28 +614,46 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
             <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-sm">
               <h2 className="text-2xl font-black text-stone-900 mb-3 flex items-center space-x-2">
                 <Compass className="w-6 h-6 text-purple-600" />
-                <span>{locale === 'ru' ? 'Кармические узлы судьбы (Раху и Кету)' : 'Karmic Destiny Nodes (Rahu & Ketu)'}</span>
+                <span>
+                  {locale === 'ru'
+                    ? 'Кармические узлы судьбы (Раху и Кету)'
+                    : locale === 'es'
+                    ? 'Nodos Kármicos del Destino (Rahu y Ketu)'
+                    : 'Karmic Destiny Nodes (Rahu & Ketu)'}
+                </span>
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="p-5 rounded-2xl bg-purple-50 border border-purple-200">
                   <span className="text-xs font-bold text-purple-800 uppercase tracking-wider block mb-1">
-                    Северный Узел (Раху): {locale === 'ru' ? node?.sign.nameRu : node?.sign.nameEn}
+                    {locale === 'ru'
+                      ? `Северный Узел (Раху): ${node?.sign.nameRu}`
+                      : locale === 'es'
+                      ? `Nodo Norte (Rahu): ${node ? getSignName(node.sign) : ''}`
+                      : `North Node (Rahu): ${node?.sign.nameEn}`}
                   </span>
                   <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
                     {locale === 'ru'
                       ? `Главный вектор эволюции вашей души в этом воплощении. Задача — наработать качества знака ${node?.sign.nameRu}.`
+                      : locale === 'es'
+                      ? `El vector principal de evolución de tu alma. Tu misión consiste en desarrollar las cualidades de ${node ? getSignName(node.sign) : ''}.`
                       : `The evolutionary vector of your life. Your mission is to develop the gifts of ${node?.sign.nameEn}.`}
                   </p>
                 </div>
 
                 <div className="p-5 rounded-2xl bg-rose-50 border border-rose-200">
                   <span className="text-xs font-bold text-rose-800 uppercase tracking-wider block mb-1">
-                    Черная Луна (Лилит): {locale === 'ru' ? lilith?.sign.nameRu : lilith?.sign.nameEn}
+                    {locale === 'ru'
+                      ? `Черная Луна (Лилит): ${lilith?.sign.nameRu}`
+                      : locale === 'es'
+                      ? `Luna Negra (Lilith): ${lilith ? getSignName(lilith.sign) : ''}`
+                      : `Black Moon (Lilith): ${lilith?.sign.nameEn}`}
                   </span>
                   <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
                     {locale === 'ru'
                       ? 'Точка скрытых страхов и подсознательных искушений, преодолевая которые вы обретаете глубинную силу.'
+                      : locale === 'es'
+                      ? 'Punto de miedos ocultos y pruebas subconscientes; al integrarlo liberas un magnetismo intuitivo transformador.'
                       : 'Shadow point of subconscious trials; mastering it unlocks profound intuitive magnetism.'}
                   </p>
                 </div>
@@ -558,7 +675,13 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
             <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
               <h2 className="text-2xl font-black text-stone-900 flex items-center space-x-2">
                 <Star className="w-6 h-6 text-amber-500 fill-amber-400" />
-                <span>{locale === 'ru' ? 'Гороскоп Совместимости (Синастрия)' : 'Compatibility Report (Synastry)'}</span>
+                <span>
+                  {locale === 'ru'
+                    ? 'Гороскоп Совместимости (Синастрия)'
+                    : locale === 'es'
+                    ? 'Informe de Compatibilidad (Sinastría)'
+                    : 'Compatibility Report (Synastry)'}
+                </span>
               </h2>
 
               {synastry ? (
@@ -566,7 +689,11 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                   <div className="p-6 rounded-2xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
                       <span className="text-xs text-rose-700 font-bold uppercase tracking-wider">
-                        {locale === 'ru' ? 'Итоговый индекс гармонии' : 'Overall Harmony Score'}
+                        {locale === 'ru'
+                          ? 'Итоговый индекс гармонии'
+                          : locale === 'es'
+                          ? 'Índice de Armonía Global'
+                          : 'Overall Harmony Score'}
                       </span>
                       <h3 className="text-2xl font-bold text-stone-900">
                         {synastry.person1.birthData.name} + {synastry.person2.birthData.name}
@@ -587,7 +714,13 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                 </div>
               ) : (
                 <div className="text-center py-10 text-stone-500">
-                  <p>{locale === 'ru' ? 'Для расчета совместимости требуется ввести данные партнера в новом расчете.' : 'To compute compatibility, enter partner details during onboarding.'}</p>
+                  <p>
+                    {locale === 'ru'
+                      ? 'Для расчета совместимости требуется ввести данные партнера в новом расчете.'
+                      : locale === 'es'
+                      ? 'Para calcular la compatibilidad, introduce los datos de tu pareja durante el cálculo.'
+                      : 'To compute compatibility, enter partner details during onboarding.'}
+                  </p>
                 </div>
               )}
             </div>
@@ -604,7 +737,7 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
         {/* TAB 7: AI ASTROLOGER CHAT */}
         {activeTab === 'chat' && (
           <div>
-            <AIAstrologerChat chart={natal} />
+            <AIAstrologerChat chart={natal} locale={locale} />
           </div>
         )}
       </div>

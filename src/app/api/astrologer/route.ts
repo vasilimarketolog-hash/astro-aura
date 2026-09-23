@@ -5,10 +5,11 @@ import { NatalChartData } from '@/types/astro';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { question, chart, history } = body as {
+    const { question, chart, history, locale } = body as {
       question: string;
       chart: NatalChartData;
       history: { role: 'user' | 'model'; text: string }[];
+      locale?: any;
     };
 
     if (!question || !chart) {
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const answer = await askAIAstrologer(question, chart, history || []);
+    const answer = await askAIAstrologer(question, chart, history || [], locale || 'ru');
     return NextResponse.json({ answer });
   } catch (error: any) {
     console.error('Astrologer API error:', error);

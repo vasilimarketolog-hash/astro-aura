@@ -17,12 +17,12 @@ import {
   Globe
 } from 'lucide-react';
 import { BirthData, CalculationType, NatalChartData, SynastryData, HumanDesignData, Locale } from '@/types/astro';
-import { searchCities, POPULAR_CITIES, CityInfo, geocodeWorldwideCity, geocodeWorldwideCities } from '@/lib/cities';
+import { searchCities, POPULAR_CITIES, TOP_LATAM_ES_CITIES, TOP_GLOBAL_CITIES, CityInfo, geocodeWorldwideCity, geocodeWorldwideCities } from '@/lib/cities';
 import { calculateNatalChart, calculateSynastry, calculateHumanDesign } from '@/lib/astroEngine';
 import { getTranslation } from '@/lib/translations';
 import { getWizardState, saveWizardState } from '@/lib/storage';
 
-const NAME_REGEX = /^[a-zA-Zа-яА-ЯёЁ\s\-]{2,}$/;
+const NAME_REGEX = /^[a-zA-Zа-яА-ЯёЁáéíóúüñÁÉÍÓÚÜÑ\s\-]{2,}$/;
 
 function isValidBirthDate(d?: number, m?: number, y?: number): boolean {
   if (!d || !m || !y) return false;
@@ -111,7 +111,13 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
       if (saved.unknownTime !== undefined) setUnknownTime(saved.unknownTime);
       if (saved.selectedCity) {
         setSelectedCity(saved.selectedCity);
-        setCitySearch(locale === 'ru' ? saved.selectedCity.name : saved.selectedCity.nameEn);
+        setCitySearch(
+          locale === 'es'
+            ? (saved.selectedCity.nameEs || saved.selectedCity.nameEn || saved.selectedCity.name)
+            : locale === 'ru'
+            ? saved.selectedCity.name
+            : (saved.selectedCity.nameEn || saved.selectedCity.name)
+        );
       }
 
       if (saved.p2Name) setP2Name(saved.p2Name);
@@ -125,7 +131,13 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
       if (saved.p2UnknownTime !== undefined) setP2UnknownTime(saved.p2UnknownTime);
       if (saved.p2SelectedCity) {
         setP2SelectedCity(saved.p2SelectedCity);
-        setP2CitySearch(locale === 'ru' ? saved.p2SelectedCity.name : saved.p2SelectedCity.nameEn);
+        setP2CitySearch(
+          locale === 'es'
+            ? (saved.p2SelectedCity.nameEs || saved.p2SelectedCity.nameEn || saved.p2SelectedCity.name)
+            : locale === 'ru'
+            ? saved.p2SelectedCity.name
+            : (saved.p2SelectedCity.nameEn || saved.p2SelectedCity.name)
+        );
       }
     }
   }, [locale]);
@@ -192,7 +204,11 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
-  const months = locale === 'ru' ? monthsRu : monthsEn;
+  const monthsEs = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  const months = locale === 'es' ? monthsEs : locale === 'ru' ? monthsRu : monthsEn;
 
   const currentYear = new Date().getFullYear(); // 2026
   const years = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => currentYear - i);
@@ -245,7 +261,26 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
     return () => clearTimeout(timer);
   }, [p2CitySearch, localP2Cities.length]);
 
-  const fullName = [firstName.trim(), lastName.trim()].filter(Boolean).join(' ') || (locale === 'ru' ? 'Гость' : 'Guest');
+  const getCityDisplayName = (city?: CityInfo | null) => {
+    if (!city) return '';
+    if (locale === 'es') return city.nameEs || city.nameEn || city.name;
+    if (locale === 'ru') return city.name;
+    return city.nameEn || city.name;
+  };
+  const getCountryDisplayName = (city?: CityInfo | null) => {
+    if (!city) return '';
+    if (locale === 'es') return city.countryEs || city.countryEn || city.country;
+    if (locale === 'ru') return city.country;
+    return city.countryEn || city.country;
+  };
+  const getRegionDisplayName = (city?: CityInfo | null) => {
+    if (!city) return '';
+    if (locale === 'es') return city.regionEs || city.regionEn || city.region || '';
+    if (locale === 'ru') return city.region || '';
+    return city.regionEn || city.region || '';
+  };
+
+  const fullName = [firstName.trim(), lastName.trim()].filter(Boolean).join(' ') || (locale === 'es' ? 'Invitado' : locale === 'ru' ? 'Гость' : 'Guest');
 
   const handleCustomCityLookup = async (inputQuery: string, isPerson2 = false) => {
     if (!inputQuery.trim()) return;
@@ -286,11 +321,14 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
       const finishTimeout = setTimeout(() => {
         setProgressPercent(100);
 
-        const effectiveCity = selectedCity || POPULAR_CITIES[0];
+        const fallbackCity = locale === 'es' ? TOP_LATAM_ES_CITIES[0] : locale === 'en' ? TOP_GLOBAL_CITIES[0] : POPULAR_CITIES[0];
+        const effectiveCity = selectedCity || fallbackCity;
         const p1Birth: BirthData = {
-          name: firstName.trim() || (locale === 'ru' ? 'Алексей' : 'Alex'),
+          name: firstName.trim() || (locale === 'es' ? 'Alex' : locale === 'ru' ? 'Алексей' : 'Alex'),
           lastName: lastName.trim() || '',
-          country: effectiveCity.country,
+          country: getCountryDisplayName(effectiveCity),
+          countryEn: effectiveCity.countryEn,
+          countryEs: effectiveCity.countryEs || effectiveCity.countryEn,
           gender: (gender as any) || 'male',
           day: Number(day) || 1,
           month: Number(month) || 1,
@@ -298,22 +336,25 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
           hour: unknownTime ? 12 : (hour !== '' ? Number(hour) : 12),
           minute: unknownTime ? 0 : (minute !== '' ? Number(minute) : 0),
           unknownTime,
-          cityName: locale === 'ru' ? effectiveCity.name : effectiveCity.nameEn,
+          cityName: getCityDisplayName(effectiveCity),
+          cityEs: effectiveCity.nameEs || effectiveCity.nameEn,
           latitude: effectiveCity.latitude,
           longitude: effectiveCity.longitude,
           timezoneOffset: effectiveCity.timezoneOffset
         };
 
-        const natal1 = calculateNatalChart(p1Birth);
-        const hd = calculateHumanDesign(p1Birth);
+        const natal1 = calculateNatalChart(p1Birth, locale);
+        const hd = calculateHumanDesign(p1Birth, locale);
 
         let synastryResult: SynastryData | undefined = undefined;
         if (calcType === 'synastry') {
-          const effectiveP2City = p2SelectedCity || selectedCity || POPULAR_CITIES[0];
+          const effectiveP2City = p2SelectedCity || selectedCity || fallbackCity;
           const p2Birth: BirthData = {
-            name: p2Name.trim() || (locale === 'ru' ? 'Партнер' : 'Partner'),
+            name: p2Name.trim() || (locale === 'es' ? 'Pareja' : locale === 'ru' ? 'Партнер' : 'Partner'),
             lastName: p2LastName.trim() || '',
-            country: effectiveP2City.country,
+            country: getCountryDisplayName(effectiveP2City),
+            countryEn: effectiveP2City.countryEn,
+            countryEs: effectiveP2City.countryEs || effectiveP2City.countryEn,
             gender: (p2Gender as any) || 'female',
             day: Number(p2Day) || 1,
             month: Number(p2Month) || 1,
@@ -321,13 +362,14 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
             hour: p2UnknownTime ? 12 : (p2Hour !== '' ? Number(p2Hour) : 12),
             minute: p2UnknownTime ? 0 : (p2Minute !== '' ? Number(p2Minute) : 0),
             unknownTime: p2UnknownTime,
-            cityName: locale === 'ru' ? effectiveP2City.name : effectiveP2City.nameEn,
+            cityName: getCityDisplayName(effectiveP2City),
+            cityEs: effectiveP2City.nameEs || effectiveP2City.nameEn,
             latitude: effectiveP2City.latitude,
             longitude: effectiveP2City.longitude,
             timezoneOffset: effectiveP2City.timezoneOffset
           };
-          const natal2 = calculateNatalChart(p2Birth);
-          synastryResult = calculateSynastry(natal1, natal2);
+          const natal2 = calculateNatalChart(p2Birth, locale);
+          synastryResult = calculateSynastry(natal1, natal2, locale);
         }
 
         onComplete({
@@ -532,7 +574,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
     }
   };
 
-  const cityNameDisplay = selectedCity ? (locale === 'ru' ? selectedCity.name : selectedCity.nameEn) : '';
+  const cityNameDisplay = getCityDisplayName(selectedCity);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -800,7 +842,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
                 }`}
               >
-                <option value="">{locale === 'ru' ? 'День' : 'Day'}</option>
+                <option value="">{locale === 'es' ? 'Día' : locale === 'ru' ? 'День' : 'Day'}</option>
                 {[...Array(31)].map((_, i) => (
                   <option key={i + 1} value={i + 1}>
                     {i + 1}
@@ -830,7 +872,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
                 }`}
               >
-                <option value="">{locale === 'ru' ? 'Месяц' : 'Month'}</option>
+                <option value="">{locale === 'es' ? 'Mes' : locale === 'ru' ? 'Месяц' : 'Month'}</option>
                 {months.map((m, i) => (
                   <option key={i + 1} value={i + 1}>
                     {m}
@@ -860,7 +902,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     : 'bg-stone-50 border-stone-300 focus:border-amber-500 focus:bg-white'
                 }`}
               >
-                <option value="">{locale === 'ru' ? 'Год' : 'Year'}</option>
+                <option value="">{locale === 'es' ? 'Año' : locale === 'ru' ? 'Год' : 'Year'}</option>
                 {years.map((y) => (
                   <option key={y} value={y}>
                     {y}
@@ -903,11 +945,15 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
             </h2>
             <p className="text-sm text-stone-600">
               {calcType === 'humandesign'
-                ? (locale === 'ru'
+                ? (locale === 'es'
+                  ? 'La hora exacta es esencial para calcular las activaciones de Diseño y Personalidad, canales y puertas'
+                  : locale === 'ru'
                   ? 'Точное время необходимо для вычисления активаций Дизайна и Личности, каналов и ворот'
                   : 'Exact birth time is essential to compute Design & Personality activations and bodygraph gates')
                 : calcType === 'synastry'
-                ? (locale === 'ru'
+                ? (locale === 'es'
+                  ? 'La hora exacta es necesaria para calcular las casas de la relación y los aspectos precisos de la pareja'
+                  : locale === 'ru'
                   ? 'Точное время необходимо для расчета домов партнерства и точных аспектов пары'
                   : 'Exact birth time is needed to align relationship houses and precise couple aspects')
                 : t.step4Subtitle}
@@ -932,7 +978,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     timeError ? 'border-red-400 focus:border-red-500 bg-red-50/20' : 'bg-stone-50 border-stone-300 focus:border-amber-500'
                   }`}
                 >
-                  <option value="">{locale === 'ru' ? 'ЧЧ' : 'HH'}</option>
+                  <option value="">{locale === 'es' ? 'HH' : locale === 'ru' ? 'ЧЧ' : 'HH'}</option>
                   {[...Array(24)].map((_, i) => (
                     <option key={i} value={i}>
                       {String(i).padStart(2, '0')}
@@ -957,7 +1003,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     timeError ? 'border-red-400 focus:border-red-500 bg-red-50/20' : 'bg-stone-50 border-stone-300 focus:border-amber-500'
                   }`}
                 >
-                  <option value="">{locale === 'ru' ? 'ММ' : 'MM'}</option>
+                  <option value="">{locale === 'es' ? 'MM' : locale === 'ru' ? 'ММ' : 'MM'}</option>
                   {[...Array(60)].map((_, i) => (
                     <option key={i} value={i}>
                       {String(i).padStart(2, '0')}
@@ -971,7 +1017,9 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
               <HelpCircle className="w-5 h-5 text-amber-600 shrink-0" />
               <span>
                 {calcType === 'humandesign'
-                  ? (locale === 'ru'
+                  ? (locale === 'es'
+                    ? 'El cálculo se realizará al mediodía solar (12:00). Se determinarán con precisión tu tipo de energía y puertas clave, aunque las líneas del perfil pueden variar según la hora exacta.'
+                    : locale === 'ru'
                     ? 'Расчет будет выполнен по усредненному полдню (12:00). Большинство ворот и энергетический тип будут определены точно, но линии профиля могут зависеть от часа.'
                     : 'Calculated using solar noon (12:00). Your core energy type and key gates will be determined, though precise profile lines may vary.')
                   : t.unknownTimeNotice}
@@ -1034,11 +1082,15 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
             </h2>
             <p className="text-sm text-stone-600">
               {calcType === 'humandesign'
-                ? (locale === 'ru'
+                ? (locale === 'es'
+                  ? 'Las coordenadas determinan la zona horaria exacta para convertir la hora local a UTC para el cálculo del Diseño Humano'
+                  : locale === 'ru'
                   ? 'Координаты определяют точный часовой пояс для пересчета времени в UTC для расчета Бодиграфа'
                   : 'Coordinates determine the exact timezone to convert local time to UTC for the Bodygraph')
                 : calcType === 'synastry'
-                ? (locale === 'ru'
+                ? (locale === 'es'
+                  ? 'Las coordenadas geográficas son necesarias para calcular el sistema de casas del primer miembro de la pareja'
+                  : locale === 'ru'
                   ? 'Географические координаты необходимы для вычисления точной сетки домов первого партнера'
                   : 'Geographical coordinates are needed to calculate the primary partner house system')
                 : t.step5Subtitle}
@@ -1088,9 +1140,9 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
             <div className="max-h-48 overflow-y-auto rounded-xl border border-stone-200 bg-stone-50 divide-y divide-stone-200">
               {displayedCities.map((city) => {
                 const isSelected = selectedCity?.name === city.name && selectedCity?.country === city.country;
-                const cName = locale === 'ru' ? city.name : city.nameEn;
-                const cCountry = locale === 'ru' ? city.country : city.countryEn;
-                const cRegion = locale === 'ru' ? city.region : city.regionEn;
+                const cName = getCityDisplayName(city);
+                const cCountry = getCountryDisplayName(city);
+                const cRegion = getRegionDisplayName(city);
 
                 return (
                   <div
@@ -1134,7 +1186,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                 <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 <span>
                   {t.selectedCityText} <strong className="text-stone-900 font-bold">{cityNameDisplay}</strong>
-                  {selectedCity.region ? `, ${locale === 'ru' ? selectedCity.region : selectedCity.regionEn}` : ''} ({locale === 'ru' ? selectedCity.country : selectedCity.countryEn}, UTC+{selectedCity.timezoneOffset})
+                  {getRegionDisplayName(selectedCity) ? `, ${getRegionDisplayName(selectedCity)}` : ''} ({getCountryDisplayName(selectedCity)}, UTC+{selectedCity.timezoneOffset})
                 </span>
               </div>
             )}
@@ -1152,10 +1204,10 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
           >
             <span>
               {calcType === 'synastry'
-                ? (locale === 'ru' ? 'Ввести данные партнера' : 'Enter Partner Details')
+                ? (locale === 'es' ? 'Ingresar datos de la pareja' : locale === 'ru' ? 'Ввести данные партнера' : 'Enter Partner Details')
                 : calcType === 'humandesign'
-                ? (locale === 'ru' ? 'Построить Бодиграф Дизайна Человека' : 'Calculate Human Design Bodygraph')
-                : (locale === 'ru' ? 'Рассчитать натальную карту' : 'Generate Natal Chart')}
+                ? (locale === 'es' ? 'Calcular Diseño Humano' : locale === 'ru' ? 'Построить Бодиграф Дизайна Человека' : 'Calculate Human Design Bodygraph')
+                : (locale === 'es' ? 'Calcular Carta Astral' : locale === 'ru' ? 'Рассчитать натальную карту' : 'Generate Natal Chart')}
             </span>
             <ArrowRight className="w-5 h-5" />
           </button>
@@ -1196,7 +1248,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     markTouched('p2Name');
                   }}
                   onBlur={() => markTouched('p2Name')}
-                  placeholder={locale === 'ru' ? 'Имя' : 'Name'}
+                  placeholder={locale === 'es' ? 'Nombre' : locale === 'ru' ? 'Имя' : 'Name'}
                   className={`w-full px-4 py-3 rounded-xl border text-stone-900 placeholder-stone-400 focus:outline-none transition-colors ${
                     p2NameError ? 'border-red-400 focus:border-rose-500 bg-red-50/20' : 'bg-stone-50 border-stone-300 focus:border-rose-500'
                   }`}
@@ -1257,7 +1309,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     p2DateError ? 'border-red-400 bg-red-50/20' : 'bg-stone-50 border-stone-300'
                   }`}
                 >
-                  <option value="">{locale === 'ru' ? 'День' : 'Day'}</option>
+                  <option value="">{locale === 'es' ? 'Día' : locale === 'ru' ? 'День' : 'Day'}</option>
                   {[...Array(31)].map((_, i) => (
                     <option key={i + 1} value={i + 1}>{i + 1}</option>
                   ))}
@@ -1277,7 +1329,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     p2DateError ? 'border-red-400 bg-red-50/20' : 'bg-stone-50 border-stone-300'
                   }`}
                 >
-                  <option value="">{locale === 'ru' ? 'Месяц' : 'Month'}</option>
+                  <option value="">{locale === 'es' ? 'Mes' : locale === 'ru' ? 'Месяц' : 'Month'}</option>
                   {months.map((m, i) => (
                     <option key={i + 1} value={i + 1}>{m}</option>
                   ))}
@@ -1297,7 +1349,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                     p2DateError ? 'border-red-400 bg-red-50/20' : 'bg-stone-50 border-stone-300'
                   }`}
                 >
-                  <option value="">{locale === 'ru' ? 'Год' : 'Year'}</option>
+                  <option value="">{locale === 'es' ? 'Año' : locale === 'ru' ? 'Год' : 'Year'}</option>
                   {years.map((y) => (
                     <option key={y} value={y}>{y}</option>
                   ))}
@@ -1314,7 +1366,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
             {/* Partner City Selection */}
             <div>
               <label htmlFor="p2-city-input" className="block text-xs font-bold text-stone-700 mb-1 uppercase tracking-wider">
-                {locale === 'ru' ? 'Город рождения партнера' : 'Partner’s Birth City'} <span className="text-red-500">*</span>
+                {locale === 'es' ? 'Ciudad de nacimiento de la pareja' : locale === 'ru' ? 'Город рождения партнера' : 'Partner’s Birth City'} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <Search className="absolute left-3.5 top-3 w-4 h-4 text-stone-400" />
@@ -1351,9 +1403,9 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
               {p2CitySearch.trim().length > 0 && !p2SelectedCity && (
                 <div className="max-h-36 overflow-y-auto rounded-xl border border-stone-200 bg-stone-50 divide-y divide-stone-200 mt-1">
                   {displayedP2Cities.map((city) => {
-                    const cName = locale === 'ru' ? city.name : city.nameEn;
-                    const cCountry = locale === 'ru' ? city.country : city.countryEn;
-                    const cRegion = locale === 'ru' ? city.region : city.regionEn;
+                    const cName = getCityDisplayName(city);
+                    const cCountry = getCountryDisplayName(city);
+                    const cRegion = getRegionDisplayName(city);
 
                     return (
                       <div
@@ -1388,12 +1440,12 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                   type="button"
                   onClick={() => {
                     setP2SelectedCity(selectedCity);
-                    setP2CitySearch(locale === 'ru' ? selectedCity.name : selectedCity.nameEn);
+                    setP2CitySearch(getCityDisplayName(selectedCity));
                     markTouched('p2City');
                   }}
                   className="text-xs text-rose-600 hover:text-rose-700 mt-1.5 underline cursor-pointer inline-block"
                 >
-                  {locale === 'ru' ? `Тот же город, что у вас (${selectedCity.name})` : `Same city as yours (${selectedCity.nameEn})`}
+                  {locale === 'es' ? `Misma ciudad que la tuya (${getCityDisplayName(selectedCity)})` : locale === 'ru' ? `Тот же город, что у вас (${selectedCity.name})` : `Same city as yours (${selectedCity.nameEn})`}
                 </button>
               )}
 
@@ -1407,8 +1459,8 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                 <p className="text-xs text-stone-600 mt-1 flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                   <span>
-                    {locale === 'ru' ? p2SelectedCity.name : p2SelectedCity.nameEn}
-                    {p2SelectedCity.region ? `, ${locale === 'ru' ? p2SelectedCity.region : p2SelectedCity.regionEn}` : ''} ({locale === 'ru' ? p2SelectedCity.country : p2SelectedCity.countryEn}, UTC+{p2SelectedCity.timezoneOffset})
+                    {getCityDisplayName(p2SelectedCity)}
+                    {getRegionDisplayName(p2SelectedCity) ? `, ${getRegionDisplayName(p2SelectedCity)}` : ''} ({getCountryDisplayName(p2SelectedCity)}, UTC+{p2SelectedCity.timezoneOffset})
                   </span>
                 </p>
               )}
@@ -1448,7 +1500,7 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
                 : 'hover:from-black cursor-pointer'
             }`}
           >
-            <span>{locale === 'ru' ? 'Рассчитать совместимость' : 'Calculate Compatibility'}</span>
+            <span>{locale === 'es' ? 'Calcular compatibilidad' : locale === 'ru' ? 'Рассчитать совместимость' : 'Calculate Compatibility'}</span>
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
@@ -1467,27 +1519,27 @@ export const QuizFlow: React.FC<QuizFlowProps> = ({
 
           <h2 className="text-xl sm:text-2xl font-black text-stone-900 mb-2">
             {calcType === 'humandesign'
-              ? (locale === 'ru' ? 'Построение Бодиграфа Дизайна Человека...' : 'Generating Human Design Bodygraph...')
+              ? (locale === 'es' ? 'Generando Diseño Humano...' : locale === 'ru' ? 'Построение Бодиграфа Дизайна Человека...' : 'Generating Human Design Bodygraph...')
               : calcType === 'synastry'
-              ? (locale === 'ru' ? 'Вычисление синастрии и совместимости пары...' : 'Calculating Compatibility & Synastry...')
+              ? (locale === 'es' ? 'Calculando compatibilidad y sinastría...' : locale === 'ru' ? 'Вычисление синастрии и совместимости пары...' : 'Calculating Compatibility & Synastry...')
               : t.calcHeading}
           </h2>
 
           <p className="text-xs sm:text-sm text-stone-600 mb-6 h-8 flex items-center justify-center font-medium">
             {calcType === 'humandesign' ? (
-              loadingPhase === 0 ? (locale === 'ru' ? 'Активация 64 ворот рейв-мандалы...' : 'Activating 64 Rave Mandala gates...') :
-              loadingPhase === 1 ? (locale === 'ru' ? `Синхронизация координат и часового пояса для г. ${cityNameDisplay}...` : `Aligning coordinates and timezone for ${cityNameDisplay}...`) :
-              loadingPhase === 2 ? (locale === 'ru' ? 'Расчет личности (черные ворота) и дизайна (красные ворота)...' : 'Computing Personality and Design planetary activations...') :
-              loadingPhase === 3 ? (locale === 'ru' ? 'Определение 9 энергетических центров и каналов...' : 'Synthesizing 9 energy centers and definition channels...') :
-              loadingPhase === 4 ? (locale === 'ru' ? 'Идентификация Генетического Типа, Профиля и Внутреннего Авторитета...' : 'Identifying Genetic Type, Profile, and Inner Authority...') :
-              (locale === 'ru' ? `Формирование персонального Бодиграфа для ${fullName}...` : `Finalizing Human Design blueprint for ${fullName}...`)
+              loadingPhase === 0 ? (locale === 'es' ? 'Activando 64 puertas del mándala Rave...' : locale === 'ru' ? 'Активация 64 ворот рейв-мандалы...' : 'Activating 64 Rave Mandala gates...') :
+              loadingPhase === 1 ? (locale === 'es' ? `Alineando coordenadas y zona horaria para ${cityNameDisplay}...` : locale === 'ru' ? `Синхронизация координат и часового пояса для г. ${cityNameDisplay}...` : `Aligning coordinates and timezone for ${cityNameDisplay}...`) :
+              loadingPhase === 2 ? (locale === 'es' ? 'Calculando activaciones planetarias de Personalidad y Diseño...' : locale === 'ru' ? 'Расчет личности (черные ворота) и дизайна (красные ворота)...' : 'Computing Personality and Design planetary activations...') :
+              loadingPhase === 3 ? (locale === 'es' ? 'Sintetizando 9 centros de energía y canales definidos...' : locale === 'ru' ? 'Определение 9 энергетических центров и каналов...' : 'Synthesizing 9 energy centers and definition channels...') :
+              loadingPhase === 4 ? (locale === 'es' ? 'Identificando Tipo Genético, Perfil y Autoridad Interna...' : locale === 'ru' ? 'Идентификация Генетического Типа, Профиля и Внутреннего Авторитета...' : 'Identifying Genetic Type, Profile, and Inner Authority...') :
+              (locale === 'es' ? `Finalizando mapa de Diseño Humano para ${fullName}...` : locale === 'ru' ? `Формирование персонального Бодиграфа для ${fullName}...` : `Finalizing Human Design blueprint for ${fullName}...`)
             ) : calcType === 'synastry' ? (
-              loadingPhase === 0 ? (locale === 'ru' ? 'Сопоставление натальных карт обоих партнеров...' : 'Cross-analyzing natal positions of both partners...') :
-              loadingPhase === 1 ? (locale === 'ru' ? `Синхронизация часовых поясов для г. ${cityNameDisplay}...` : `Aligning local timezones for ${cityNameDisplay}...`) :
-              loadingPhase === 2 ? (locale === 'ru' ? 'Расчет синастрических аспектов Солнце-Луна и Венера-Марс...' : 'Calculating Sun-Moon and Venus-Mars synastry aspects...') :
-              loadingPhase === 3 ? (locale === 'ru' ? 'Вычисление индекса сексуального и эмоционального притяжения...' : 'Computing emotional and attraction compatibility scores...') :
-              loadingPhase === 4 ? (locale === 'ru' ? 'Анализ кармических уроков и скрытых зон конфликта...' : 'Analyzing karmic lessons and relationship friction triggers...') :
-              (locale === 'ru' ? `Формирование персонального прогноза пары для ${fullName}...` : `Finalizing compatibility forecast for ${fullName}...`)
+              loadingPhase === 0 ? (locale === 'es' ? 'Comparando cartas natales de ambos miembros...' : locale === 'ru' ? 'Сопоставление натальных карт обоих партнеров...' : 'Cross-analyzing natal positions of both partners...') :
+              loadingPhase === 1 ? (locale === 'es' ? `Alineando zonas horarias para ${cityNameDisplay}...` : locale === 'ru' ? `Синхронизация часовых поясов для г. ${cityNameDisplay}...` : `Aligning local timezones for ${cityNameDisplay}...`) :
+              loadingPhase === 2 ? (locale === 'es' ? 'Calculando aspectos de Sol-Luna y Venus-Marte...' : locale === 'ru' ? 'Расчет синастрических аспектов Солнце-Луна и Венера-Марс...' : 'Calculating Sun-Moon and Venus-Mars synastry aspects...') :
+              loadingPhase === 3 ? (locale === 'es' ? 'Computando índice de atracción emocional y sexual...' : locale === 'ru' ? 'Вычисление индекса сексуального и эмоционального притяжения...' : 'Computing emotional and attraction compatibility scores...') :
+              loadingPhase === 4 ? (locale === 'es' ? 'Analizando lecciones kármicas y desencadenantes de fricción...' : locale === 'ru' ? 'Анализ кармических уроков и скрытых зон конфликта...' : 'Analyzing karmic lessons and relationship friction triggers...') :
+              (locale === 'es' ? `Finalizando pronóstico de compatibilidad para ${fullName}...` : locale === 'ru' ? `Формирование персонального прогноза пары для ${fullName}...` : `Finalizing compatibility forecast for ${fullName}...`)
             ) : (
               <>
                 {loadingPhase === 0 && t.phase1}

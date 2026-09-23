@@ -22,7 +22,7 @@ export const WizardStepPage: React.FC<WizardStepPageProps> = ({
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
 
-  const routePrefix = locale === 'en' ? '/en' : '';
+  const routePrefix = locale === 'es' ? '/es' : locale === 'en' ? '/en' : '';
   const basePath =
     calcType === 'synastry'
       ? '/synastry'
@@ -89,7 +89,7 @@ export const WizardStepPage: React.FC<WizardStepPageProps> = ({
 
   const handleToggleLocale = (newLocale: Locale) => {
     if (newLocale === locale) return;
-    const targetPrefix = newLocale === 'en' ? '/en' : '';
+    const targetPrefix = newLocale === 'es' ? '/es' : newLocale === 'en' ? '/en' : '';
     router.push(`${targetPrefix}${basePath}/step/${stepNumber}`);
   };
 

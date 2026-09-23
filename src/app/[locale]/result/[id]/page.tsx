@@ -20,7 +20,7 @@ export default function ResultPage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const resolvedParams = use(params);
-  const locale: Locale = resolvedParams.locale === 'en' ? 'en' : 'ru';
+  const locale: Locale = resolvedParams.locale === 'es' ? 'es' : resolvedParams.locale === 'en' ? 'en' : 'ru';
   const id = resolvedParams.id;
   const dParam = searchParams.get('d');
 
@@ -49,13 +49,13 @@ export default function ResultPage({
       const payload = decodePayload(dParam);
       if (payload && payload.p1) {
         try {
-          const natal1 = calculateNatalChart(payload.p1);
-          const hd = calculateHumanDesign(payload.p1);
+          const natal1 = calculateNatalChart(payload.p1, locale);
+          const hd = calculateHumanDesign(payload.p1, locale);
           let syn: SynastryData | undefined = undefined;
 
           if (payload.p2) {
-            const natal2 = calculateNatalChart(payload.p2);
-            syn = calculateSynastry(natal1, natal2);
+            const natal2 = calculateNatalChart(payload.p2, locale);
+            syn = calculateSynastry(natal1, natal2, locale);
           }
 
           const cType = payload.calcType || 'all';
@@ -80,13 +80,13 @@ export default function ResultPage({
     }
 
     setIsLoading(false);
-  }, [id, dParam]);
+  }, [id, dParam, locale]);
 
-  const routePrefix = locale === 'en' ? '/en' : '';
+  const routePrefix = locale === 'es' ? '/es' : locale === 'en' ? '/en' : '';
 
   const handleToggleLocale = (newLocale: Locale) => {
     if (newLocale === locale) return;
-    const targetPrefix = newLocale === 'en' ? '/en' : '';
+    const targetPrefix = newLocale === 'es' ? '/es' : newLocale === 'en' ? '/en' : '';
     const query = dParam ? `?d=${dParam}` : '';
     router.push(`${targetPrefix}/result/${id}${query}`);
   };
@@ -97,7 +97,7 @@ export default function ResultPage({
         <div className="text-center space-y-4">
           <Loader2 className="w-8 h-8 text-amber-600 animate-spin mx-auto" />
           <p className="text-sm font-semibold text-stone-700">
-            {locale === 'ru' ? 'Загрузка Космического Паспорта...' : 'Loading Cosmic Passport...'}
+            {locale === 'ru' ? 'Загрузка Космического Паспорта...' : locale === 'es' ? 'Cargando Pasaporte Cósmico...' : 'Loading Cosmic Passport...'}
           </p>
         </div>
       </div>
@@ -112,11 +112,13 @@ export default function ResultPage({
           <div className="max-w-md text-center bg-white p-8 rounded-3xl border border-stone-200 shadow-lg space-y-4">
             <Sparkles className="w-8 h-8 text-amber-600 mx-auto" />
             <h2 className="text-xl font-bold text-stone-900">
-              {locale === 'ru' ? 'Расчет не найден' : 'Chart Not Found'}
+              {locale === 'ru' ? 'Расчет не найден' : locale === 'es' ? 'Cálculo no encontrado' : 'Chart Not Found'}
             </h2>
             <p className="text-xs text-stone-600">
               {locale === 'ru'
                 ? 'Срок действия временных данных истек, либо ссылка некорректна. Вы можете рассчитать новую карту бесплатно.'
+                : locale === 'es'
+                ? 'El enlace temporal ha caducado o es inválido. Puedes generar una nueva carta gratis.'
                 : 'The temporary calculation link has expired or is invalid. You can generate a new chart for free.'}
             </p>
             <button
@@ -124,7 +126,7 @@ export default function ResultPage({
               onClick={() => router.push(`${routePrefix}/chart/step/1`)}
               className="px-6 py-2.5 min-h-[44px] inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
             >
-              {locale === 'ru' ? 'Рассчитать бесплатно' : 'Calculate Free'}
+              {locale === 'ru' ? 'Рассчитать бесплатно' : locale === 'es' ? 'Calcular Gratis' : 'Calculate Free'}
             </button>
           </div>
         </main>

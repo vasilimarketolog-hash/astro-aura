@@ -24,7 +24,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { NatalChartData, SynastryData, HumanDesignData, Locale, CalculationType } from '@/types/astro';
-import { generateTeaserInsights, SIGN_INTERPRETATIONS, SIGN_INTERPRETATIONS_EN } from '@/lib/interpretations';
+import { generateTeaserInsights, SIGN_INTERPRETATIONS, SIGN_INTERPRETATIONS_EN, SIGN_INTERPRETATIONS_ES } from '@/lib/interpretations';
 import { getTranslation } from '@/lib/translations';
 import { StoriesCardModal } from './StoriesCardModal';
 
@@ -76,22 +76,34 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
   const asc = natal.ascendant;
 
   const insights = generateTeaserInsights(sun.sign.id, moon.sign.id, asc.sign.id, locale);
-  const dict = locale === 'en' ? SIGN_INTERPRETATIONS_EN : SIGN_INTERPRETATIONS;
-  const sunData = dict[sun.sign.id];
-  const moonData = dict[moon.sign.id];
-  const ascData = dict[asc.sign.id];
+  const dict = locale === 'es' ? SIGN_INTERPRETATIONS_ES : locale === 'en' ? SIGN_INTERPRETATIONS_EN : SIGN_INTERPRETATIONS;
+  const sunData = dict[sun.sign.id] || dict.aries;
+  const moonData = dict[moon.sign.id] || dict.cancer;
+  const ascData = dict[asc.sign.id] || dict.leo;
 
   const fullName = `${natal.birthData.name} ${natal.birthData.lastName || ''}`.trim();
-  const cityName = locale === 'en' ? (natal.birthData.cityEn || natal.birthData.cityName) : natal.birthData.cityName;
-  let countryName = locale === 'en' ? (natal.birthData.countryEn || natal.birthData.country) : natal.birthData.country;
+  const cityName = locale === 'es' ? (natal.birthData.cityEs || natal.birthData.cityEn || natal.birthData.cityName) : locale === 'en' ? (natal.birthData.cityEn || natal.birthData.cityName) : natal.birthData.cityName;
+  let countryName = locale === 'es' ? (natal.birthData.countryEs || natal.birthData.countryEn || natal.birthData.country) : locale === 'en' ? (natal.birthData.countryEn || natal.birthData.country) : natal.birthData.country;
   if (locale === 'en' && countryName) {
     if (countryName === 'Беларусь') countryName = 'Belarus';
     else if (countryName === 'Россия') countryName = 'Russia';
     else if (countryName === 'Казахстан') countryName = 'Kazakhstan';
     else if (countryName === 'Украина') countryName = 'Ukraine';
     else if (countryName === 'Узбекистан') countryName = 'Uzbekistan';
+  } else if (locale === 'es' && countryName) {
+    if (countryName === 'Беларусь') countryName = 'Bielorrusia';
+    else if (countryName === 'Россия') countryName = 'Rusia';
+    else if (countryName === 'Казахстан') countryName = 'Kazajistán';
+    else if (countryName === 'Украина') countryName = 'Ucrania';
+    else if (countryName === 'Узбекистан') countryName = 'Uzbekistán';
   }
   const locationText = `${cityName}${countryName ? `, ${countryName}` : ''}`;
+
+  const getSignName = (s: { nameRu: string; nameEn: string; nameEs?: string }) => {
+    if (locale === 'es') return s.nameEs || s.nameEn;
+    if (locale === 'en') return s.nameEn;
+    return s.nameRu;
+  };
 
   const handlePrintPdf = () => {
     if (typeof window !== 'undefined') {
@@ -117,7 +129,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
       {isPrimary && (
         <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-[11px] font-extrabold uppercase tracking-wider mb-4">
           <Star className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
-          <span>{locale === 'ru' ? 'Основной расчет • Дизайн Человека' : 'Primary Reading • Human Design'}</span>
+          <span>{locale === 'ru' ? 'Основной расчет • Дизайн Человека' : locale === 'es' ? 'Cálculo Principal • Diseño Humano' : 'Primary Reading • Human Design'}</span>
         </div>
       )}
 
@@ -128,7 +140,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
           </div>
           <div>
             <span className="text-xs font-bold text-amber-800 uppercase tracking-wider block">
-              {locale === 'ru' ? 'Дизайн Человека • Энергетический профиль' : 'Human Design • Energy Blueprint'}
+              {locale === 'ru' ? 'Дизайн Человека • Энергетический профиль' : locale === 'es' ? 'Diseño Humano • Perfil Energético' : 'Human Design • Energy Blueprint'}
             </span>
             <h3 className="text-xl sm:text-2xl font-black text-stone-900">
               {humanDesign.type} ({humanDesign.profile})
@@ -146,34 +158,36 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
       <p className="text-xs sm:text-sm text-stone-700 leading-relaxed mb-6">
         {locale === 'ru'
           ? `Ваша генетическая стратегия успеха — «${humanDesign.strategy}». В полной версии карты доступен интерактивный 9-центровый векторный бодиграф с расшифровкой определенных и открытых центров.`
+          : locale === 'es'
+          ? `Tu estrategia genética de éxito es «${humanDesign.strategy}». En la versión completa accedes al biógrafo interactivo de 9 centros con análisis profundo de canales y puertas.`
           : `Your genetic strategy is "${humanDesign.strategy}". The full version includes an interactive 9-center vector bodygraph with deep channel analysis.`}
       </p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-stone-50 border border-stone-200 mb-4">
         <div>
           <span className="text-[10px] uppercase font-bold text-stone-500 block">
-            {locale === 'ru' ? 'Стратегия' : 'Strategy'}
+            {locale === 'ru' ? 'Стратегия' : locale === 'es' ? 'Estrategia' : 'Strategy'}
           </span>
           <strong className="text-xs text-stone-900 font-semibold line-clamp-1">{humanDesign.strategy}</strong>
         </div>
         <div>
           <span className="text-[10px] uppercase font-bold text-stone-500 block">
-            {locale === 'ru' ? 'Авторитет' : 'Authority'}
+            {locale === 'ru' ? 'Авторитет' : locale === 'es' ? 'Autoridad' : 'Authority'}
           </span>
           <strong className="text-xs text-stone-900 font-semibold line-clamp-1">{humanDesign.innerAuthority}</strong>
         </div>
         <div>
           <span className="text-[10px] uppercase font-bold text-stone-500 block">
-            {locale === 'ru' ? 'Тема Ложного Я' : 'Not-Self Theme'}
+            {locale === 'ru' ? 'Тема Ложного Я' : locale === 'es' ? 'Tema del No-Ser' : 'Not-Self Theme'}
           </span>
           <strong className="text-xs text-rose-700 font-semibold line-clamp-1">{humanDesign.notSelfTheme}</strong>
         </div>
         <div>
           <span className="text-[10px] uppercase font-bold text-stone-500 block">
-            {locale === 'ru' ? 'Определено центров' : 'Defined Centers'}
+            {locale === 'ru' ? 'Определено центров' : locale === 'es' ? 'Centros definidos' : 'Defined Centers'}
           </span>
           <strong className="text-xs text-amber-800 font-semibold">
-            {humanDesign.definedCenters.length} {locale === 'ru' ? 'из 9' : 'of 9'}
+            {humanDesign.definedCenters.length} {locale === 'ru' ? 'из 9' : locale === 'es' ? 'de 9' : 'of 9'}
           </strong>
         </div>
       </div>
@@ -184,7 +198,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
         className="w-full py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer print:hidden"
       >
         <Lock className="w-3.5 h-3.5 text-amber-700" />
-        <span>{locale === 'ru' ? 'Открыть интерактивный Бодиграф (все 9 центров)' : 'Unlock Interactive 9-Center Bodygraph'}</span>
+        <span>{locale === 'ru' ? 'Открыть интерактивный Бодиграф (все 9 центров)' : locale === 'es' ? 'Desbloquear Biógrafo Interactivo (los 9 centros)' : 'Unlock Interactive 9-Center Bodygraph'}</span>
       </button>
     </div>
   );
@@ -202,7 +216,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
         {isPrimary && (
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-900 text-[11px] font-extrabold uppercase tracking-wider mb-2">
             <Heart className="w-3.5 h-3.5 text-rose-600 fill-rose-500" />
-            <span>{locale === 'ru' ? 'Основной расчет • Совместимость' : 'Primary Reading • Compatibility'}</span>
+            <span>{locale === 'ru' ? 'Основной расчет • Совместимость' : locale === 'es' ? 'Cálculo Principal • Compatibilidad' : 'Primary Reading • Compatibility'}</span>
           </div>
         )}
 
@@ -228,7 +242,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             <div className="flex items-center space-x-2">
               <AlertTriangle className="w-4 h-4 text-rose-600" />
               <span className="text-xs font-bold text-stone-900">
-                {locale === 'ru' ? '⚠️ Скрытые трения и Red Flags пары (3 триггера)' : '⚠️ Relationship Red Flags & Friction Points'}
+                {locale === 'ru' ? '⚠️ Скрытые трения и Red Flags пары (3 триггера)' : locale === 'es' ? '⚠️ Fricciones ocultas y Red Flags de la pareja (3 disparadores)' : '⚠️ Relationship Red Flags & Friction Points'}
               </span>
             </div>
             <button
@@ -242,6 +256,8 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
           <div className="opacity-20 text-xs text-stone-600 select-none">
             {locale === 'ru'
               ? 'Потенциал скрытых обид, финансовый контроль и борьба за лидерство в быту...'
+              : locale === 'es'
+              ? 'Riesgo de resentimientos reprimidos, disputas financieras y lucha de poder cotidiano...'
               : 'Hidden resentment potential, financial dominance disputes, and household power dynamics...'}
           </div>
         </div>
@@ -260,7 +276,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
         </span>
         <div className="text-xl font-black text-stone-900 mb-2 flex items-center space-x-2">
           <span className="text-amber-600">{sun.sign.symbol}</span>
-          <span>{locale === 'ru' ? sun.sign.nameRu : sun.sign.nameEn}</span>
+          <span>{getSignName(sun.sign)}</span>
           <span className="text-xs font-mono text-stone-500 font-normal">({sun.degreeInSign}°)</span>
         </div>
         <p className="text-xs text-stone-600 leading-relaxed">
@@ -276,7 +292,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
         </span>
         <div className="text-xl font-black text-stone-900 mb-2 flex items-center space-x-2">
           <span className="text-indigo-600">{moon.sign.symbol}</span>
-          <span>{locale === 'ru' ? moon.sign.nameRu : moon.sign.nameEn}</span>
+          <span>{getSignName(moon.sign)}</span>
           <span className="text-xs font-mono text-stone-500 font-normal">({moon.degreeInSign}°)</span>
         </div>
         <p className="text-xs text-stone-600 leading-relaxed">
@@ -292,7 +308,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
         </span>
         <div className="text-xl font-black text-stone-900 mb-2 flex items-center space-x-2">
           <span className="text-purple-600">{asc.sign.symbol}</span>
-          <span>{locale === 'ru' ? asc.sign.nameRu : asc.sign.nameEn}</span>
+          <span>{getSignName(asc.sign)}</span>
           <span className="text-xs font-mono text-stone-500 font-normal">({asc.degreeInSign}°)</span>
         </div>
         <p className="text-xs text-stone-600 leading-relaxed">
@@ -330,28 +346,28 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
       <h3 className="text-base font-bold text-stone-900 mb-3 flex items-center justify-between">
         <span>{t.elementsTitle}</span>
         <span className="text-xs font-bold text-amber-700">
-          {t.dominantElementPrefix} {locale === 'en' ? (natal.dominantElement.primaryEn || natal.dominantElement.primary) : (natal.dominantElement.primaryRu || natal.dominantElement.primary)}
+          {t.dominantElementPrefix} {locale === 'es' ? (natal.dominantElement.primaryEs || natal.dominantElement.primaryEn || natal.dominantElement.primary) : locale === 'en' ? (natal.dominantElement.primaryEn || natal.dominantElement.primary) : (natal.dominantElement.primaryRu || natal.dominantElement.primary)}
         </span>
       </h3>
       <div className="grid grid-cols-4 gap-2 text-center text-xs">
         <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200">
           <Flame className="w-4 h-4 text-rose-500 mx-auto mb-1" />
-          <span className="text-stone-600 block">{locale === 'ru' ? 'Огонь' : 'Fire'}</span>
+          <span className="text-stone-600 block">{locale === 'ru' ? 'Огонь' : locale === 'es' ? 'Fuego' : 'Fire'}</span>
           <strong className="text-stone-900 text-sm font-bold">{natal.dominantElement.fire}%</strong>
         </div>
         <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200">
           <Mountain className="w-4 h-4 text-emerald-600 mx-auto mb-1" />
-          <span className="text-stone-600 block">{locale === 'ru' ? 'Земля' : 'Earth'}</span>
+          <span className="text-stone-600 block">{locale === 'ru' ? 'Земля' : locale === 'es' ? 'Tierra' : 'Earth'}</span>
           <strong className="text-stone-900 text-sm font-bold">{natal.dominantElement.earth}%</strong>
         </div>
         <div className="p-3 rounded-2xl bg-sky-50 border border-sky-200">
           <Wind className="w-4 h-4 text-sky-500 mx-auto mb-1" />
-          <span className="text-stone-600 block">{locale === 'ru' ? 'Воздух' : 'Air'}</span>
+          <span className="text-stone-600 block">{locale === 'ru' ? 'Воздух' : locale === 'es' ? 'Aire' : 'Air'}</span>
           <strong className="text-stone-900 text-sm font-bold">{natal.dominantElement.air}%</strong>
         </div>
         <div className="p-3 rounded-2xl bg-blue-50 border border-blue-200">
           <Droplet className="w-4 h-4 text-blue-500 mx-auto mb-1" />
-          <span className="text-stone-600 block">{locale === 'ru' ? 'Вода' : 'Water'}</span>
+          <span className="text-stone-600 block">{locale === 'ru' ? 'Вода' : locale === 'es' ? 'Agua' : 'Water'}</span>
           <strong className="text-stone-900 text-sm font-bold">{natal.dominantElement.water}%</strong>
         </div>
       </div>
@@ -364,58 +380,66 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
     let item1Desc = t.lockedItem1Desc;
     let item1Blurred = locale === 'ru'
       ? 'Ваш второй дом управляется сильной планетой, указывающей на приток капитала через личный бренд, консалтинг и технологии...'
+      : locale === 'es'
+      ? 'Tu segunda casa está regida por un planeta dominante, indicando ingresos exponenciales mediante marca personal, consultoría e innovación...'
       : 'Your second house is governed by a prominent planetary ruler, indicating wealth inflow via personal branding, advisory, and tech innovations...';
 
     let item2Title = t.lockedItem2Title;
     let item2Desc = t.lockedItem2Desc;
     let item2Blurred = locale === 'ru'
       ? 'Ваш Северный узел в знаке требует полного отказа от старой привычки жертвовать собой ради одобрения других...'
+      : locale === 'es'
+      ? 'Tu Nodo Norte te exige despojarte por completo de la tendencia a sacrificarte por aprobación ajena...'
       : 'Your North Node calls for completely shedding the outdated instinct to sacrifice your purpose for external validation...';
 
     let item3Title = t.lockedItem3Title;
     let item3Desc = t.lockedItem3Desc;
     let item3Blurred = locale === 'ru'
       ? 'Ваша Лилит пробуждает гипнотическое влияние на партнеров через архетип независимости и бескомпромиссной чувственности...'
+      : locale === 'es'
+      ? 'Tu Lilith despierta un magnetismo hipnótico sobre los demás a través de una autonomía sensual indomable...'
       : 'Your Lilith awakens magnetic influence over partners through uncompromising sensual autonomy and taboo emotional depth...';
 
     let item4Title = t.lockedItem4Title;
     let item4Desc = t.lockedItem4Desc;
     let item4Blurred = locale === 'ru'
       ? 'Активированные каналы между Сакралом и Горлом открывают доступ к неиссякаемой созидательной силе манифестации...'
+      : locale === 'es'
+      ? 'Los canales activos entre el Sacral y la Garganta abren acceso a una fuerza creativa inagotable de manifestación...'
       : 'Activated channels between Sacral and Throat unlock access to inexhaustible creative manifestor potential...';
 
     if (calcType === 'humandesign') {
-      item1Title = locale === 'ru' ? '9 Энергетических Центров: Определенные и Открытые зоны' : '9 Energy Centers: Defined & Open Vulnerabilities';
-      item1Desc = locale === 'ru' ? 'Где вы излучаете постоянную силу, а где считываете чужую энергию и обуславливаетесь' : 'Where you radiate consistent power vs absorb external conditioning';
-      item1Blurred = locale === 'ru' ? 'Ваш открытый центр Солнечного Сплетения усиливает чужие эмоции втрое, создавая ложное чувство вины...' : 'Your open Solar Plexus triples external emotions, causing conditioned guilt...';
+      item1Title = locale === 'ru' ? '9 Энергетических Центров: Определенные и Открытые зоны' : locale === 'es' ? '9 Centros Energéticos: Definidos y Vulnerabilidades Abiertas' : '9 Energy Centers: Defined & Open Vulnerabilities';
+      item1Desc = locale === 'ru' ? 'Где вы излучаете постоянную силу, а где считываете чужую энергию и обуславливаетесь' : locale === 'es' ? 'Dónde irradias fuerza constante y dónde absorbes el condicionamiento ajeno' : 'Where you radiate consistent power vs absorb external conditioning';
+      item1Blurred = locale === 'ru' ? 'Ваш открытый центр Солнечного Сплетения усиливает чужие эмоции втрое, создавая ложное чувство вины...' : locale === 'es' ? 'Tu centro del Plexo Solar abierto triplica las emociones ajenas, provocando culpa condicionada...' : 'Your open Solar Plexus triples external emotions, causing conditioned guilt...';
 
-      item2Title = locale === 'ru' ? '36 Каналов Силы и Контуры Интеграции' : '36 Power Channels & Circuitry';
-      item2Desc = locale === 'ru' ? 'Ваши устойчивые врожденные сверхспособности и фиксированные паттерны мышления' : 'Your innate superpowers, quantum mechanics, and fixed cognitive patterns';
-      item2Blurred = locale === 'ru' ? 'Канал 34-20 наделяет вас колоссальной харизмой и способностью действовать в моменте "здесь и сейчас"...' : 'Channel 34-20 grants magnetic charisma and instantaneous action in the present moment...';
+      item2Title = locale === 'ru' ? '36 Каналов Силы и Контуры Интеграции' : locale === 'es' ? '36 Canales de Fuerza y Circuitos de Integración' : '36 Power Channels & Circuitry';
+      item2Desc = locale === 'ru' ? 'Ваши устойчивые врожденные сверхспособности и фиксированные паттерны мышления' : locale === 'es' ? 'Tus dones congénitos, mecánica cuántica y patrones de pensamiento definidos' : 'Your innate superpowers, quantum mechanics, and fixed cognitive patterns';
+      item2Blurred = locale === 'ru' ? 'Канал 34-20 наделяет вас колоссальной харизмой и способностью действовать в моменте "здесь и сейчас"...' : locale === 'es' ? 'El Canal 34-20 te otorga un carisma magnético y la capacidad de actuar en el aquí y ahora...' : 'Channel 34-20 grants magnetic charisma and instantaneous action in the present moment...';
 
-      item3Title = locale === 'ru' ? 'Генетическая диета и Среда Обитания (PHS)' : 'Primary Health System & Ideal Environment';
-      item3Desc = locale === 'ru' ? 'Как питать мозг и в каких локациях тело чувствует максимальный прилив сил' : 'Optimal brain nutrition regimen and resonant physical environments';
-      item3Blurred = locale === 'ru' ? 'Тип пищеварительной системы требует теплой пищи в спокойной уединенной обстановке без яркого света...' : 'Your digestive constitution requires warm meals in serene, low-stimulus settings...';
+      item3Title = locale === 'ru' ? 'Генетическая диета и Среда Обитания (PHS)' : locale === 'es' ? 'Dieta Genética y Entorno Ideal (PHS)' : 'Primary Health System & Ideal Environment';
+      item3Desc = locale === 'ru' ? 'Как питать мозг и в каких локациях тело чувствует максимальный прилив сил' : locale === 'es' ? 'Cómo nutrir tu cerebro y qué entornos físicos maximizan tu energía vital' : 'Optimal brain nutrition regimen and resonant physical environments';
+      item3Blurred = locale === 'ru' ? 'Тип пищеварительной системы требует теплой пищи в спокойной уединенной обстановке без яркого света...' : locale === 'es' ? 'Tu sistema digestivo requiere alimentos templados en un entorno sereno y sin sobreestimulación...' : 'Your digestive constitution requires warm meals in serene, low-stimulus settings...';
 
-      item4Title = locale === 'ru' ? 'Крест Инкарнации (Глобальное Предназначение)' : 'Incarnation Cross (Soul’s Cosmic Purpose)';
-      item4Desc = locale === 'ru' ? '70% программирования вашей личности: миссия, с которой вы пришли в этот мир' : '70% of your neutrino imprint: the overarching theme of your life incarnation';
-      item4Blurred = locale === 'ru' ? 'Ваш Крест Служения направляет вас вести за собой команды через нестандартные творческие решения...' : 'Your Incarnation Cross directs you to guide collectives via non-linear innovation...';
+      item4Title = locale === 'ru' ? 'Крест Инкарнации (Глобальное Предназначение)' : locale === 'es' ? 'Cruz de Encarnación (Propósito Cósmico del Alma)' : 'Incarnation Cross (Soul’s Cosmic Purpose)';
+      item4Desc = locale === 'ru' ? '70% программирования вашей личности: миссия, с которой вы пришли в этот мир' : locale === 'es' ? 'El 70% de tu impronta de neutrinos: la misión trascendente de tu vida' : '70% of your neutrino imprint: the overarching theme of your life incarnation';
+      item4Blurred = locale === 'ru' ? 'Ваш Крест Служения направляет вас вести за собой команды через нестандартные творческие решения...' : locale === 'es' ? 'Tu Cruz de Servicio te impulsa a guiar a otros mediante innovación creativa no lineal...' : 'Your Incarnation Cross directs you to guide collectives via non-linear innovation...';
     } else if (calcType === 'synastry') {
-      item1Title = locale === 'ru' ? 'Сексуальный и Эмоциональный Резонанс Пары' : 'Sexual & Emotional Intimacy Matrix';
-      item1Desc = locale === 'ru' ? 'Аспекты Венера-Марс, эротические триггеры и динамика физического влечения' : 'Venus-Mars dynamics, sensual triggers, and long-term passion sustainability';
-      item1Blurred = locale === 'ru' ? 'Венера партнера в трине к вашему Марсу образует редкую искру моментального и глубокого притяжения...' : 'Partner’s Venus trine your Mars ignites an instantaneous, magnetic physical resonance...';
+      item1Title = locale === 'ru' ? 'Сексуальный и Эмоциональный Резонанс Пары' : locale === 'es' ? 'Matriz de Intimidad Sexual y Emocional' : 'Sexual & Emotional Intimacy Matrix';
+      item1Desc = locale === 'ru' ? 'Аспекты Венера-Марс, эротические триггеры и динамика физического влечения' : locale === 'es' ? 'Dinámica Venus-Marte, disparadores de deseo y pasión a largo plazo' : 'Venus-Mars dynamics, sensual triggers, and long-term passion sustainability';
+      item1Blurred = locale === 'ru' ? 'Венера партнера в трине к вашему Марсу образует редкую искру моментального и глубокого притяжения...' : locale === 'es' ? 'El trígono de Venus de tu pareja con tu Marte despierta una atracción inmediata y magnética...' : 'Partner’s Venus trine your Mars ignites an instantaneous, magnetic physical resonance...';
 
-      item2Title = locale === 'ru' ? 'Кармические Узлы и Долги Прошлых Воплощений' : 'Karmic Ties & Past-Life Debts';
-      item2Desc = locale === 'ru' ? 'Для чего судьба свела вас вместе и какие уроки пара обязана пройти' : 'The evolutionary soul purpose behind your meeting and necessary growth trials';
-      item2Blurred = locale === 'ru' ? 'Соединение Лунного Узла с Сатурном указывает на незавершенное кармическое обязательство из прошлого...' : 'Lunar Node conjunct Saturn signifies an unresolved past-life contract and shared endurance...';
+      item2Title = locale === 'ru' ? 'Кармические Узлы и Долги Прошлых Воплощений' : locale === 'es' ? 'Lazos Kármicos y Deudas del Pasado' : 'Karmic Ties & Past-Life Debts';
+      item2Desc = locale === 'ru' ? 'Для чего судьба свела вас вместе и какие уроки пара обязана пройти' : locale === 'es' ? 'La razón cósmica por la que el destino los unió y los aprendizajes a superar' : 'The evolutionary soul purpose behind your meeting and necessary growth trials';
+      item2Blurred = locale === 'ru' ? 'Соединение Лунного Узла с Сатурном указывает на незавершенное кармическое обязательство из прошлого...' : locale === 'es' ? 'La conjunción del Nodo Lunar con Saturno indica un pacto pendiente y resistencia compartida...' : 'Lunar Node conjunct Saturn signifies an unresolved past-life contract and shared endurance...';
 
-      item3Title = locale === 'ru' ? 'Точки Разрыва и Скрытые Провокации' : 'Friction Triggers & Breakup Traps';
-      item3Desc = locale === 'ru' ? 'Опасные сценарии обид, борьбы за власть и как предотвратить выгорание союза' : 'Dangerous resentment loops, dominance battles, and how to safeguard the bond';
-      item3Blurred = locale === 'ru' ? 'Квадратура Плутона к Меркурию может приводить к манипулятивному молчанию и проверкам на прочность...' : 'Pluto square Mercury can produce manipulative silent treatments and power tests...';
+      item3Title = locale === 'ru' ? 'Точки Разрыва и Скрытые Провокации' : locale === 'es' ? 'Puntos de Ruptura y Trampas Ocultas' : 'Friction Triggers & Breakup Traps';
+      item3Desc = locale === 'ru' ? 'Опасные сценарии обид, борьбы за власть и как предотвратить выгорание союза' : locale === 'es' ? 'Ciclos de resentimiento, luchas de control y cómo proteger la unión' : 'Dangerous resentment loops, dominance battles, and how to safeguard the bond';
+      item3Blurred = locale === 'ru' ? 'Квадратура Плутона к Меркурию может приводить к манипулятивному молчанию и проверкам на прочность...' : locale === 'es' ? 'La cuadratura de Plutón con Mercurio puede detonar silencios punitivos y pruebas de poder...' : 'Pluto square Mercury can produce manipulative silent treatments and power tests...';
 
-      item4Title = locale === 'ru' ? 'Сценарий Брака и Совместное Финансовое Поле' : 'Marriage Destiny & Shared Prosperity';
-      item4Desc = locale === 'ru' ? 'Увеличивает ли союз достаток обоих или ведет к утечкам ресурсов' : 'Whether this partnership multiplies abundance or triggers financial leaks';
-      item4Blurred = locale === 'ru' ? 'Гармоничный Юпитер во 2-м доме совместной карты сулит кратное расширение материальной базы в браке...' : 'Harmonious Jupiter in the composite 2nd house promises exponential wealth expansion...';
+      item4Title = locale === 'ru' ? 'Сценарий Брака и Совместное Финансовое Поле' : locale === 'es' ? 'Destino Matrimonial y Abundancia Compartida' : 'Marriage Destiny & Shared Prosperity';
+      item4Desc = locale === 'ru' ? 'Увеличивает ли союз достаток обоих или ведет к утечкам ресурсов' : locale === 'es' ? 'Si la pareja multiplica la prosperidad mutua o genera fugas de energía' : 'Whether this partnership multiplies abundance or triggers financial leaks';
+      item4Blurred = locale === 'ru' ? 'Гармоничный Юпитер во 2-м доме совместной карты сулит кратное расширение материальной базы в браке...' : locale === 'es' ? 'Un Júpiter armónico en la Casa 2 compuesta promete una notable expansión material conjunta...' : 'Harmonious Jupiter in the composite 2nd house promises exponential wealth expansion...';
     }
 
     const lockedList = [
@@ -488,10 +512,10 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
             type="button"
             onClick={handlePrintPdf}
             className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-white border border-stone-300 text-stone-800 hover:bg-stone-50 text-xs font-bold transition-all shadow-xs cursor-pointer"
-            title={locale === 'ru' ? 'Скачать отчет в формате PDF' : 'Download report as PDF'}
+            title={locale === 'ru' ? 'Скачать отчет в формате PDF' : locale === 'es' ? 'Descargar informe en formato PDF' : 'Download report as PDF'}
           >
             <Download className="w-3.5 h-3.5 text-stone-700" />
-            <span>{t.downloadReportPdfBtn || (locale === 'ru' ? 'Скачать PDF' : 'Download PDF')}</span>
+            <span>{t.downloadReportPdfBtn || (locale === 'ru' ? 'Скачать PDF' : locale === 'es' ? 'Descargar PDF' : 'Download PDF')}</span>
           </button>
 
           {/* Stories Generator Action */}
@@ -519,7 +543,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
         <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold shadow-xs">
             <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{t.onlineReportBadge || (locale === 'ru' ? 'Отчет открыт онлайн' : 'Report open online')}</span>
+            <span>{t.onlineReportBadge || (locale === 'ru' ? 'Отчет открыт онлайн' : locale === 'es' ? 'Informe en línea' : 'Report open online')}</span>
           </div>
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-stone-800 text-xs shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
@@ -625,7 +649,7 @@ export const TeaserReport: React.FC<TeaserReportProps> = ({
           <div className="space-y-1.5 text-center sm:text-left">
             <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[11px] font-bold">
               <Mail className="w-3 h-3 text-amber-700" />
-              <span>{locale === 'ru' ? 'Резервная копия отчета' : 'Report Backup'}</span>
+              <span>{locale === 'ru' ? 'Резервная копия отчета' : locale === 'es' ? 'Copia de respaldo del informe' : 'Report Backup'}</span>
             </div>
             <h3 className="text-base sm:text-lg font-bold text-stone-900">
               {t.bottomEmailTitle}

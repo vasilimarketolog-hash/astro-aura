@@ -10,7 +10,7 @@ export default function ChartStepPage({
   params: Promise<{ locale: string; step: string }>;
 }) {
   const resolved = use(params);
-  const locale: Locale = resolved.locale === 'en' ? 'en' : 'ru';
+  const locale: Locale = resolved.locale === 'es' ? 'es' : resolved.locale === 'en' ? 'en' : 'ru';
   const stepNumber = Math.max(1, Math.min(5, parseInt(resolved.step, 10) || 1));
 
   return (

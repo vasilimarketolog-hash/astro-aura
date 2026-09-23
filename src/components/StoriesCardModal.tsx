@@ -54,6 +54,12 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
     }
   };
 
+  const getSignName = (s: { nameRu: string; nameEn: string; nameEs?: string }) => {
+    if (locale === 'es') return s.nameEs || s.nameEn;
+    if (locale === 'en') return s.nameEn;
+    return s.nameRu;
+  };
+
   const handleShare = async () => {
     if (navigator.share && cardRef.current) {
       try {
@@ -62,8 +68,18 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
           if (!blob) return;
           const file = new File([blob], 'my_astro_card.png', { type: 'image/png' });
           await navigator.share({
-            title: 'Мой Космический Паспорт на AstroAura.pro',
-            text: `Узнайте свой астрологический код на astroaura.pro!`,
+            title:
+              locale === 'ru'
+                ? 'Мой Космический Паспорт на AstroAura.pro'
+                : locale === 'es'
+                ? 'Mi Pasaporte Cósmico en AstroAura.pro'
+                : 'My Cosmic Passport at AstroAura.pro',
+            text:
+              locale === 'ru'
+                ? 'Узнайте свой астрологический код на astroaura.pro!'
+                : locale === 'es'
+                ? '¡Descubre tu código astrológico en astroaura.pro!'
+                : 'Discover your astrological blueprint on astroaura.pro!',
             files: [file]
           });
         });
@@ -96,10 +112,20 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
 
         <h3 className="text-lg font-black text-stone-900 mb-1 flex items-center space-x-2">
           <Sparkles className="w-4 h-4 text-amber-600" />
-          <span>{locale === 'ru' ? 'Визитка для Instagram Stories' : 'Instagram Stories Card'}</span>
+          <span>
+            {locale === 'ru'
+              ? 'Визитка для Instagram Stories'
+              : locale === 'es'
+              ? 'Tarjeta para Instagram Stories'
+              : 'Instagram Stories Card'}
+          </span>
         </h3>
         <p className="text-xs text-stone-500 mb-4 text-center">
-          {locale === 'ru' ? 'Идеальный формат 9:16 для Stories, статуса в Telegram и WhatsApp' : 'Vertical 9:16 poster ready for social media'}
+          {locale === 'ru'
+            ? 'Идеальный формат 9:16 для Stories, статуса в Telegram и WhatsApp'
+            : locale === 'es'
+            ? 'Formato vertical 9:16 perfecto para Stories, TikTok y WhatsApp'
+            : 'Vertical 9:16 poster ready for social media'}
         </p>
 
         {/* 9:16 Stories Card Preview Canvas */}
@@ -120,7 +146,7 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
               {fullName}
             </h2>
             <p className="text-[10px] text-stone-500 font-medium">
-              г. {cityName} • {natal.birthData.day}.{String(natal.birthData.month).padStart(2, '0')}.{natal.birthData.year}
+              {locale === 'ru' ? `г. ${cityName}` : cityName} • {natal.birthData.day}.{String(natal.birthData.month).padStart(2, '0')}.{natal.birthData.year}
             </p>
           </div>
 
@@ -134,15 +160,15 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
                 </span>
                 <div className="text-left">
                   <div className="text-[9px] uppercase font-mono tracking-wider text-amber-800 font-bold">
-                    {locale === 'ru' ? 'Знак Солнца' : 'Sun Sign'}
+                    {locale === 'ru' ? 'Знак Солнца' : locale === 'es' ? 'Signo Solar' : 'Sun Sign'}
                   </div>
                   <div className="text-xs font-black text-stone-900">
-                    {locale === 'ru' ? sun.sign.nameRu : sun.sign.nameEn}
+                    {getSignName(sun.sign)}
                   </div>
                 </div>
               </div>
               <span className="text-[10px] font-mono text-stone-500 font-bold">
-                {sun.degreeInSign}° {locale === 'ru' ? sun.house + ' дом' : 'House ' + sun.house}
+                {sun.degreeInSign}° {locale === 'es' ? `Casa ${sun.house}` : locale === 'ru' ? `${sun.house} дом` : `House ${sun.house}`}
               </span>
             </div>
 
@@ -154,15 +180,15 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
                 </span>
                 <div className="text-left">
                   <div className="text-[9px] uppercase font-mono tracking-wider text-blue-800 font-bold">
-                    {locale === 'ru' ? 'Знак Луны' : 'Moon Sign'}
+                    {locale === 'ru' ? 'Знак Луны' : locale === 'es' ? 'Signo Lunar' : 'Moon Sign'}
                   </div>
                   <div className="text-xs font-black text-stone-900">
-                    {locale === 'ru' ? moon.sign.nameRu : moon.sign.nameEn}
+                    {getSignName(moon.sign)}
                   </div>
                 </div>
               </div>
               <span className="text-[10px] font-mono text-stone-500 font-bold">
-                {moon.degreeInSign}° {locale === 'ru' ? moon.house + ' дом' : 'House ' + moon.house}
+                {moon.degreeInSign}° {locale === 'es' ? `Casa ${moon.house}` : locale === 'ru' ? `${moon.house} дом` : `House ${moon.house}`}
               </span>
             </div>
 
@@ -174,10 +200,10 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
                 </span>
                 <div className="text-left">
                   <div className="text-[9px] uppercase font-mono tracking-wider text-purple-800 font-bold">
-                    {locale === 'ru' ? 'Асцендент' : 'Ascendant'}
+                    {locale === 'ru' ? 'Асцендент' : locale === 'es' ? 'Ascendente' : 'Ascendant'}
                   </div>
                   <div className="text-xs font-black text-stone-900">
-                    {locale === 'ru' ? asc.sign.nameRu : asc.sign.nameEn}
+                    {getSignName(asc.sign)}
                   </div>
                 </div>
               </div>
@@ -190,10 +216,12 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
             {pf && (
               <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-amber-100/50 border border-amber-300 text-[10px]">
                 <span className="flex items-center space-x-1 font-bold text-amber-900">
-                  <span>⊗ Точка Фортуны:</span>
-                  <span>{locale === 'ru' ? pf.sign.nameRu : pf.sign.nameEn}</span>
+                  <span>{locale === 'ru' ? '⊗ Точка Фортуны:' : locale === 'es' ? '⊗ Punto de la Fortuna:' : '⊗ Part of Fortune:'}</span>
+                  <span>{getSignName(pf.sign)}</span>
                 </span>
-                <span className="font-mono text-stone-600 font-semibold">{pf.house} дом</span>
+                <span className="font-mono text-stone-600 font-semibold">
+                  {locale === 'es' ? `Casa ${pf.house}` : locale === 'ru' ? `${pf.house} дом` : `House ${pf.house}`}
+                </span>
               </div>
             )}
           </div>
@@ -201,7 +229,11 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
           {/* Card Footer & Branding */}
           <div className="text-center pt-2 border-t border-amber-200/80">
             <div className="text-[9px] text-stone-500 font-medium mb-1">
-              {locale === 'ru' ? 'Рассчитай свою карту бесплатно на' : 'Calculate your chart for free at'}
+              {locale === 'ru'
+                ? 'Рассчитай свою карту бесплатно на'
+                : locale === 'es'
+                ? 'Calcula tu carta natal gratis en'
+                : 'Calculate your chart for free at'}
             </div>
             <div className="text-xs font-black tracking-wider text-amber-900 font-mono">
               ✦ ASTROAURA.PRO ✦
@@ -220,12 +252,12 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
             {isDownloading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>{locale === 'ru' ? 'Сохранение...' : 'Saving...'}</span>
+                <span>{locale === 'ru' ? 'Сохранение...' : locale === 'es' ? 'Guardando...' : 'Saving...'}</span>
               </>
             ) : (
               <>
                 <Download className="w-4 h-4 text-amber-300" />
-                <span>{locale === 'ru' ? 'Скачать Stories (PNG)' : 'Download Stories (PNG)'}</span>
+                <span>{locale === 'ru' ? 'Скачать Stories (PNG)' : locale === 'es' ? 'Descargar Stories (PNG)' : 'Download Stories (PNG)'}</span>
               </>
             )}
           </button>
@@ -234,7 +266,7 @@ export const StoriesCardModal: React.FC<StoriesCardModalProps> = ({
             type="button"
             onClick={handleShare}
             className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-800 transition-colors cursor-pointer border border-stone-200 shrink-0"
-            title={locale === 'ru' ? 'Поделиться ссылкой' : 'Share link'}
+            title={locale === 'ru' ? 'Поделиться ссылкой' : locale === 'es' ? 'Compartir enlace' : 'Share link'}
           >
             {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
           </button>

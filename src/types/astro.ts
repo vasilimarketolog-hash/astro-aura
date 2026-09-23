@@ -2,13 +2,14 @@ export type Gender = 'female' | 'male' | 'other';
 
 export type CalculationType = 'natal' | 'synastry' | 'humandesign' | 'all';
 
-export type Locale = 'ru' | 'en';
+export type Locale = 'ru' | 'en' | 'es';
 
 export interface BirthData {
   name: string;
   lastName?: string;
   country?: string;
   countryEn?: string;
+  countryEs?: string;
   gender: Gender;
   day: number;
   month: number;
@@ -18,6 +19,7 @@ export interface BirthData {
   unknownTime?: boolean;
   cityName: string;
   cityEn?: string;
+  cityEs?: string;
   latitude: number;
   longitude: number;
   timezoneOffset: number; // in hours relative to UTC
@@ -28,6 +30,7 @@ export interface ZodiacSign {
   id: string;
   nameRu: string;
   nameEn: string;
+  nameEs?: string;
   symbol: string;
   element: 'Огонь' | 'Земля' | 'Воздух' | 'Вода';
   quality: 'Кардинальный' | 'Фиксированный' | 'Мутабельный';
@@ -38,6 +41,7 @@ export interface PlanetPosition {
   id: string;
   nameRu: string;
   nameEn: string;
+  nameEs?: string;
   symbol: string;
   longitude: number; // 0..360
   sign: ZodiacSign;
@@ -69,18 +73,23 @@ export interface Aspect {
   orb: number;
   isHarmonious: boolean;
   nameRu: string;
+  nameEn?: string;
+  nameEs?: string;
   description: string;
 }
 
 export interface Talisman {
   stoneRu: string;
   stoneEn: string;
+  stoneEs?: string;
   color: string;
   planetId: string;
   planetNameRu: string;
   planetNameEn: string;
+  planetNameEs?: string;
   purposeRu: string;
   purposeEn: string;
+  purposeEs?: string;
 }
 
 export interface NatalChartData {
@@ -95,10 +104,12 @@ export interface NatalChartData {
     id: string;
     nameRu: string;
     nameEn: string;
+    nameEs?: string;
     symbol: string;
     powerScore: number;
     reasonRu: string;
     reasonEn: string;
+    reasonEs?: string;
   };
   talismans: Talisman[];
   dominantElement: {
@@ -109,6 +120,7 @@ export interface NatalChartData {
     primary: string;
     primaryRu?: string;
     primaryEn?: string;
+    primaryEs?: string;
   };
 }
 
@@ -138,7 +150,7 @@ export interface SynastryData {
 }
 
 export interface HumanDesignData {
-  type: 'Генератор' | 'Манифестирующий Генератор' | 'Проектор' | 'Манифестор' | 'Рефлектор';
+  type: string;
   profile: string; // e.g., '1/3', '2/4', '4/6'
   strategy: string;
   innerAuthority: string;

@@ -21,19 +21,44 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const isEn = locale === 'en';
+  const isEs = locale === 'es';
 
   return {
     metadataBase: new URL('https://astroaura.pro'),
     title: {
-      default: isEn
+      default: isEs
+        ? "AstroAura — Carta Astral Gratis Online con Interpretación | Diseño Humano y Sinastría"
+        : isEn
         ? "AstroAura — Free Natal Chart Online with Interpretation | Human Design & Synastry"
         : "AstroAura — Натальная карта онлайн бесплатно с расшифровкой | Дизайн Человека и Совместимость",
       template: "%s | AstroAura",
     },
-    description: isEn
+    description: isEs
+      ? "Calcula tu carta astral gratis por fecha de nacimiento con interpretación profunda de planetas, casas y aspectos. Biógrafo de Diseño Humano y sinastría de pareja precisa basada en efemérides de la NASA."
+      : isEn
       ? "Free natal chart online calculator with in-depth interpretation of planets, houses, and aspects. Accurate Human Design bodygraph and couple compatibility powered by NASA ephemerides."
       : "Бесплатный расчет натальной карты по дате рождения с подробной расшифровкой планет, домов и аспектов. Бодиграф Дизайна Человека и синастрия совместимости пары на точных эфемеридах NASA.",
-    keywords: isEn
+    keywords: isEs
+      ? [
+          "carta astral",
+          "carta astral online gratis",
+          "calcular carta astral",
+          "carta natal con interpretacion",
+          "carta natal gratis",
+          "astrologia online",
+          "diseño humano",
+          "biografo diseño humano",
+          "calcular diseño humano gratis",
+          "generador proyector manifestador",
+          "compatibilidad de pareja astrologia",
+          "sinastria de parejas online",
+          "calculadora ascendente",
+          "signo lunar",
+          "punto de la fortuna",
+          "luna negra lilith",
+          "astrodinas"
+        ]
+      : isEn
       ? [
           "natal chart",
           "natal chart online",
@@ -84,31 +109,40 @@ export async function generateMetadata({
     creator: "AstroAura",
     publisher: "AstroAura",
     alternates: {
-      canonical: isEn ? "https://astroaura.pro/en" : "https://astroaura.pro",
+      canonical: isEs ? "https://astroaura.pro/es" : isEn ? "https://astroaura.pro/en" : "https://astroaura.pro",
       languages: {
         'ru': 'https://astroaura.pro',
         'en': 'https://astroaura.pro/en',
+        'es': 'https://astroaura.pro/es',
         'x-default': 'https://astroaura.pro/en',
       },
     },
     openGraph: {
-      title: isEn
+      title: isEs
+        ? "AstroAura — Carta Astral Gratis Online, Compatibilidad y Diseño Humano"
+        : isEn
         ? "AstroAura — Free Natal Chart Online, Compatibility & Human Design"
         : "AstroAura — Натальная карта онлайн, Совместимость и Дизайн Человека",
-      description: isEn
+      description: isEs
+        ? "Cálculos astronómicos exactos, análisis psicológico profundo y mapa energético de Diseño Humano."
+        : isEn
         ? "Precise astronomical calculations, deep psychological insights, and Human Design blueprint."
         : "Точный расчет натальной карты, гороскопа совместимости и бодиграфа Дизайна Человека. Глубокий психологический и кармический разбор.",
-      url: isEn ? "https://astroaura.pro/en" : "https://astroaura.pro",
+      url: isEs ? "https://astroaura.pro/es" : isEn ? "https://astroaura.pro/en" : "https://astroaura.pro",
       siteName: "AstroAura",
-      locale: isEn ? "en_US" : "ru_RU",
+      locale: isEs ? "es_LA" : isEn ? "en_US" : "ru_RU",
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: isEn
+      title: isEs
+        ? "AstroAura — Carta Astral Gratis Online, Compatibilidad y Diseño Humano"
+        : isEn
         ? "AstroAura — Free Natal Chart Online, Compatibility & Human Design"
         : "AstroAura — Натальная карта онлайн, Совместимость и Дизайн Человека",
-      description: isEn
+      description: isEs
+        ? "Cálculos astronómicos exactos, análisis psicológico profundo y mapa energético de Diseño Humano."
+        : isEn
         ? "Precise astronomical calculations, deep psychological insights, and Human Design blueprint."
         : "Точный расчет натальной карты, гороскопа совместимости и бодиграфа Дизайна Человека.",
     },
@@ -138,7 +172,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const validLocale = locale === 'en' ? 'en' : 'ru';
+  const validLocale = locale === 'es' ? 'es' : locale === 'en' ? 'en' : 'ru';
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-W4BGMWF2';
 
   const jsonLd = {
@@ -150,15 +184,19 @@ export default async function LocaleLayout({
         'name': 'AstroAura',
         'url': 'https://astroaura.pro',
         'logo': 'https://astroaura.pro/favicon.ico',
-        'description': validLocale === 'en'
+        'description': validLocale === 'es'
+          ? 'Cálculos astrológicos online, cartas astrales y Diseño Humano'
+          : validLocale === 'en'
           ? 'Online astrology calculations, natal charts, and Human Design'
           : 'Онлайн-сервис астрологических расчетов, натальных карт и Дизайна Человека'
       },
       {
         '@type': 'WebApplication',
         '@id': 'https://astroaura.pro/#webapp',
-        'url': validLocale === 'en' ? 'https://astroaura.pro/en' : 'https://astroaura.pro',
-        'name': validLocale === 'en'
+        'url': validLocale === 'es' ? 'https://astroaura.pro/es' : validLocale === 'en' ? 'https://astroaura.pro/en' : 'https://astroaura.pro',
+        'name': validLocale === 'es'
+          ? 'AstroAura — Carta Astral Gratis Online y Diseño Humano'
+          : validLocale === 'en'
           ? 'AstroAura — Free Natal Chart Online & Human Design'
           : 'AstroAura — Натальная карта онлайн и Дизайн Человека',
         'applicationCategory': 'LifestyleApplication',
@@ -175,13 +213,46 @@ export default async function LocaleLayout({
         'offers': {
           '@type': 'Offer',
           'price': '0',
-          'priceCurrency': validLocale === 'en' ? 'USD' : 'RUB'
+          'priceCurrency': validLocale === 'ru' ? 'RUB' : 'USD'
         }
       },
       {
         '@type': 'FAQPage',
-        '@id': validLocale === 'en' ? 'https://astroaura.pro/en#faq' : 'https://astroaura.pro#faq',
-        'mainEntity': validLocale === 'en' ? [
+        '@id': validLocale === 'es' ? 'https://astroaura.pro/es#faq' : validLocale === 'en' ? 'https://astroaura.pro/en#faq' : 'https://astroaura.pro#faq',
+        'mainEntity': validLocale === 'es' ? [
+          {
+            '@type': 'Question',
+            'name': '¿Qué es una carta natal y en qué se diferencia del horóscopo tradicional?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'Una carta natal es un mapa astronómico exacto del cielo en el minuto y lugar precisos de tu nacimiento. A diferencia de los horóscopos convencionales de revista, analiza 10 planetas a través de las 12 casas, tu signo Ascendente y los aspectos matemáticos, revelando tu arquitectura psicológica y potencial financiero.'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': '¿Qué revela el Biógrafo de Diseño Humano?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'El Diseño Humano combina astrología, el I Ching y física cuántica para mostrar cómo opera tu energía vital. Identifica tu tipo genético (Generador, Manifestor, Proyector, Reflector), tu Autoridad interna para tomar decisiones y tus centros energéticos definidos.'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': '¿Qué tan precisos son los cálculos astronómicos?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'Utilizamos algoritmos de efemérides de la NASA (JPL Horizons) y Swiss Ephemeris, calculando longitudes planetarias, casas y aspectos con precisión matemática de segundos de arco.'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': '¿Qué ocurre si no conozco mi hora exacta de nacimiento?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'Selecciona la opción «No conozco mi hora exacta». El sistema calculará las posiciones para el mediodía solar (12:00) — las posiciones de todos los planetas en los signos se determinan con total precisión.'
+            }
+          }
+        ] : validLocale === 'en' ? [
           {
             '@type': 'Question',
             'name': 'What is a natal chart and how does it differ from a sun-sign horoscope?',

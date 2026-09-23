@@ -11,6 +11,7 @@ interface ReviewsSectionProps {
 export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const isEn = locale === 'en';
+  const isEs = locale === 'es';
 
   const reviewsRu = [
     {
@@ -60,6 +61,30 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' })
     }
   ];
 
+  const reviewsEs = [
+    {
+      name: 'Sofía M., 29 años',
+      city: 'Ciudad de México',
+      rating: 5,
+      date: 'Ayer',
+      text: '¡Estaba un poco escéptica, pero leer sobre el conflicto entre mi Sol en Tauro y mi Luna en Escorpio me erizó la piel! Coincidió al 100%. Las recomendaciones financieras para mi Casa 2 fueron de enorme valor. ¡Mil gracias!'
+    },
+    {
+      name: 'Mateo D., 34 años',
+      city: 'Bogotá, Colombia',
+      rating: 5,
+      date: 'Hace 2 días',
+      text: 'Calculamos la sinastría de pareja antes de dar el siguiente paso. Acertó en absolutamente todo: puntos de fricción cotidiana y química íntima. El chat con el astrólogo AI es genial para decisiones importantes.'
+    },
+    {
+      name: 'Valentina R., 41 años',
+      city: 'Madrid, España',
+      rating: 5,
+      date: 'Hace 4 días',
+      text: 'Por fin una herramienta astrológica sin supersticiones, explicada con psicología moderna y un diseño impecable. Descargué el PDF y parece un libro personalizado de colección.'
+    }
+  ];
+
   const faqsRu = [
     {
       q: 'Что такое натальная карта и чем она отличается от обычного гороскопа?',
@@ -79,7 +104,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' })
     },
     {
       q: 'Как работает подписка и можно ли ее отменить?',
-      a: 'При выборе пробного периода (1 рубль на 3 дня) вы получаете полный доступ ко всем платным разделам и AI-астрологу. Отменить подписку можно в любой момент в 1 клик, никаких скрытых условий.'
+      a: 'При выборе пробного периода (190 ₽ на 3 дня) вы получаете полный доступ ко всем платным разделам и AI-астрологу. Отменить подписку можно в любой момент в 1 клик, никаких скрытых условий.'
     },
     {
       q: 'Безопасна ли оплата?',
@@ -106,7 +131,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' })
     },
     {
       q: 'How does the trial work and can I cancel?',
-      a: 'The trial ($1 for 3 days) unlocks full access to all report sections, PDF download, and the AI Astrologer. You can cancel anytime with 1 click.'
+      a: 'The trial ($5 for 3 days) unlocks full access to all report sections, PDF download, and the AI Astrologer. You can cancel anytime with 1 click.'
     },
     {
       q: 'Is payment secure?',
@@ -114,8 +139,35 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' })
     }
   ];
 
-  const reviews = isEn ? reviewsEn : reviewsRu;
-  const faqs = isEn ? faqsEn : faqsRu;
+  const faqsEs = [
+    {
+      q: '¿Qué es una carta natal y en qué se diferencia del horóscopo tradicional?',
+      a: 'Una carta natal es un mapa astronómico exacto del cielo en el minuto y lugar precisos de tu nacimiento. A diferencia de los horóscopos convencionales de revista, analiza 10 planetas a través de las 12 casas, tu signo Ascendente y los aspectos matemáticos, revelando tu arquitectura psicológica y potencial financiero.'
+    },
+    {
+      q: '¿Qué revela el Biógrafo de Diseño Humano?',
+      a: 'El Diseño Humano combina astrología, el I Ching y física cuántica para mostrar cómo opera tu energía vital. Identifica tu tipo genético (Generador, Manifestor, Proyector, Reflector), tu Autoridad interna para tomar decisiones correctas y tus centros energéticos definidos.'
+    },
+    {
+      q: '¿Qué tan precisos son los cálculos astronómicos?',
+      a: 'Utilizamos algoritmos de efemérides de la NASA (JPL Horizons) y Swiss Ephemeris, calculando longitudes planetarias, casas y aspectos con precisión matemática de segundos de arco.'
+    },
+    {
+      q: '¿Qué ocurre si no conozco mi hora exacta de nacimiento?',
+      a: 'Selecciona la opción «No conozco mi hora exacta». El sistema calculará las posiciones para el mediodía solar (12:00) — las posiciones de todos los planetas en los signos se determinan con total precisión.'
+    },
+    {
+      q: '¿Cómo funciona el periodo de prueba y puedo cancelarlo?',
+      a: 'Al elegir el acceso de prueba ($5 por 3 días) obtienes acceso ilimitado a todas las secciones, la descarga del informe en PDF y consultas interactivas con el astrólogo AI. Puedes cancelar en cualquier momento con 1 clic sin condiciones ocultas.'
+    },
+    {
+      q: '¿Es seguro el pago?',
+      a: 'Todos los pagos se procesan a través de pasarelas bancarias y cripto certificadas con cifrado SSL de 256 bits. Nunca almacenamos los datos de tus tarjetas bancarias.'
+    }
+  ];
+
+  const reviews = isEs ? reviewsEs : isEn ? reviewsEn : reviewsRu;
+  const faqs = isEs ? faqsEs : isEn ? faqsEn : faqsRu;
 
   return (
     <section className="py-16 border-t border-stone-200/80 bg-white/60">
@@ -123,7 +175,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' })
         {/* Reviews */}
         <div className="text-center mb-12">
           <h2 className="text-2xl sm:text-3xl font-black text-stone-900 mb-2">
-            {isEn ? 'What Our Users Say' : 'Что говорят те, кто уже рассчитал свою карту'}
+            {isEs ? 'Lo Que Dicen Nuestros Usuarios' : isEn ? 'What Our Users Say' : 'Что говорят те, кто уже рассчитал свою карту'}
           </h2>
           <div className="flex items-center justify-center space-x-2 text-amber-500">
             <div className="flex">
@@ -132,7 +184,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' })
               ))}
             </div>
             <span className="text-xs text-stone-600 font-bold">
-              {isEn ? '4.94 out of 5 based on 28,400+ calculations' : '4.94 из 5 на основе 28,400+ расчетов'}
+              {isEs ? '4.94 de 5 basado en más de 28,400 cálculos' : isEn ? '4.94 out of 5 based on 28,400+ calculations' : '4.94 из 5 на основе 28,400+ расчетов'}
             </span>
           </div>
         </div>
@@ -167,7 +219,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ locale = 'ru' })
         {/* FAQ */}
         <div className="max-w-3xl mx-auto">
           <h3 className="text-xl sm:text-2xl font-black text-stone-900 text-center mb-6">
-            {isEn ? 'Frequently Asked Questions' : 'Часто задаваемые вопросы'}
+            {isEs ? 'Preguntas Frecuentes' : isEn ? 'Frequently Asked Questions' : 'Часто задаваемые вопросы'}
           </h3>
 
           <div className="space-y-3">

@@ -66,7 +66,12 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
     en_trial_sub: process.env.NEXT_PUBLIC_LAVA_EN_TRIAL || 'https://app.lava.top/products/7354e768-5369-45a4-bef4-d0d8cbb73553',
     en_onetime_report: process.env.NEXT_PUBLIC_LAVA_EN_LIFETIME || 'https://app.lava.top/products/69315043-7aa3-4204-ad94-f451f3615351',
     en_vip_combo: process.env.NEXT_PUBLIC_LAVA_EN_VIP || 'https://app.lava.top/products/e8d306bc-47bb-4fc6-887a-54819d0db331',
-    en_default: process.env.NEXT_PUBLIC_LAVA_EN_URL || 'https://app.lava.top/products/7354e768-5369-45a4-bef4-d0d8cbb73553'
+    en_default: process.env.NEXT_PUBLIC_LAVA_EN_URL || 'https://app.lava.top/products/7354e768-5369-45a4-bef4-d0d8cbb73553',
+
+    es_trial_sub: process.env.NEXT_PUBLIC_LAVA_EN_TRIAL || 'https://app.lava.top/products/7354e768-5369-45a4-bef4-d0d8cbb73553',
+    es_onetime_report: process.env.NEXT_PUBLIC_LAVA_EN_LIFETIME || 'https://app.lava.top/products/69315043-7aa3-4204-ad94-f451f3615351',
+    es_vip_combo: process.env.NEXT_PUBLIC_LAVA_EN_VIP || 'https://app.lava.top/products/e8d306bc-47bb-4fc6-887a-54819d0db331',
+    es_default: process.env.NEXT_PUBLIC_LAVA_EN_URL || 'https://app.lava.top/products/7354e768-5369-45a4-bef4-d0d8cbb73553'
   };
 
   const TARIFF_PLANS_RU: TariffPlan[] = [
@@ -185,7 +190,65 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
     }
   ];
 
-  const plans = locale === 'ru' ? TARIFF_PLANS_RU : TARIFF_PLANS_EN;
+  const TARIFF_PLANS_ES: TariffPlan[] = [
+    {
+      id: 'trial_sub',
+      title: 'Acceso de Prueba (3 Días)',
+      badge: 'Más Popular',
+      price: 5,
+      oldPrice: 15,
+      currency: '$',
+      periodText: 'por 3 días, luego $9.99/sem',
+      description: 'Ideal para empezar: acceso completo a todas las funciones, descarga de PDF y Astróloga IA.',
+      features: [
+        'Informe PDF personalizado con tu nombre (30+ págs)',
+        'Carta Astral Completa (10 planetas + 12 casas)',
+        'Nodos kármicos y códigos de abundancia',
+        'Astróloga IA «Astra» personalizada 24/7',
+        'Cancela en cualquier momento con 1 clic'
+      ],
+      isPopular: true,
+      type: 'subscription'
+    },
+    {
+      id: 'onetime_report',
+      title: 'Acceso Único De Por Vida',
+      badge: 'Sin Suscripción',
+      price: 9,
+      oldPrice: 29,
+      currency: '$',
+      periodText: 'pago único',
+      description: 'Un solo pago. Obtienes tu carta astral completa y el informe en PDF para siempre.',
+      features: [
+        'Descarga de PDF personalizado con tu nombre',
+        'Carta astral completa con todos los aspectos',
+        'Código financiero (casas 2 y 8)',
+        'Guía del amor y matrimonio (casa 7 y Venus)',
+        'Acceso de por vida sin cargos recurrentes'
+      ],
+      type: 'onetime'
+    },
+    {
+      id: 'vip_combo',
+      title: 'VIP: Paquete Todo Incluido',
+      badge: 'Mejor Valor',
+      price: 19,
+      oldPrice: 49,
+      currency: '$',
+      periodText: 'pago único',
+      description: 'El paquete definitivo: Carta Astral + Compatibilidad de Pareja + Diseño Humano.',
+      features: [
+        'Todas las funciones de la Carta Astral Completa',
+        'Sinastría Completa (informe de compatibilidad)',
+        'Diseño Humano Bodygraph (Tipo, Estrategia, Centros)',
+        'Astróloga IA ilimitada por 1 año',
+        'Certificado PDF VIP prémium personalizado'
+      ],
+      type: 'vip'
+    }
+  ];
+
+  const plans = locale === 'es' ? TARIFF_PLANS_ES : locale === 'ru' ? TARIFF_PLANS_RU : TARIFF_PLANS_EN;
 
   useEffect(() => {
     if (!isOpen) {
@@ -403,15 +466,17 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs mb-3 font-bold">
             <Flame className="w-4 h-4 text-amber-600" />
             <span>
-              {locale === 'ru' ? 'Скидка сгорает через:' : 'Discount expires in:'}{' '}
+              {locale === 'es' ? 'El descuento expira en:' : locale === 'ru' ? 'Скидка сгорает через:' : 'Discount expires in:'}{' '}
               {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-stone-900 mb-2">
-            {locale === 'ru' ? 'Выберите тариф для открытия полного разбора' : 'Choose Your Access Plan'}
+            {locale === 'es' ? 'Elige tu plan para desbloquear tu informe completo' : locale === 'ru' ? 'Выберите тариф для открытия полного разбора' : 'Choose Your Access Plan'}
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 max-w-xl mx-auto">
-            {locale === 'ru'
+            {locale === 'es'
+              ? 'Obtén tu informe personalizado en PDF, acceso a los 10 planetas, 12 casas y Astróloga IA.'
+              : locale === 'ru'
               ? 'Получите именной отчет в PDF, доступ ко всем 10 планетам, 12 домам и AI-астрологу.'
               : 'Get your personalized named PDF report, access to all 10 planets, 12 houses and AI Astrologer.'}
           </p>
@@ -470,7 +535,9 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                     ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-stone-950 shadow-sm'
                     : 'bg-white text-stone-700 border border-stone-300'
                 }`}>
-                  {isSelected ? (locale === 'ru' ? 'Выбранный тариф' : 'Selected Plan') : (locale === 'ru' ? 'Выбрать тариф' : 'Select Plan')}
+                  {isSelected
+                    ? (locale === 'es' ? 'Plan seleccionado' : locale === 'ru' ? 'Выбранный тариф' : 'Selected Plan')
+                    : (locale === 'es' ? 'Seleccionar plan' : locale === 'ru' ? 'Выбрать тариф' : 'Select Plan')}
                 </div>
               </div>
             );
@@ -486,12 +553,16 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
               </div>
               <div className="text-left">
                 <h3 className="text-base sm:text-lg font-black text-stone-900">
-                  {locale === 'ru'
+                  {locale === 'es'
+                    ? 'Estamos activando la pasarela de pago'
+                    : locale === 'ru'
                     ? 'Мы подключаем прием платежей'
                     : 'We are connecting payment processing'}
                 </h3>
                 <p className="text-xs text-stone-600">
-                  {locale === 'ru'
+                  {locale === 'es'
+                    ? 'Deja tu correo para recibir acceso prioritario con 90% de descuento'
+                    : locale === 'ru'
                     ? 'Оставьте email — пришлем доступ первыми со скидкой 90%'
                     : 'Leave your email — get first access with a 90% discount'}
                 </p>
@@ -503,7 +574,9 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                 <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-bold flex items-center space-x-2">
                   <Check className="w-5 h-5 text-emerald-600 shrink-0" />
                   <span>
-                    {locale === 'ru'
+                    {locale === 'es'
+                      ? '¡Gracias! Estás en la lista prioritaria. Revisa tu correo.'
+                      : locale === 'ru'
                       ? 'Спасибо! Вы в списке первых. Проверьте почту.'
                       : 'Thank you! You are on the priority list. Check your email.'}
                   </span>
@@ -517,14 +590,14 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                     }}
                     className="text-xs text-amber-800 hover:text-amber-900 font-bold underline cursor-pointer"
                   >
-                    {locale === 'ru' ? 'Открыть демо-доступ к полной карте →' : 'Preview demo access to full chart →'}
+                    {locale === 'es' ? 'Ver vista previa de la carta completa →' : locale === 'ru' ? 'Открыть демо-доступ к полной карте →' : 'Preview demo access to full chart →'}
                   </button>
                   <button
                     type="button"
                     onClick={onClose}
                     className="px-5 py-2 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-bold transition-colors cursor-pointer"
                   >
-                    {locale === 'ru' ? 'Закрыть' : 'Close'}
+                    {locale === 'es' ? 'Cerrar' : locale === 'ru' ? 'Закрыть' : 'Close'}
                   </button>
                 </div>
               </div>
@@ -550,7 +623,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4 text-amber-300" />
-                        <span>{locale === 'ru' ? 'Получить доступ' : 'Get Access'}</span>
+                        <span>{locale === 'es' ? 'Obtener acceso' : locale === 'ru' ? 'Получить доступ' : 'Get Access'}</span>
                       </>
                     )}
                   </button>
@@ -575,7 +648,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                 }`}
               >
                 <CreditCard className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>{locale === 'ru' ? 'Банковская карта (Lava / Visa / МИР)' : 'Card (Lava / Visa / MC)'}</span>
+                <span>{locale === 'es' ? 'Tarjeta bancaria (Lava / Visa / MC)' : locale === 'ru' ? 'Банковская карта (Lava / Visa / МИР)' : 'Card (Lava / Visa / MC)'}</span>
               </button>
 
               <button
@@ -588,14 +661,16 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                 }`}
               >
                 <Wallet className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>{locale === 'ru' ? 'Криптовалюта (USDT / TON)' : 'Crypto (USDT / TON)'}</span>
+                <span>{locale === 'es' ? 'Criptomoneda (USDT / TON)' : locale === 'ru' ? 'Криптовалюта (USDT / TON)' : 'Crypto (USDT / TON)'}</span>
               </button>
             </div>
 
             {paymentMethod === 'card' ? (
               <div>
                 <p className="text-[11px] text-stone-500 mb-3 text-left">
-                  {locale === 'ru'
+                  {locale === 'es'
+                    ? 'Aceptamos tarjetas internacionales Visa y Mastercard (Latinoamérica, EE.UU., Europa y mundial).'
+                    : locale === 'ru'
                     ? 'Принимаются карты иностранных банков (Visa, Mastercard со всего мира), а также карты РФ и СНГ (МИР, СБП, SberPay).'
                     : 'Accepting global Visa & Mastercard (US, Europe, Worldwide) as well as CIS cards.'}
                 </p>
@@ -603,7 +678,11 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   <div className="w-full sm:flex-1">
                     <label className="block text-xs font-bold text-stone-700 mb-1 text-left">
-                      {locale === 'ru' ? 'Куда отправить копию отчета и данные для входа?' : 'Where should we send your official PDF and access details?'}
+                      {locale === 'es'
+                        ? '¿A dónde enviamos tu informe PDF y datos de acceso?'
+                        : locale === 'ru'
+                        ? 'Куда отправить копию отчета и данные для входа?'
+                        : 'Where should we send your official PDF and access details?'}
                     </label>
                     <input
                       type="email"
@@ -624,13 +703,17 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                       {isProcessing ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin text-amber-300" />
-                          <span>{locale === 'ru' ? 'Подключение к Lava...' : 'Connecting to Lava...'}</span>
+                          <span>{locale === 'es' ? 'Conectando con Lava...' : locale === 'ru' ? 'Подключение к Lava...' : 'Connecting to Lava...'}</span>
                         </>
                       ) : (
                         <>
                           <Zap className="w-4 h-4 fill-amber-400 text-amber-400" />
                           <span>
-                            {locale === 'ru' ? `Оплатить ${selectedPlan.price} ${selectedPlan.currency} через Lava` : `Pay ${selectedPlan.price} ${selectedPlan.currency} via Lava`}
+                            {locale === 'es'
+                              ? `Pagar ${selectedPlan.price} ${selectedPlan.currency} vía Lava`
+                              : locale === 'ru'
+                              ? `Оплатить ${selectedPlan.price} ${selectedPlan.currency} через Lava`
+                              : `Pay ${selectedPlan.price} ${selectedPlan.currency} via Lava`}
                           </span>
                           <ArrowRight className="w-4 h-4" />
                         </>
@@ -643,7 +726,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-stone-700">
-                    {locale === 'ru' ? 'Выберите сеть перевода:' : 'Select Network:'}
+                    {locale === 'es' ? 'Selecciona la red de transferencia:' : locale === 'ru' ? 'Выберите сеть перевода:' : 'Select Network:'}
                   </span>
                   <div className="flex items-center space-x-2">
                     <button
@@ -679,14 +762,14 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                       className="w-28 h-28 rounded-xl border border-stone-200 shadow-xs"
                     />
                     <span className="text-[10px] text-stone-400 mt-1 flex items-center gap-1">
-                      <QrCode className="w-3 h-3" /> {locale === 'ru' ? 'QR-код для перевода' : 'Scan to pay'}
+                      <QrCode className="w-3 h-3" /> {locale === 'es' ? 'Escanear para pagar' : locale === 'ru' ? 'QR-код для перевода' : 'Scan to pay'}
                     </span>
                   </div>
 
                   <div className="flex-1 w-full space-y-2 text-left">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-stone-500 font-medium">
-                        {locale === 'ru' ? 'Точная сумма к переводу:' : 'Exact amount to send:'}
+                        {locale === 'es' ? 'Monto exacto a transferir:' : locale === 'ru' ? 'Точная сумма к переводу:' : 'Exact amount to send:'}
                       </span>
                       <span className="text-sm font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
                         {getCryptoAmount(selectedPlan.id)} USDT
@@ -695,7 +778,11 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
 
                     <div>
                       <span className="text-[11px] text-stone-500 font-semibold block mb-1">
-                        {locale === 'ru' ? `Адрес кошелька (${cryptoNetwork}):` : `Wallet Address (${cryptoNetwork}):`}
+                        {locale === 'es'
+                          ? `Dirección de billetera (${cryptoNetwork}):`
+                          : locale === 'ru'
+                          ? `Адрес кошелька (${cryptoNetwork}):`
+                          : `Wallet Address (${cryptoNetwork}):`}
                       </span>
                       <div className="flex items-center gap-2">
                         <input
@@ -712,12 +799,12 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                           {copiedAddress ? (
                             <>
                               <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
-                              <span className="text-emerald-400">{locale === 'ru' ? 'Скопировано!' : 'Copied!'}</span>
+                              <span className="text-emerald-400">{locale === 'es' ? '¡Copiado!' : locale === 'ru' ? 'Скопировано!' : 'Copied!'}</span>
                             </>
                           ) : (
                             <>
                               <Copy className="w-3.5 h-3.5" />
-                              <span>{locale === 'ru' ? 'Копировать' : 'Copy'}</span>
+                              <span>{locale === 'es' ? 'Copiar' : locale === 'ru' ? 'Копировать' : 'Copy'}</span>
                             </>
                           )}
                         </button>
@@ -729,7 +816,13 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                         type="text"
                         value={cryptoTxId}
                         onChange={(e) => setCryptoTxId(e.target.value)}
-                        placeholder={locale === 'ru' ? 'Ваш email или TxID перевода (для квитанции)' : 'Your email or TxID (optional)'}
+                        placeholder={
+                          locale === 'es'
+                            ? 'Tu correo o TxID de transferencia (opcional)'
+                            : locale === 'ru'
+                            ? 'Ваш email или TxID перевода (для квитанции)'
+                            : 'Your email or TxID (optional)'
+                        }
                         className="w-full px-3 py-2 rounded-lg bg-white border border-stone-300 text-stone-900 placeholder-stone-400 text-xs focus:outline-none focus:border-amber-500"
                       />
                     </div>
@@ -738,7 +831,9 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
 
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
                   <p className="text-[11px] text-stone-500 text-left">
-                    {locale === 'ru'
+                    {locale === 'es'
+                      ? 'Tras enviar USDT, haz clic en confirmar abajo para desbloquear tu carta de inmediato.'
+                      : locale === 'ru'
                       ? 'После отправки USDT нажмите кнопку подтверждения — отчет откроется моментально.'
                       : 'After sending USDT, click confirm below to instantly unlock your complete chart.'}
                   </p>
@@ -751,12 +846,12 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                     {isCryptoSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>{locale === 'ru' ? 'Проверка...' : 'Checking...'}</span>
+                        <span>{locale === 'es' ? 'Verificando...' : locale === 'ru' ? 'Проверка...' : 'Checking...'}</span>
                       </>
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4 text-amber-300" />
-                        <span>{locale === 'ru' ? 'Я перевел средства — открыть отчет 🎉' : 'I have sent USDT — Unlock 🎉'}</span>
+                        <span>{locale === 'es' ? 'He transferido USDT — Desbloquear 🎉' : locale === 'ru' ? 'Я перевел средства — открыть отчет 🎉' : 'I have sent USDT — Unlock 🎉'}</span>
                       </>
                     )}
                   </button>
@@ -770,7 +865,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
         <div className="flex flex-wrap items-center justify-between text-xs text-stone-500 pt-2 border-t border-stone-200 gap-3">
           <div className="flex items-center space-x-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>256-bit SSL • {locale === 'ru' ? 'Гарантия возврата 100%' : '100% Money Back Guarantee'}</span>
+            <span>256-bit SSL • {locale === 'es' ? 'Garantía de reembolso 100%' : locale === 'ru' ? 'Гарантия возврата 100%' : '100% Money Back Guarantee'}</span>
           </div>
 
           <div className="flex items-center space-x-3 text-stone-500 font-mono text-[11px] font-bold">
@@ -787,7 +882,9 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
           <div className="flex items-center space-x-2 text-amber-900 font-medium">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>
-              {locale === 'ru'
+              {locale === 'es'
+                ? 'Modo de prueba Sandbox'
+                : locale === 'ru'
                 ? 'Режим тестирования шлюза'
                 : 'Gateway Sandbox Mode'}
             </span>
@@ -797,7 +894,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
             onClick={handleSimulatePayment}
             className="px-3 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] transition-all shadow-sm cursor-pointer"
           >
-            ⚡ {locale === 'ru' ? 'Тестовая оплата (Разблокировать всё)' : 'Simulate Payment (Unlock All)'}
+            ⚡ {locale === 'es' ? 'Pago de prueba (Desbloquear todo)' : locale === 'ru' ? 'Тестовая оплата (Разблокировать всё)' : 'Simulate Payment (Unlock All)'}
           </button>
         </div>
       </div>

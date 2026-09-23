@@ -49,7 +49,25 @@ export const RedFlagScanner: React.FC<RedFlagScannerProps> = ({ synastry, locale
     }
   ];
 
-  const list = locale === 'ru' ? redFlagsRu : redFlagsEn;
+  const redFlagsEs = [
+    {
+      title: 'Lucha por el control y expectativas ocultas',
+      desc: 'Deseo inconsciente de cambiar los hábitos de la pareja según los propios estándares. Provoca resentimiento silencioso si no se respeta la autonomía mutua.',
+      severity: 'Riesgo medio'
+    },
+    {
+      title: 'Ritmos emocionales diferentes',
+      desc: 'Uno busca resolver los desacuerdos al instante bajo emoción, mientras que el otro se repliega para procesar en silencio. No presiones durante la pausa.',
+      severity: 'Detonante clave'
+    },
+    {
+      title: 'Filosofía financiera y gastos impulsivos',
+      desc: 'Diferentes umbrales de seguridad frente a gastos espontáneos. Requiere delimitar con claridad el presupuesto compartido del personal.',
+      severity: 'Área de crecimiento'
+    }
+  ];
+
+  const list = locale === 'es' ? redFlagsEs : locale === 'ru' ? redFlagsRu : redFlagsEn;
 
   return (
     <div className="bg-white border-2 border-rose-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
@@ -57,10 +75,12 @@ export const RedFlagScanner: React.FC<RedFlagScannerProps> = ({ synastry, locale
         <div>
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-[11px] font-bold mb-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-            <span>{locale === 'ru' ? 'СКАНИРОВАНИЕ СКРЫТЫХ РИСКОВ ПАРЫ' : 'HIDDEN RELATIONSHIP RISK SCAN'}</span>
+            <span>
+              {locale === 'es' ? 'ANÁLISIS DE RIESGOS OCULTOS DE LA PAREJA' : locale === 'ru' ? 'СКАНИРОВАНИЕ СКРЫТЫХ РИСКОВ ПАРЫ' : 'HIDDEN RELATIONSHIP RISK SCAN'}
+            </span>
           </div>
           <h3 className="text-xl font-black text-stone-900">
-            {locale === 'ru' ? 'Сканер Ред-Флагов и Токсичности' : 'Red Flag & Shadow Compatibility Scanner'}
+            {locale === 'es' ? 'Escáner de Red Flags y Compatibilidad de Sombra' : locale === 'ru' ? 'Сканер Ред-Флагов и Токсичности' : 'Red Flag & Shadow Compatibility Scanner'}
           </h3>
         </div>
 
@@ -69,10 +89,10 @@ export const RedFlagScanner: React.FC<RedFlagScannerProps> = ({ synastry, locale
           <Flame className="w-5 h-5 text-rose-600" />
           <div>
             <div className="text-[10px] uppercase font-mono tracking-wider text-rose-700 font-bold">
-              {locale === 'ru' ? 'Индекс конфликтов' : 'Friction Index'}
+              {locale === 'es' ? 'Índice de fricción' : locale === 'ru' ? 'Индекс конфликтов' : 'Friction Index'}
             </div>
             <div className="text-base font-black text-rose-900 font-mono">
-              {conflictRisk}% ({isHighRisk ? (locale === 'ru' ? 'Требует внимания' : 'High Awareness') : (locale === 'ru' ? 'Умеренный' : 'Low Friction')})
+              {conflictRisk}% ({isHighRisk ? (locale === 'es' ? 'Atención requerida' : locale === 'ru' ? 'Требует внимания' : 'High Awareness') : (locale === 'es' ? 'Fricción moderada' : locale === 'ru' ? 'Умеренный' : 'Low Friction')})
             </div>
           </div>
         </div>
@@ -111,10 +131,16 @@ export const RedFlagScanner: React.FC<RedFlagScannerProps> = ({ synastry, locale
         <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
         <div className="space-y-1">
           <strong className="text-emerald-950 font-bold text-sm block">
-            {locale === 'ru' ? '🟢 Золотой ключ нейтрализации конфликтов:' : '🟢 Golden Key to Conflict Resolution:'}
+            {locale === 'es'
+              ? '🟢 Clave de oro para neutralizar conflictos:'
+              : locale === 'ru'
+              ? '🟢 Золотой ключ нейтрализации конфликтов:'
+              : '🟢 Golden Key to Conflict Resolution:'}
           </strong>
           <p className="leading-relaxed">
-            {locale === 'ru'
+            {locale === 'es'
+              ? 'Nunca inicien discusiones sobre temas delicados (dinero, familia, tareas) con agotamiento físico o hambre. Darle a la pareja 20 minutos de silencio y tranquilidad al llegar a casa disuelve el 80% de los roces en la convivencia.'
+              : locale === 'ru'
               ? 'Никогда не обсуждайте чувствительные темы (деньги, родственники, быт) в моменты физической усталости (после 21:00 или на голодный желудок). Давайте партнеру 20 минут тишины после возвращения домой — это нейтрализует 80% споров в союзе.'
               : 'Never initiate high-stakes dialogues when depleted. Offering 20 minutes of decompression silence dissolves 80% of ambient relationship tension.'}
           </p>

@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               aria-label="Switch language to Russian"
               onClick={() => onToggleLocale('ru')}
-              className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg font-bold transition-all cursor-pointer ${
+              className={`min-w-[38px] sm:min-w-[42px] min-h-[38px] sm:min-h-[40px] px-2 flex items-center justify-center rounded-lg font-bold transition-all cursor-pointer ${
                 locale === 'ru'
                   ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
                   : 'text-stone-500 hover:text-stone-900'
@@ -85,13 +85,25 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               aria-label="Switch language to English"
               onClick={() => onToggleLocale('en')}
-              className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg font-bold transition-all cursor-pointer ${
+              className={`min-w-[38px] sm:min-w-[42px] min-h-[38px] sm:min-h-[40px] px-2 flex items-center justify-center rounded-lg font-bold transition-all cursor-pointer ${
                 locale === 'en'
                   ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
                   : 'text-stone-500 hover:text-stone-900'
               }`}
             >
               EN
+            </button>
+            <button
+              type="button"
+              aria-label="Switch language to Spanish"
+              onClick={() => onToggleLocale('es')}
+              className={`min-w-[38px] sm:min-w-[42px] min-h-[38px] sm:min-h-[40px] px-2 flex items-center justify-center rounded-lg font-bold transition-all cursor-pointer ${
+                locale === 'es'
+                  ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
+                  : 'text-stone-500 hover:text-stone-900'
+              }`}
+            >
+              ES
             </button>
           </div>
 

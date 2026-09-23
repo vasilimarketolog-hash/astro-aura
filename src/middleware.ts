@@ -24,8 +24,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(pathname.replace(/^\/ru/, ''), request.url));
   }
 
-  // Paths starting with /en are handled by [locale=en]
-  if (pathname === '/en' || pathname.startsWith('/en/')) {
+  // Paths starting with /en or /es are handled by [locale]
+  if (
+    pathname === '/en' ||
+    pathname.startsWith('/en/') ||
+    pathname === '/es' ||
+    pathname.startsWith('/es/')
+  ) {
     return NextResponse.next();
   }
 

@@ -14,7 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         languages: {
           ru: `${baseUrl}`,
           en: `${baseUrl}/en`,
-          'x-default': `${baseUrl}`,
+          es: `${baseUrl}/es`,
+          'x-default': `${baseUrl}/en`,
         },
       },
     },
@@ -27,7 +28,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
         languages: {
           ru: `${baseUrl}`,
           en: `${baseUrl}/en`,
-          'x-default': `${baseUrl}`,
+          es: `${baseUrl}/es`,
+          'x-default': `${baseUrl}/en`,
+        },
+      },
+    },
+    {
+      url: `${baseUrl}/es`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.9,
+      alternates: {
+        languages: {
+          ru: `${baseUrl}`,
+          en: `${baseUrl}/en`,
+          es: `${baseUrl}/es`,
+          'x-default': `${baseUrl}/en`,
         },
       },
     },
