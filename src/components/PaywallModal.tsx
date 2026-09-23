@@ -53,8 +53,15 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const WALLETS = {
-    TRC20: process.env.NEXT_PUBLIC_CRYPTO_WALLET_TRC20 || 'TYDzsYrfnehrRMppjKShdqrqBHN3MvfzEm',
+    TRC20: process.env.NEXT_PUBLIC_CRYPTO_WALLET_TRC20 || 'TJAyTZmUUWsdo96pdhL1i2LrMmQbFE2XPL',
     TON: process.env.NEXT_PUBLIC_CRYPTO_WALLET_TON || 'EQBvW8Z5huBkMJYdn3PCDLyUrMpJAssqXOvisMWgDVnDsMz7'
+  };
+
+  const LAVA_LINKS: Record<string, string> = {
+    trial_sub: process.env.NEXT_PUBLIC_LAVA_URL_TRIAL || '',
+    onetime_report: process.env.NEXT_PUBLIC_LAVA_URL_LIFETIME || '',
+    vip_combo: process.env.NEXT_PUBLIC_LAVA_URL_VIP || '',
+    default: process.env.NEXT_PUBLIC_LAVA_URL || ''
   };
 
   const TARIFF_PLANS_RU: TariffPlan[] = [
@@ -208,9 +215,14 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
     setErrorMessage(null);
 
     try {
-      const lavaBaseUrl = process.env.NEXT_PUBLIC_LAVA_URL;
-      if (lavaBaseUrl && lavaBaseUrl.startsWith('http') && lavaBaseUrl !== 'https://lava.top/') {
-        window.location.href = `${lavaBaseUrl}?plan=${selectedPlan.id}&email=${encodeURIComponent(email.trim())}`;
+      const targetLavaUrl = LAVA_LINKS[selectedPlan.id] || LAVA_LINKS.default;
+      if (targetLavaUrl && targetLavaUrl.startsWith('http') && targetLavaUrl !== 'https://lava.top/') {
+        const separator = targetLavaUrl.includes('?') ? '&' : '?';
+        const redirectUrl = email.trim()
+          ? `${targetLavaUrl}${separator}email=${encodeURIComponent(email.trim())}`
+          : targetLavaUrl;
+        window.open(redirectUrl, '_blank');
+        setIsProcessing(false);
         return;
       }
 
