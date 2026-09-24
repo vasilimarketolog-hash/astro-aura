@@ -375,21 +375,23 @@ export function calculateNatalChart(birth: BirthData, locale: Locale = 'ru'): Na
   // Calculate Astrodynes for each major planet
   majorPlanets.forEach((p) => {
     const dignity = DIGNITIES[p.id] || { domicile: [], exaltation: [], detriment: [], fall: [] };
+    const isEs = locale === 'es';
+    const isEn = locale === 'en';
     let dignityScore = 0;
-    let statusText = 'Пилигрим (Нейтральный)';
+    let statusText = isEs ? 'Peregrino (Flujo Neutral)' : isEn ? 'Peregrine (Neutral)' : 'Пилигрим (Нейтральный)';
 
     if (dignity.domicile.includes(p.sign.id)) {
       dignityScore = 26;
-      statusText = 'В обители (Максимальная сила)';
+      statusText = isEs ? 'En Domicilio (Fuerza Máxima)' : isEn ? 'In Domicile (Peak Strength)' : 'В обители (Максимальная сила)';
     } else if (dignity.exaltation.includes(p.sign.id)) {
       dignityScore = 20;
-      statusText = 'В экзальтации (Яркое проявление)';
+      statusText = isEs ? 'En Exaltación (Brillante Expresión)' : isEn ? 'In Exaltation (Bright Expression)' : 'В экзальтации (Яркое проявление)';
     } else if (dignity.detriment.includes(p.sign.id)) {
       dignityScore = -10;
-      statusText = 'В изгнании (Кармический вызов)';
+      statusText = isEs ? 'En Exilio (Desafío Kármico)' : isEn ? 'In Detriment (Karmic Challenge)' : 'В изгнании (Кармический вызов)';
     } else if (dignity.fall.includes(p.sign.id)) {
       dignityScore = -8;
-      statusText = 'В падении (Скрытый потенциал)';
+      statusText = isEs ? 'En Caída (Potencial Oculto)' : isEn ? 'In Fall (Hidden Potential)' : 'В падении (Скрытый потенциал)';
     }
 
     // House power weighting

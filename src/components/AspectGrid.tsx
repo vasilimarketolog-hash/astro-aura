@@ -54,11 +54,19 @@ export const AspectGrid: React.FC<AspectGridProps> = ({
         <div>
           <h3 className="text-base sm:text-lg font-black text-stone-900 flex items-center space-x-2">
             <span className="text-amber-600">✦</span>
-            <span>{locale === 'ru' ? 'Аспектная сетка (Матрица Geocult)' : 'Cross-Planetary Aspect Matrix'}</span>
+            <span>
+              {locale === 'ru'
+                ? 'Аспектная сетка (Матрица Geocult)'
+                : locale === 'es'
+                ? 'Matriz de Aspectos Planetarios'
+                : 'Cross-Planetary Aspect Matrix'}
+            </span>
           </h3>
           <p className="text-xs text-stone-500">
             {locale === 'ru'
               ? 'Точные угловые взаимодействия, орбисы и взаимное влияние планет'
+              : locale === 'es'
+              ? 'Interacciones angulares exactas, orbes e influencia mutua entre planetas'
               : 'Exact angular aspects, orbs, and planetary interplay'}
           </p>
         </div>
@@ -67,11 +75,11 @@ export const AspectGrid: React.FC<AspectGridProps> = ({
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-stone-600">
           <span className="flex items-center space-x-1 px-2 py-0.5 rounded-md bg-sky-50 text-sky-800 border border-sky-200">
             <span className="font-bold">△ ⚹ ☌</span>
-            <span>{locale === 'ru' ? 'Гармония' : 'Harmonious'}</span>
+            <span>{locale === 'ru' ? 'Гармония' : locale === 'es' ? 'Armonía' : 'Harmonious'}</span>
           </span>
           <span className="flex items-center space-x-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-800 border border-rose-200">
             <span className="font-bold">□ ☍</span>
-            <span>{locale === 'ru' ? 'Напряжение' : 'Tension'}</span>
+            <span>{locale === 'ru' ? 'Напряжение' : locale === 'es' ? 'Tensión' : 'Tension'}</span>
           </span>
         </div>
       </div>
@@ -86,7 +94,7 @@ export const AspectGrid: React.FC<AspectGridProps> = ({
                 <th
                   key={colP.id}
                   className="p-1.5 text-xs font-bold text-stone-800 bg-stone-50 border-b border-stone-200"
-                  title={locale === 'ru' ? colP.nameRu : colP.nameEn}
+                  title={locale === 'ru' ? colP.nameRu : locale === 'es' ? (colP.nameEs || colP.nameEn) : colP.nameEn}
                 >
                   <span className="font-mono text-amber-700">{colP.symbol}</span>
                 </th>
@@ -98,12 +106,12 @@ export const AspectGrid: React.FC<AspectGridProps> = ({
               <tr key={rowP.id} className="hover:bg-amber-50/20">
                 <td
                   className="p-1.5 text-xs font-bold text-stone-800 bg-stone-50 border-r border-stone-200 text-left whitespace-nowrap"
-                  title={locale === 'ru' ? rowP.nameRu : rowP.nameEn}
+                  title={locale === 'ru' ? rowP.nameRu : locale === 'es' ? (rowP.nameEs || rowP.nameEn) : rowP.nameEn}
                 >
                   <span className="inline-flex items-center space-x-1.5">
                     <span className="text-amber-700 font-mono">{rowP.symbol}</span>
                     <span className="hidden md:inline text-[11px] text-stone-700">
-                      {locale === 'ru' ? rowP.nameRu : rowP.nameEn}
+                      {locale === 'ru' ? rowP.nameRu : locale === 'es' ? (rowP.nameEs || rowP.nameEn) : rowP.nameEn}
                     </span>
                   </span>
                 </td>
@@ -186,28 +194,49 @@ export const AspectGrid: React.FC<AspectGridProps> = ({
                     : 'bg-rose-100 text-rose-800 border border-rose-300'
                 }`}
               >
-                {aspectGlyphs[hoveredCell.aspect.aspectType]} {hoveredCell.aspect.nameRu}
+                {aspectGlyphs[hoveredCell.aspect.aspectType]}{' '}
+                {locale === 'es'
+                  ? (hoveredCell.aspect.nameEs || hoveredCell.aspect.nameEn)
+                  : locale === 'en'
+                  ? hoveredCell.aspect.nameEn
+                  : hoveredCell.aspect.nameRu}
               </span>
               <span className="font-bold text-stone-900">
-                {locale === 'ru' ? hoveredCell.aspect.planet1.nameRu : hoveredCell.aspect.planet1.nameEn}
+                {locale === 'es'
+                  ? (hoveredCell.aspect.planet1.nameEs || hoveredCell.aspect.planet1.nameEn)
+                  : locale === 'en'
+                  ? hoveredCell.aspect.planet1.nameEn
+                  : hoveredCell.aspect.planet1.nameRu}
                 {' ↔ '}
-                {locale === 'ru' ? hoveredCell.aspect.planet2.nameRu : hoveredCell.aspect.planet2.nameEn}
+                {locale === 'es'
+                  ? (hoveredCell.aspect.planet2.nameEs || hoveredCell.aspect.planet2.nameEn)
+                  : locale === 'en'
+                  ? hoveredCell.aspect.planet2.nameEn
+                  : hoveredCell.aspect.planet2.nameRu}
               </span>
             </div>
             <div className="text-stone-500 font-mono text-[11px]">
-              {locale === 'ru' ? `Угол: ${hoveredCell.aspect.actualAngle}°, Орбис: ${hoveredCell.aspect.orb}°` : `Angle: ${hoveredCell.aspect.actualAngle}°, Orb: ${hoveredCell.aspect.orb}°`}
+              {locale === 'ru'
+                ? `Угол: ${hoveredCell.aspect.actualAngle}°, Орбис: ${hoveredCell.aspect.orb}°`
+                : locale === 'es'
+                ? `Ángulo: ${hoveredCell.aspect.actualAngle}°, Orbe: ${hoveredCell.aspect.orb}°`
+                : `Angle: ${hoveredCell.aspect.actualAngle}°, Orb: ${hoveredCell.aspect.orb}°`}
             </div>
           </div>
         ) : hoveredCell ? (
           <span className="text-stone-500">
             {locale === 'ru'
               ? `Нет мажорного аспекта между ${hoveredCell.p1.nameRu} и ${hoveredCell.p2.nameRu}`
+              : locale === 'es'
+              ? `Sin aspecto mayor entre ${hoveredCell.p1.nameEs || hoveredCell.p1.nameEn} y ${hoveredCell.p2.nameEs || hoveredCell.p2.nameEn}`
               : `No major aspect between ${hoveredCell.p1.nameEn} and ${hoveredCell.p2.nameEn}`}
           </span>
         ) : (
           <span className="text-stone-500">
             {locale === 'ru'
               ? 'Наведите курсор на ячейку матрицы для просмотра расшифровки аспекта и точного орбиса'
+              : locale === 'es'
+              ? 'Pasa el cursor sobre una celda de la matriz para ver la interpretación y el orbe'
               : 'Hover over any matrix cell to view the exact aspect details and orb'}
           </span>
         )}

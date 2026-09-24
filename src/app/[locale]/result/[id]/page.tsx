@@ -36,6 +36,25 @@ export default function ResultPage({
     // 1. Try local cache
     const cached = getResult(id);
     if (cached) {
+      if (cached.natal?.birthData) {
+        try {
+          const natal1 = calculateNatalChart(cached.natal.birthData, locale);
+          const hd = calculateHumanDesign(cached.natal.birthData, locale);
+          let syn: SynastryData | undefined = undefined;
+          if (cached.synastry?.person2?.birthData) {
+            const natal2 = calculateNatalChart(cached.synastry.person2.birthData, locale);
+            syn = calculateSynastry(natal1, natal2, locale);
+          }
+          setNatalData(natal1);
+          setSynastryData(syn);
+          setHumanDesignData(hd);
+          if (cached.calculationType) setCalcType(cached.calculationType);
+          setIsLoading(false);
+          return;
+        } catch (e) {
+          console.error('Error recalculating from cache birthData:', e);
+        }
+      }
       setNatalData(cached.natal);
       setSynastryData(cached.synastry);
       setHumanDesignData(cached.humanDesign);

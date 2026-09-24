@@ -1,15 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { NatalChartData, PlanetPosition } from '@/types/astro';
+import { NatalChartData, PlanetPosition, Locale } from '@/types/astro';
 import { ZODIAC_SIGNS } from '@/lib/astroEngine';
 
 interface NatalWheelProps {
   chart: NatalChartData;
+  locale?: Locale;
   onSelectPlanet?: (planet: PlanetPosition) => void;
 }
 
-export const NatalWheel: React.FC<NatalWheelProps> = ({ chart, onSelectPlanet }) => {
+export const NatalWheel: React.FC<NatalWheelProps> = ({ chart, locale = 'ru', onSelectPlanet }) => {
   const [hoveredPlanet, setHoveredPlanet] = useState<PlanetPosition | null>(null);
 
   const size = 520;
@@ -259,18 +260,33 @@ export const NatalWheel: React.FC<NatalWheelProps> = ({ chart, onSelectPlanet })
       <div className="h-10 mt-3 text-center">
         {hoveredPlanet ? (
           <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white border border-amber-300 text-xs shadow-md">
-            <span className="text-amber-700 font-bold">{hoveredPlanet.symbol} {hoveredPlanet.nameRu}</span>
+            <span className="text-amber-700 font-bold">
+              {hoveredPlanet.symbol}{' '}
+              {locale === 'es' ? (hoveredPlanet.nameEs || hoveredPlanet.nameEn) : locale === 'en' ? hoveredPlanet.nameEn : hoveredPlanet.nameRu}
+            </span>
             {hoveredPlanet.isRetrograde && (
               <span className="px-1.5 py-0.2 rounded-md bg-rose-100 text-rose-700 font-bold text-[10px]">
-                ℞ Ретро
+                {locale === 'es' ? '℞ Retro' : locale === 'en' ? '℞ Retro' : '℞ Ретро'}
               </span>
             )}
-            <span className="text-stone-800">в знаке {hoveredPlanet.sign.nameRu} ({hoveredPlanet.degreeInSign}° {hoveredPlanet.minuteInSign}&apos;)</span>
-            <span className="text-stone-500">• Дом {hoveredPlanet.house}</span>
+            <span className="text-stone-800">
+              {locale === 'es'
+                ? `en ${hoveredPlanet.sign.nameEs || hoveredPlanet.sign.nameEn}`
+                : locale === 'en'
+                ? `in ${hoveredPlanet.sign.nameEn}`
+                : `в знаке ${hoveredPlanet.sign.nameRu}`} ({hoveredPlanet.degreeInSign}° {hoveredPlanet.minuteInSign}&apos;)
+            </span>
+            <span className="text-stone-500">
+              • {locale === 'es' ? `Casa ${hoveredPlanet.house}` : locale === 'en' ? `House ${hoveredPlanet.house}` : `Дом ${hoveredPlanet.house}`}
+            </span>
           </div>
         ) : (
           <span className="text-xs text-stone-500">
-            Наведите на планету или Точку Фортуны (⊗) для просмотра координат
+            {locale === 'es'
+              ? 'Pasa el cursor sobre un planeta o el Punto de la Fortuna (⊗) para ver las coordenadas'
+              : locale === 'en'
+              ? 'Hover over any planet or Part of Fortune (⊗) to view cosmic coordinates'
+              : 'Наведите на планету или Точку Фортуны (⊗) для просмотра координат'}
           </span>
         )}
       </div>

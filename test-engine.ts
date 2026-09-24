@@ -52,13 +52,14 @@ try {
   console.log(`  - Total score: ${synastry.compatibility.totalScore}%`);
   console.log(`  - Verdict: ${synastry.compatibility.verdict}`);
 
-  // Test 3: Human Design calculation
-  const hd = calculateHumanDesign(p1 as any);
-  console.log('✓ Test 3 Passed: Human Design calculated successfully');
-  console.log(`  - Type: ${hd.type}`);
-  console.log(`  - Profile: ${hd.profile}`);
-  console.log(`  - Strategy: ${hd.strategy}`);
-  console.log(`  - Defined centers: ${hd.definedCenters.length}/9`);
+  // Test 3: Human Design calculation (RU, EN, ES)
+  const hdRu = calculateHumanDesign(p1 as any, 'ru');
+  const hdEn = calculateHumanDesign(p1 as any, 'en');
+  const hdEs = calculateHumanDesign(p1 as any, 'es');
+  console.log('✓ Test 3 Passed: Human Design calculated successfully in RU, EN, ES');
+  console.log(`  - RU: ${hdRu.type} (${hdRu.profile}) — ${hdRu.innerAuthority}`);
+  console.log(`  - EN: ${hdEn.type} (${hdEn.profile}) — ${hdEn.innerAuthority}`);
+  console.log(`  - ES: ${hdEs.type} (${hdEs.profile}) — ${hdEs.innerAuthority}`);
 
   // Test 4: Teaser insights in RU and EN
   const insightsRu = generateTeaserInsights('taurus', 'scorpio', 'leo', 'ru');

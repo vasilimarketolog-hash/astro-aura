@@ -37,10 +37,10 @@ export const AstrodynesCard: React.FC<AstrodynesCardProps> = ({
             </div>
             <div>
               <div className="text-[11px] font-mono uppercase tracking-widest text-amber-800 font-bold">
-                {locale === 'ru' ? 'Главная доминанта карты' : 'Chart Dominant Ruler'}
+                {locale === 'ru' ? 'Главная доминанта карты' : locale === 'es' ? 'Regente Dominante de la Carta' : 'Chart Dominant Ruler'}
               </div>
               <h3 className="text-xl sm:text-2xl font-black text-stone-900">
-                {locale === 'ru' ? dominantPlanet.nameRu : dominantPlanet.nameEn}
+                {locale === 'ru' ? dominantPlanet.nameRu : locale === 'es' ? (dominantPlanet.nameEs || dominantPlanet.nameEn) : dominantPlanet.nameEn}
               </h3>
             </div>
           </div>
@@ -48,7 +48,7 @@ export const AstrodynesCard: React.FC<AstrodynesCardProps> = ({
           <div className="flex items-center space-x-2 px-4 py-2 rounded-2xl bg-white border border-amber-300 shadow-xs">
             <Zap className="w-4 h-4 text-amber-600 fill-amber-500" />
             <span className="text-xs font-bold text-stone-600">
-              {locale === 'ru' ? 'Сила планетного заряда:' : 'Planetary Power Score:'}
+              {locale === 'ru' ? 'Сила планетного заряда:' : locale === 'es' ? 'Fuerza planetaria:' : 'Planetary Power Score:'}
             </span>
             <span className="text-base font-black text-amber-700">
               {dominantPlanet.powerScore} / 100
@@ -57,7 +57,7 @@ export const AstrodynesCard: React.FC<AstrodynesCardProps> = ({
         </div>
 
         <p className="text-xs sm:text-sm text-stone-700 leading-relaxed max-w-4xl">
-          {locale === 'ru' ? dominantPlanet.reasonRu : dominantPlanet.reasonEn}
+          {locale === 'ru' ? dominantPlanet.reasonRu : locale === 'es' ? (dominantPlanet.reasonEs || dominantPlanet.reasonEn) : dominantPlanet.reasonEn}
         </p>
       </div>
 
@@ -67,16 +67,24 @@ export const AstrodynesCard: React.FC<AstrodynesCardProps> = ({
           <div>
             <h3 className="text-lg font-black text-stone-900 flex items-center space-x-2">
               <span className="text-amber-600">✦</span>
-              <span>{locale === 'ru' ? 'Астродины: Сила и Гармония планет' : 'Astrodynes: Power & Harmony Scores'}</span>
+              <span>
+                {locale === 'ru'
+                  ? 'Астродины: Сила и Гармония планет'
+                  : locale === 'es'
+                  ? 'Astrodinas: Fuerza y Armonía Planetaria'
+                  : 'Astrodynes: Power & Harmony Scores'}
+              </span>
             </h3>
             <p className="text-xs text-stone-500">
               {locale === 'ru'
                 ? 'Количественная оценка влияния планет по системе Geocult (эссенциальное достоинство + аспекты)'
+                : locale === 'es'
+                ? 'Evaluación cuantitativa del poder planetario por el algoritmo Geocult (dignidades + aspectos)'
                 : 'Quantitative evaluation of planetary strength by Geocult algorithm (dignities + aspect weights)'}
             </p>
           </div>
           <div className="text-xs text-stone-500 font-mono">
-            {locale === 'ru' ? 'Сортировка по силе влияния' : 'Ranked by power score'}
+            {locale === 'ru' ? 'Сортировка по силе влияния' : locale === 'es' ? 'Ordenado por fuerza de influencia' : 'Ranked by power score'}
           </div>
         </div>
 
@@ -102,7 +110,7 @@ export const AstrodynesCard: React.FC<AstrodynesCardProps> = ({
                       <div>
                         <div className="flex items-center space-x-1.5">
                           <span className="text-xs font-bold text-stone-900">
-                            {locale === 'ru' ? planet.nameRu : planet.nameEn}
+                            {locale === 'ru' ? planet.nameRu : locale === 'es' ? (planet.nameEs || planet.nameEn) : planet.nameEn}
                           </span>
                           {planet.isRetrograde && (
                             <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-100 text-rose-700">
@@ -111,7 +119,7 @@ export const AstrodynesCard: React.FC<AstrodynesCardProps> = ({
                           )}
                         </div>
                         <div className="text-[11px] text-stone-500">
-                          {locale === 'ru' ? planet.sign.nameRu : planet.sign.nameEn} • {planet.house} {locale === 'ru' ? 'дом' : 'house'}
+                          {locale === 'ru' ? planet.sign.nameRu : locale === 'es' ? (planet.sign.nameEs || planet.sign.nameEn) : planet.sign.nameEn} • {locale === 'es' ? `Casa ${planet.house}` : `${planet.house} ${locale === 'ru' ? 'дом' : 'house'}`}
                         </div>
                       </div>
                     </div>
@@ -125,7 +133,7 @@ export const AstrodynesCard: React.FC<AstrodynesCardProps> = ({
                   <div>
                     <div className="flex justify-between text-[11px] mb-1">
                       <span className="text-stone-500 font-medium">
-                        {locale === 'ru' ? 'Сила (Энергия):' : 'Power (Charge):'}
+                        {locale === 'ru' ? 'Сила (Энергия):' : locale === 'es' ? 'Fuerza (Energía):' : 'Power (Charge):'}
                       </span>
                       <span className="font-bold text-stone-800 font-mono">{power} / 100</span>
                     </div>
@@ -140,14 +148,14 @@ export const AstrodynesCard: React.FC<AstrodynesCardProps> = ({
                   {/* Harmony Indicator */}
                   <div className="flex items-center justify-between text-[11px] pt-0.5">
                     <span className="text-stone-500">
-                      {locale === 'ru' ? 'Баланс гармонии:' : 'Harmony Balance:'}
+                      {locale === 'ru' ? 'Баланс гармонии:' : locale === 'es' ? 'Balance de armonía:' : 'Harmony Balance:'}
                     </span>
                     <span
                       className={`font-semibold font-mono ${
                         isHarmonious ? 'text-sky-700' : 'text-rose-700'
                       }`}
                     >
-                      {harmony}% ({isHarmonious ? (locale === 'ru' ? 'Гармоничная' : 'Harmonious') : (locale === 'ru' ? 'Напряженная' : 'Challenging')})
+                      {harmony}% ({isHarmonious ? (locale === 'ru' ? 'Гармоничная' : locale === 'es' ? 'Armoniosa' : 'Harmonious') : (locale === 'ru' ? 'Напряженная' : locale === 'es' ? 'Tensa' : 'Challenging')})
                     </span>
                   </div>
                 </div>
@@ -161,11 +169,19 @@ export const AstrodynesCard: React.FC<AstrodynesCardProps> = ({
         <div className="border-b border-stone-100 pb-3">
           <h3 className="text-lg font-black text-stone-900 flex items-center space-x-2">
             <Gem className="w-5 h-5 text-amber-600" />
-            <span>{locale === 'ru' ? 'Камни-талисманы и минералы силы' : 'Personal Power Talismans & Gems'}</span>
+            <span>
+              {locale === 'ru'
+                ? 'Камни-талисманы и минералы силы'
+                : locale === 'es'
+                ? 'Talismanes y Gemas de Poder Personal'
+                : 'Personal Power Talismans & Gems'}
+            </span>
           </h3>
           <p className="text-xs text-stone-500">
             {locale === 'ru'
               ? 'Минералы, подобранные на основе ведущих планет и натальной карты для защиты и успеха'
+              : locale === 'es'
+              ? 'Cristales y minerales alineados con los regentes de tu carta astral para protección y éxito'
               : 'Stones and crystals aligned with your chart rulers for protection, luck, and alignment'}
           </p>
         </div>
@@ -182,14 +198,14 @@ export const AstrodynesCard: React.FC<AstrodynesCardProps> = ({
                   style={{ backgroundColor: t.color }}
                 />
                 <span className="text-xs font-mono uppercase tracking-wider text-amber-800 font-bold">
-                  {locale === 'ru' ? `Планета: ${t.planetNameRu}` : `Ruler: ${t.planetNameEn}`}
+                  {locale === 'ru' ? `Планета: ${t.planetNameRu}` : locale === 'es' ? `Regente: ${t.planetNameEs || t.planetNameEn}` : `Ruler: ${t.planetNameEn}`}
                 </span>
               </div>
               <h4 className="text-sm font-black text-stone-900">
-                {locale === 'ru' ? t.stoneRu : t.stoneEn}
+                {locale === 'ru' ? t.stoneRu : locale === 'es' ? (t.stoneEs || t.stoneEn) : t.stoneEn}
               </h4>
               <p className="text-xs text-stone-600 leading-relaxed">
-                {locale === 'ru' ? t.purposeRu : t.purposeEn}
+                {locale === 'ru' ? t.purposeRu : locale === 'es' ? (t.purposeEs || t.purposeEn) : t.purposeEn}
               </p>
             </div>
           ))}

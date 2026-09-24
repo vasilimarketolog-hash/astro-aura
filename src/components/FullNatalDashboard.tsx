@@ -308,7 +308,7 @@ export const FullNatalDashboard: React.FC<FullNatalDashboardProps> = ({
                     ? `Mapa celeste en el momento del nacimiento de ${fullName}`
                     : `Sky map at the moment of ${fullName}'s birth`}
                 </p>
-                <NatalWheel chart={currentNatal} onSelectPlanet={(p) => setSelectedPlanet(p)} />
+                <NatalWheel chart={currentNatal} locale={locale} onSelectPlanet={(p) => setSelectedPlanet(p)} />
               </div>
 
               {/* Quick Planetary Table */}
